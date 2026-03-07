@@ -278,11 +278,16 @@ export default function EmergencyPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Emergency Department</h1>
-          <p className="text-sm text-gray-500 mt-1">Triage and manage emergency cases</p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-red-100 text-red-600">
+            <Siren className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">Emergency Department</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Triage and manage emergency cases</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={loadData} className="gap-1.5">
