@@ -12,7 +12,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/pop
 import { Checkbox } from '../../components/ui/checkbox';
 import { useHospitalId } from '../../hooks/useHospitalId';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
 import { useAppSelector } from '../../store';
 import { useRealtime } from '../../hooks/useRealtime';
 import appointmentsService, {
