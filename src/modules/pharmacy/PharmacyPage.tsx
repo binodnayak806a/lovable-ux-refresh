@@ -3,7 +3,7 @@ import { ShoppingCart, Package, Boxes } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useSearchParams } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
+import PageHeader from '../../components/shared/PageHeader';
 import SaleBilling from './components/SaleBilling';
 import PurchaseEntry from './components/PurchaseEntry';
 import StockView from './components/StockView';
