@@ -543,7 +543,7 @@ const dashboardService = {
 
     if (error) throw error;
 
-    return (data ?? []).reduce((sum, row) => {
+    return (data ?? []).reduce((sum: number, row: Record<string, unknown>) => {
       const r = row as { total_amount: number; paid_amount: number | null };
       return sum + ((Number(r.total_amount) || 0) - (Number(r.paid_amount) || 0));
     }, 0);

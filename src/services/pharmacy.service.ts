@@ -102,17 +102,17 @@ const pharmacyService = {
 
     const totalItems = items.length;
     const lowStockCount = items.filter(
-      (i) => (i as { quantity_in_stock: number; reorder_level: number }).quantity_in_stock <=
+      (i: Record<string, unknown>) => (i as { quantity_in_stock: number; reorder_level: number }).quantity_in_stock <=
         (i as { quantity_in_stock: number; reorder_level: number }).reorder_level &&
         (i as { quantity_in_stock: number }).quantity_in_stock > 0
     ).length;
     const expiringCount = items.filter(
-      (i) => (i as { expiry_date: string }).expiry_date <= futureDate.toISOString().split('T')[0] &&
+      (i: Record<string, unknown>) => (i as { expiry_date: string }).expiry_date <= futureDate.toISOString().split('T')[0] &&
         (i as { expiry_date: string }).expiry_date >= today &&
         (i as { quantity_in_stock: number }).quantity_in_stock > 0
     ).length;
     const totalValue = items.reduce(
-      (sum, i) => sum + (i as { quantity_in_stock: number; selling_price: number }).quantity_in_stock *
+      (sum: number, i: Record<string, unknown>) => sum + (i as { quantity_in_stock: number; selling_price: number }).quantity_in_stock *
         (i as { quantity_in_stock: number; selling_price: number }).selling_price,
       0
     );
