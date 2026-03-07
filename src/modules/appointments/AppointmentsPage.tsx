@@ -294,7 +294,7 @@ export default function AppointmentsPage() {
           <Button
             size="sm"
             onClick={handleNewAppointment}
-            className="h-9 bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+            className="h-9 gap-1.5"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Appointment</span>

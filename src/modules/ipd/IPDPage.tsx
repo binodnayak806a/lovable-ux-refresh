@@ -13,8 +13,7 @@ export default function IPDPage() {
   const effectiveHospitalId = hospitalId ?? SAMPLE_HOSPITAL_ID;
 
   return (
-    <div className="space-y-4">
-      <Breadcrumbs />
+    <div className="space-y-6">
       <Tabs defaultValue="beds">
         <TabsList>
           <TabsTrigger value="beds" className="gap-2">

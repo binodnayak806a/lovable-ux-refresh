@@ -110,11 +110,11 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">Real-time hospital performance metrics</p>
+          <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">Analytics Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Real-time hospital performance metrics</p>
         </div>
         <Button
           variant="outline"

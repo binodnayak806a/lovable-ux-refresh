@@ -370,7 +370,7 @@ export default function EmergencyPage() {
         </Card>
       </div>
 
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2">
         <span className="text-sm text-gray-500">Filter by Triage:</span>
         {(['all', 'Red', 'Yellow', 'Green'] as const).map((filter) => (
           <Button

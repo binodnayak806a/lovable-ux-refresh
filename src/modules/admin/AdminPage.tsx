@@ -42,10 +42,10 @@ export default function AdminPage() {
   const effectiveHospitalId = hospitalId ?? SAMPLE_HOSPITAL_ID;
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Administration</h1>
-        <p className="text-muted-foreground mt-1">Manage system users, roles, and review the activity audit trail</p>
+        <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">Administration</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Manage system users, roles, and review the activity audit trail</p>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">

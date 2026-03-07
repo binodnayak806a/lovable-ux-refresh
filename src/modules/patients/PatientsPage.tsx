@@ -371,16 +371,16 @@ function StatCard({ label, value, icon: Icon, iconBg, iconColor, sub }: {
   sub: string;
 }) {
   return (
-    <Card className="hover:border-gray-300 hover:shadow-sm transition-all">
+    <Card className="border shadow-card hover:shadow-hover transition-all">
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-gray-500">{label}</span>
+          <span className="text-xs font-medium text-muted-foreground">{label}</span>
           <div className={`w-7 h-7 rounded-lg ${iconBg} flex items-center justify-center`}>
             <Icon className={`w-4 h-4 ${iconColor}`} />
           </div>
         </div>
-        <p className="text-2xl font-bold text-gray-900">{value.toLocaleString('en-IN')}</p>
-        <p className="text-xs text-gray-400 mt-1">{sub}</p>
+        <p className="text-2xl font-bold text-foreground">{value.toLocaleString('en-IN')}</p>
+        <p className="text-xs text-muted-foreground mt-1">{sub}</p>
       </CardContent>
     </Card>
   );

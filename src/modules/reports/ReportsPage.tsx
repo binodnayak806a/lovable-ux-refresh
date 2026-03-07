@@ -65,19 +65,17 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs />
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Reports</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Generate and analyze hospital data</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-xs text-gray-500">
+      <PageHeader
+        title="Reports"
+        subtitle="Generate and analyze hospital data"
+        icon={FileBarChart}
+        actions={
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-xs text-muted-foreground">
             <FileBarChart className="w-3.5 h-3.5" />
             {TAB_LIST.length - 2} pre-built reports
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <Tabs value={activeTab} onValueChange={(v) => switchTab(v as TabId)}>
         <TabsList className="w-full justify-start overflow-x-auto h-auto flex-wrap">

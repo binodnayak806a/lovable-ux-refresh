@@ -195,10 +195,10 @@ function DashboardHeader({
   return (
     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-2">
       <div className="space-y-1.5">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-xl lg:text-2xl font-bold text-foreground">
           Good {getTimeOfDay().toLowerCase()}, {userName}!
         </h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           {formatDate()}
         </p>
       </div>
@@ -208,7 +208,7 @@ function DashboardHeader({
           size="sm"
           onClick={onRefresh}
           disabled={refreshing || loading}
-          className="gap-2 border-gray-200"
+          className="gap-2"
         >
           <RefreshCw className={cn('w-4 h-4', (refreshing || loading) && 'animate-spin')} />
           Refresh
@@ -217,7 +217,7 @@ function DashboardHeader({
           <Button
             size="sm"
             onClick={onNewPatient}
-            className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/25"
+            className="gap-2"
           >
             <UserPlus className="w-4 h-4" />
             New Patient
