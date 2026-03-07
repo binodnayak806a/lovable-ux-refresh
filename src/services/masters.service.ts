@@ -239,7 +239,7 @@ class MastersService {
         const profileMap = new Map((profiles ?? []).map((p: { id: string; full_name: string; email: string }) => [p.id, p]));
         roles.forEach(r => {
           if (r.user_id && profileMap.has(r.user_id)) {
-            const p = profileMap.get(r.user_id)!;
+            const p = profileMap.get(r.user_id) as { full_name: string; email: string };
             r.profile = { full_name: p.full_name, email: p.email };
           }
         });
