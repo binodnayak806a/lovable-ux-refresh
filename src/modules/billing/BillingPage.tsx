@@ -9,7 +9,7 @@ import { useHospitalId } from '../../hooks/useHospitalId';
 import { useAppSelector } from '../../store';
 import { useRealtime } from '../../hooks/useRealtime';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
+import PageHeader from '../../components/shared/PageHeader';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Card, CardContent, CardHeader } from '../../components/ui/card';
