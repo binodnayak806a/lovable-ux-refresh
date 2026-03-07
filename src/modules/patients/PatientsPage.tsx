@@ -16,7 +16,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import { useSmartNavigation } from '../../hooks/useSmartNavigation';
 import { loadPatientContext } from '../../store/slices/globalSlice';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
+import PageHeader from '../../components/shared/PageHeader';
 import dashboardService from '../../services/dashboard.service';
 import PatientCard from './components/PatientCard';
 import PatientDetailSidebar from './components/PatientDetailSidebar';
