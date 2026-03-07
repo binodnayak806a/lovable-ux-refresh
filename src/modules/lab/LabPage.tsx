@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ClipboardList, FileText, FlaskConical } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
+import PageHeader from '../../components/shared/PageHeader';
 import LabOrders from './components/LabOrders';
 import ResultEntry from './components/ResultEntry';
 import LabReports from './components/LabReports';
