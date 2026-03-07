@@ -1,7 +1,6 @@
 import { BedDouble, Building2 } from 'lucide-react';
 import { useAppSelector } from '../../store';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import BedAvailability from './components/BedAvailability';
 import WardBoard from './components/WardBoard';
