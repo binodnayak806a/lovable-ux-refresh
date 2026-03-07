@@ -149,15 +149,17 @@ export default function AppointmentsPage() {
       <div className="px-6 pt-4 pb-2 bg-white shrink-0">
         <Breadcrumbs />
       </div>
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shrink-0">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2.5">
-            <CalendarDays className="w-5 h-5 text-blue-600" />
-            Appointments
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {viewMode === 'calendar' ? weekLabel : `Today's Queue`}
-          </p>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary/10 text-primary">
+            <CalendarDays className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground tracking-tight">Appointments</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {viewMode === 'calendar' ? weekLabel : `Today's Queue`}
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
