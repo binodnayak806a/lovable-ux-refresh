@@ -7,7 +7,7 @@ import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useHospitalId } from '../../hooks/useHospitalId';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
+import PageHeader from '../../components/shared/PageHeader';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import type { SavedReport } from './types/report-types';
