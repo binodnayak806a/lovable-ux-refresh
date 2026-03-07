@@ -278,11 +278,16 @@ export default function EmergencyPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Emergency Department</h1>
-          <p className="text-sm text-gray-500 mt-1">Triage and manage emergency cases</p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-red-100 text-red-600">
+            <Siren className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">Emergency Department</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Triage and manage emergency cases</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={loadData} className="gap-1.5">
@@ -296,7 +301,7 @@ export default function EmergencyPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-6 gap-3">
         <Card className="border-0 shadow-sm bg-gradient-to-br from-red-50 to-white">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -365,7 +370,7 @@ export default function EmergencyPage() {
         </Card>
       </div>
 
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2">
         <span className="text-sm text-gray-500">Filter by Triage:</span>
         {(['all', 'Red', 'Yellow', 'Green'] as const).map((filter) => (
           <Button

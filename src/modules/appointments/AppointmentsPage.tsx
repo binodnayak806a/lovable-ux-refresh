@@ -12,7 +12,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/pop
 import { Checkbox } from '../../components/ui/checkbox';
 import { useHospitalId } from '../../hooks/useHospitalId';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
 import { useAppSelector } from '../../store';
 import { useRealtime } from '../../hooks/useRealtime';
 import appointmentsService, {
@@ -147,18 +146,17 @@ export default function AppointmentsPage() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="px-6 pt-4 pb-2 bg-white shrink-0">
-        <Breadcrumbs />
-      </div>
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shrink-0">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2.5">
-            <CalendarDays className="w-5 h-5 text-blue-600" />
-            Appointments
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {viewMode === 'calendar' ? weekLabel : `Today's Queue`}
-          </p>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary/10 text-primary">
+            <CalendarDays className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground tracking-tight">Appointments</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {viewMode === 'calendar' ? weekLabel : `Today's Queue`}
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -293,7 +291,7 @@ export default function AppointmentsPage() {
           <Button
             size="sm"
             onClick={handleNewAppointment}
-            className="h-9 bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+            className="h-9 gap-1.5"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Appointment</span>

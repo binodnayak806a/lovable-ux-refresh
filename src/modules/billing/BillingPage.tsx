@@ -9,7 +9,7 @@ import { useHospitalId } from '../../hooks/useHospitalId';
 import { useAppSelector } from '../../store';
 import { useRealtime } from '../../hooks/useRealtime';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
+import PageHeader from '../../components/shared/PageHeader';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Card, CardContent, CardHeader } from '../../components/ui/card';
@@ -154,26 +154,23 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs />
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
-            <Receipt className="w-6 h-6 text-blue-600" />
-            Billing & Payments
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">Manage patient bills, payments, and invoices</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="w-4 h-4" />
-            Export
-          </Button>
-          <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700" onClick={() => setCreateOpen(true)}>
-            <Plus className="w-4 h-4" />
-            New Bill
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Billing & Payments"
+        subtitle="Manage patient bills, payments, and invoices"
+        icon={Receipt}
+        actions={
+          <>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+            <Button size="sm" className="gap-2" onClick={() => setCreateOpen(true)}>
+              <Plus className="w-4 h-4" />
+              New Bill
+            </Button>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-blue-50/30">

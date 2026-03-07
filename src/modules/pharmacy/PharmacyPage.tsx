@@ -3,7 +3,7 @@ import { ShoppingCart, Package, Boxes } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useSearchParams } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
+import PageHeader from '../../components/shared/PageHeader';
 import SaleBilling from './components/SaleBilling';
 import PurchaseEntry from './components/PurchaseEntry';
 import StockView from './components/StockView';
@@ -15,12 +15,12 @@ export default function PharmacyPage() {
   const [activeTab, setActiveTab] = useState(tabFromUrl || 'billing');
 
   return (
-    <div className="p-6 space-y-6">
-      <Breadcrumbs />
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Pharmacy</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage sales, purchases, and stock</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Pharmacy"
+        subtitle="Manage sales, purchases, and stock"
+        icon={ShoppingCart}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-gray-100/80">
