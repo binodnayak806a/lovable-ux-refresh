@@ -301,7 +301,7 @@ export default function EmergencyPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-6 gap-3">
         <Card className="border-0 shadow-sm bg-gradient-to-br from-red-50 to-white">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
