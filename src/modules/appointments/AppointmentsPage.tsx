@@ -146,9 +146,6 @@ export default function AppointmentsPage() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="px-6 pt-4 pb-2 bg-white shrink-0">
-        <Breadcrumbs />
-      </div>
       <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary/10 text-primary">
