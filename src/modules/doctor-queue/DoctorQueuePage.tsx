@@ -132,7 +132,7 @@ export default function DoctorQueuePage() {
         </TabsList>
       </Tabs>
 
-      <div className="flex-1 overflow-auto p-4">
+      <div>
         {loading ? (
           <QueueSkeleton />
         ) : (

@@ -41,6 +41,7 @@ import {
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
 export default function AmbulancePage() {
+  usePageTitle('Ambulance');
   const { hospitalId: rawHospitalId } = useAppSelector((s) => s.auth);
   const hospitalId = rawHospitalId ?? SAMPLE_HOSPITAL_ID;
   const { toast } = useToast();

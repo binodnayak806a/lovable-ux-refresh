@@ -30,13 +30,13 @@ function SplashLoader() {
 
 function AccessDenied() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-background p-6">
       <div className="text-center max-w-sm">
-        <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <span className="text-red-500 font-bold text-2xl">!</span>
+        <div className="w-16 h-16 bg-destructive/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <span className="text-destructive font-bold text-2xl">!</span>
         </div>
-        <h2 className="text-xl font-bold text-gray-900">Access Denied</h2>
-        <p className="text-gray-500 text-sm mt-2">
+        <h2 className="text-xl font-bold text-foreground">Access Denied</h2>
+        <p className="text-muted-foreground text-sm mt-2">
           You don't have permission to access this page. Contact your administrator if you think this is a mistake.
         </p>
       </div>
