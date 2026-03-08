@@ -96,6 +96,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Finance',
     items: [
+      { id: 'billing', label: 'Billing', icon: Receipt, path: '/billing', module: 'billing' },
       { id: 'cash-bank', label: 'Cash & Bank', icon: Landmark, path: '/cash-bank', module: 'cash_bank' },
       { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/analytics', module: 'analytics' },
       { id: 'reports', label: 'Reports', icon: FileText, path: '/reports', module: 'reports' },
