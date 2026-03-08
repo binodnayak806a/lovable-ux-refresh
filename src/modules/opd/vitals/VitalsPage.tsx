@@ -55,7 +55,11 @@ function validate(form: VitalsFormData): Partial<Record<keyof VitalsFormData, st
   return errs;
 }
 
-export default function VitalsPage() {
+interface VitalsPageProps {
+  initialPatientId?: string | null;
+}
+
+export default function VitalsPage({ initialPatientId }: VitalsPageProps) {
   const { user } = useAppSelector((s) => s.auth);
   const { toast } = useToast();
 

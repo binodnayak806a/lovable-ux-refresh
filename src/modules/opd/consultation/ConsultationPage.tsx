@@ -84,6 +84,27 @@ export default function ConsultationPage({ initialPatientId, initialAppointmentI
     loadSymptoms();
   }, []);
 
+  // Auto-select patient from queue context
+  useEffect(() => {
+    if (initialPatientId && !patient) {
+      const { mockStore } = require('../../../lib/mockStore');
+      const p = mockStore.getPatientById(initialPatientId);
+      if (p) {
+        setPatient({
+          id: p.id,
+          uhid: p.uhid,
+          full_name: p.full_name,
+          phone: p.phone,
+          gender: p.gender,
+          date_of_birth: p.date_of_birth,
+        });
+        if (initialAppointmentId) {
+          setAppointmentId(initialAppointmentId);
+        }
+      }
+    }
+  }, [initialPatientId, initialAppointmentId]);
+
   const handlePatientSelect = (p: PatientResult | null) => {
     setPatient(p);
     setSaved(false);
