@@ -20,7 +20,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { ScrollArea } from '../../components/ui/scroll-area';
 import { useAppSelector } from '../../store';
 import { useToast } from '../../hooks/useToast';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { supabase } from '../../lib/supabase';
+import PageHeader from '../../components/shared/PageHeader';
 import emergencyService from '../../services/emergency.service';
 import { formatDistanceToNow, format } from 'date-fns';
 import type {
@@ -43,6 +45,7 @@ import {
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
 export default function EmergencyPage() {
+  usePageTitle('Emergency');
   const { hospitalId: rawHospitalId, user } = useAppSelector((s) => s.auth);
   const hospitalId = rawHospitalId ?? SAMPLE_HOSPITAL_ID;
   const { toast } = useToast();
@@ -272,106 +275,103 @@ export default function EmergencyPage() {
   if (loading && cases.length === 0) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-red-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-destructive" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-red-100 text-red-600">
-            <Siren className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">Emergency Department</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Triage and manage emergency cases</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={loadData} className="gap-1.5">
-            <RefreshCw className="w-3.5 h-3.5" />
-            Refresh
-          </Button>
-          <Button size="sm" onClick={() => setShowNewCase(true)} className="gap-1.5 bg-red-600 hover:bg-red-700">
-            <Plus className="w-3.5 h-3.5" />
-            New Case
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Emergency Department"
+        subtitle="Triage and manage emergency cases"
+        icon={Siren}
+        iconClassName="bg-destructive/10 text-destructive"
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={loadData} className="gap-1.5">
+              <RefreshCw className="w-3.5 h-3.5" />
+              Refresh
+            </Button>
+            <Button size="sm" onClick={() => setShowNewCase(true)} className="gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+              <Plus className="w-3.5 h-3.5" />
+              New Case
+            </Button>
+          </>
+        }
+      />
 
-      <div className="grid grid-cols-6 gap-3">
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-red-50 to-white">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <Card className="border shadow-card bg-gradient-to-br from-red-50 to-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500">Red (Immediate)</p>
+                <p className="text-xs text-muted-foreground">Red (Immediate)</p>
                 <p className="text-2xl font-bold text-red-600">{stats.redCases}</p>
               </div>
               <div className="w-3 h-3 rounded-full bg-red-500" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-amber-50 to-white">
+        <Card className="border shadow-card bg-gradient-to-br from-amber-50 to-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500">Yellow (Urgent)</p>
+                <p className="text-xs text-muted-foreground">Yellow (Urgent)</p>
                 <p className="text-2xl font-bold text-amber-600">{stats.yellowCases}</p>
               </div>
               <div className="w-3 h-3 rounded-full bg-amber-500" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-emerald-50 to-white">
+        <Card className="border shadow-card bg-gradient-to-br from-emerald-50 to-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500">Green (Non-urgent)</p>
+                <p className="text-xs text-muted-foreground">Green (Non-urgent)</p>
                 <p className="text-2xl font-bold text-emerald-600">{stats.greenCases}</p>
               </div>
               <div className="w-3 h-3 rounded-full bg-emerald-500" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="border shadow-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500">Waiting</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.waiting}</p>
+                <p className="text-xs text-muted-foreground">Waiting</p>
+                <p className="text-2xl font-bold text-foreground">{stats.waiting}</p>
               </div>
-              <Clock className="w-5 h-5 text-gray-400" />
+              <Clock className="w-5 h-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="border shadow-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500">In Treatment</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.inTreatment}</p>
+                <p className="text-xs text-muted-foreground">In Treatment</p>
+                <p className="text-2xl font-bold text-foreground">{stats.inTreatment}</p>
               </div>
-              <Activity className="w-5 h-5 text-blue-500" />
+              <Activity className="w-5 h-5 text-primary" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="border shadow-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500">Today Total</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.todayTotal}</p>
+                <p className="text-xs text-muted-foreground">Today Total</p>
+                <p className="text-2xl font-bold text-foreground">{stats.todayTotal}</p>
               </div>
-              <Siren className="w-5 h-5 text-red-500" />
+              <Siren className="w-5 h-5 text-destructive" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-500">Filter by Triage:</span>
+        <span className="text-sm text-muted-foreground">Filter by Triage:</span>
         {(['all', 'Red', 'Yellow', 'Green'] as const).map((filter) => (
           <Button
             key={filter}
@@ -392,17 +392,17 @@ export default function EmergencyPage() {
 
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-7">
-          <Card className="border-0 shadow-sm">
+          <Card className="border shadow-card">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Siren className="w-4 h-4 text-red-500" />
+                <Siren className="w-4 h-4 text-destructive" />
                 Active Cases ({filteredCases.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
               {filteredCases.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Siren className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <div className="text-center py-12 text-muted-foreground">
+                  <Siren className="w-12 h-12 mx-auto mb-3 opacity-30" />
                   <p>No active emergency cases</p>
                 </div>
               ) : (
@@ -417,7 +417,7 @@ export default function EmergencyPage() {
                         key={emergencyCase.id}
                         onClick={() => handleSelectCase(emergencyCase)}
                         className={`p-4 rounded-xl border-l-4 cursor-pointer transition-all ${
-                          isSelected ? 'ring-2 ring-blue-500' : ''
+                          isSelected ? 'ring-2 ring-primary' : ''
                         } ${triageConfig.borderColor} ${
                           emergencyCase.triage_category === 'Red'
                             ? 'bg-red-50 hover:bg-red-100'
@@ -439,7 +439,7 @@ export default function EmergencyPage() {
                         </div>
 
                         {emergencyCase.patient && (
-                          <p className="text-sm font-medium text-gray-800 mb-1">
+                          <p className="text-sm font-medium text-foreground mb-1">
                             {emergencyCase.patient.full_name}
                           </p>
                         )}
@@ -448,7 +448,7 @@ export default function EmergencyPage() {
                           {emergencyCase.chief_complaint}
                         </p>
 
-                        <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {formatDistanceToNow(new Date(emergencyCase.arrival_time), { addSuffix: true })}
