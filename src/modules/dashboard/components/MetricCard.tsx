@@ -123,7 +123,7 @@ export default function MetricCard({
             </div>
             <p className={cn('text-muted-foreground font-medium', compact ? 'text-xs' : 'text-sm')}>{title}</p>
           </div>
-          <p className="text-3xl font-bold tracking-tight text-foreground mb-1">{displayValue}</p>
+          <p className={cn('font-bold tracking-tight text-foreground mb-1', compact ? 'text-2xl' : 'text-3xl')}>{displayValue}</p>
           {trend !== undefined && (
             <div className="flex items-center gap-2 mt-2">
               <span
