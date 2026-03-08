@@ -55,10 +55,8 @@ export default function AppLayout() {
         <OfflineBanner />
         <Navbar />
         <div ref={mainRef} className="flex-1 overflow-y-auto scrollbar-thin">
-          <div className="p-4 md:p-6">
-            <div key={location.pathname} className="animate-fade-in">
-              <Outlet />
-            </div>
+          <div key={location.pathname} className="animate-fade-in h-full">
+            <Outlet />
           </div>
         </div>
       </SidebarInset>
