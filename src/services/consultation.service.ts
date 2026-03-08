@@ -43,7 +43,7 @@ const consultationService = {
       { id: 'd12', name: 'Bronchial Asthma', icd10_code: 'J45.9', category: 'Respiratory', is_active: true },
     ];
     return DIAGNOSES.filter(d =>
-      d.name.toLowerCase().includes(q) || d.icd10_code.toLowerCase().includes(q)
+      d.name.toLowerCase().includes(q) || (d.icd10_code ?? '').toLowerCase().includes(q)
     );
   },
 
