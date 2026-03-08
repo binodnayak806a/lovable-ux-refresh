@@ -18,6 +18,7 @@ import appointmentsService, {
   type WeekAppointment,
   type DoctorOption,
 } from '../../services/appointments.service';
+import PageHeader from '../../components/shared/PageHeader';
 import WeekViewCalendar from './components/WeekViewCalendar';
 import PatientQueueSidebar from './components/PatientQueueSidebar';
 import QueueKanban from './components/QueueKanban';
