@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { format, isSameDay, isToday } from 'date-fns';
+import { format, isToday } from 'date-fns';
 import type { WeekAppointment } from '../../../services/appointments.service';
 import { cn } from '../../../lib/utils';
 

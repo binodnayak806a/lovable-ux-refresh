@@ -177,7 +177,7 @@ export default function AppointmentsPage() {
     return format(currentDate, 'MMMM yyyy');
   }, [currentDate, calendarView]);
 
-  const todayCount = appointments.filter(
+  const _todayCount = appointments.filter(
     a => a.appointment_date === format(new Date(), 'yyyy-MM-dd')
   ).length;
 

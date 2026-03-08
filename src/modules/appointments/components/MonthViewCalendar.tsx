@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import {
   startOfMonth, endOfMonth, startOfWeek, endOfWeek,
-  eachDayOfInterval, format, isSameMonth, isToday, isSameDay,
+  eachDayOfInterval, format, isSameMonth, isToday,
 } from 'date-fns';
 import type { WeekAppointment } from '../../../services/appointments.service';
 import { cn } from '../../../lib/utils';
