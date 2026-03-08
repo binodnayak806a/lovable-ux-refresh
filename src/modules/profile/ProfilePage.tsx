@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Mail, Phone, Shield, Camera, Save, Key, Bell, Moon, Globe, Loader2 } from 'lucide-react';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { updateUser } from '../../store/slices/authSlice';
 import { supabase } from '../../lib/supabase';
