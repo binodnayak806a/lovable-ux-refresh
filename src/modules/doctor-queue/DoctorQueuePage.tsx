@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Search, RefreshCw, Clock, Stethoscope, Printer, Save,
-  UserPlus, CalendarPlus, FileText, AlertTriangle,
-  ChevronDown, ChevronLeft, ClipboardList, X, Download, Upload,
-  Eye, Bed, Receipt, BarChart3, ShieldAlert, Mail, User,
-  Phone, Edit, Info, SlidersHorizontal, MoreVertical,
-  SkipBack,
+  Search, RefreshCw, Clock, Stethoscope, Printer,
+  FileText, AlertTriangle,
+  ChevronDown, ChevronLeft, ClipboardList, X, Download,
+  Eye, Mail, User, Phone, Edit, Info, SlidersHorizontal,
+  MoreVertical, SkipBack,
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
