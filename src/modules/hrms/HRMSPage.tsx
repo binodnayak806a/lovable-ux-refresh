@@ -17,28 +17,7 @@ import type { Staff, Attendance, LeaveRequest } from './types';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
-function MetricCard({ title, value, sub, icon: Icon, accent }: {
-  title: string;
-  value: number | string;
-  sub?: string;
-  icon: React.ElementType;
-  accent: string;
-}) {
-  return (
-    <Card>
-      <CardContent className="p-5 flex items-center gap-4">
-        <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${accent}`}>
-          <Icon className="h-6 w-6" />
-        </div>
-        <div>
-          <div className="text-2xl font-bold text-slate-900">{value}</div>
-          <div className="text-sm font-medium text-slate-700">{title}</div>
-          {sub && <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+import SharedStatCard from '../../components/shared/StatCard';
 
 export default function HRMSPage() {
   usePageTitle('HRMS');
