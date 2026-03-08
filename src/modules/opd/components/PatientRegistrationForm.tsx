@@ -62,11 +62,12 @@ interface Props {
   initialData?: Partial<RegistrationFormData>;
 }
 
-export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) {
+export default function PatientRegistrationForm({ onSuccess, onCancel, editPatientId, initialData }: Props) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAppSelector((s) => s.auth);
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
+  const isEditMode = !!editPatientId;
 
   const [form, setForm] = useState<RegistrationFormData>(() => {
     try {
