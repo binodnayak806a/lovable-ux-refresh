@@ -116,6 +116,7 @@ export const router = createBrowserRouter([
           { path: '/opd', element: <S><OPDPage /></S> },
           { path: '/opd/register', element: <S><OPDPage /></S> },
           { path: '/ipd', element: <S><IPDPage /></S> },
+          { path: '/ward-management', element: <S><WardManagementPage /></S> },
           { path: '/emergency', element: <S><EmergencyPage /></S> },
           { path: '/operation-theatre', element: <S><OperationTheatrePage /></S> },
           { path: '/icu', element: <S><ICUPage /></S> },

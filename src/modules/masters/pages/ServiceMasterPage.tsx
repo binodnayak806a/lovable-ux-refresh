@@ -105,14 +105,25 @@ export default function ServiceMasterPage() {
               <input type="text" value={form.service_name || ''} onChange={e => setForm({ ...form, service_name: e.target.value })}
                 className="w-full h-9 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-blue-400" />
             </div>
-            <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Category</label>
-              <Select value={form.category || ''} onValueChange={v => setForm({ ...form, category: v })}>
-                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                <SelectContent>
-                  {SERVICE_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Category</label>
+                <Select value={form.category || ''} onValueChange={v => setForm({ ...form, category: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Service Type</label>
+                <Select value={form.service_type || 'BOTH'} onValueChange={v => setForm({ ...form, service_type: v as 'OPD' | 'IPD' | 'BOTH' })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_TYPE_OPTIONS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

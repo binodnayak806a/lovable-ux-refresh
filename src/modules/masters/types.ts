@@ -35,13 +35,17 @@ export interface ServiceMasterRow {
   hospital_id: string;
   service_name: string;
   category: string;
+  service_type: 'OPD' | 'IPD' | 'BOTH';
   price: number;
   gst_rate: number;
   hsn_code: string | null;
+  ward_prices: Record<string, number> | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 }
+
+export const SERVICE_TYPE_OPTIONS = ['OPD', 'IPD', 'BOTH'] as const;
 
 export interface PackageMasterRow {
   id: string;
