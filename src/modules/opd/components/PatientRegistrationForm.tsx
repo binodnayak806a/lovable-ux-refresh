@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import opdService from '../../../services/opd.service';
-import { supabase } from '../../../lib/supabase';
+import { mockStore } from '../../../lib/mockStore';
 import { FormField, InputField } from './FormField';
 import type { RegistrationFormData } from '../types';
 import { EMPTY_FORM, BLOOD_GROUPS, INDIAN_STATES, RELATIONSHIP_OPTIONS, PRE_EXISTING_CONDITIONS } from '../types';
