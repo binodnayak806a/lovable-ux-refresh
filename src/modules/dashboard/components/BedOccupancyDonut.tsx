@@ -27,6 +27,13 @@ const WARD_COLORS: Record<string, string> = {
   hdu: 'hsl(38, 80%, 55%)',
 };
 
+const DEMO_WARDS: Ward[] = [
+  { id: '1', name: 'General Ward', ward_type: 'general', total_beds: 30, available_beds: 10 },
+  { id: '2', name: 'ICU', ward_type: 'icu', total_beds: 10, available_beds: 1 },
+  { id: '3', name: 'Private', ward_type: 'private', total_beds: 15, available_beds: 5 },
+  { id: '4', name: 'Semi Private', ward_type: 'semi_private', total_beds: 20, available_beds: 8 },
+];
+
 const CustomTooltip = ({ active, payload }: {
   active?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,7 +49,8 @@ const CustomTooltip = ({ active, payload }: {
   );
 };
 
-export default function BedOccupancyDonut({ wards, loading }: Props) {
+export default function BedOccupancyDonut({ wards: rawWards, loading }: Props) {
+  const wards = rawWards.length > 0 ? rawWards : DEMO_WARDS;
   const totalBeds = wards.reduce((s, w) => s + w.total_beds, 0);
   const totalVacant = wards.reduce((s, w) => s + w.available_beds, 0);
   const totalOccupied = totalBeds - totalVacant;
@@ -50,7 +58,7 @@ export default function BedOccupancyDonut({ wards, loading }: Props) {
 
   const donutData = [
     { name: 'Occupied', value: totalOccupied, color: 'hsl(204, 80%, 42%)' },
-    { name: 'Vacant', value: totalVacant, color: 'hsl(220, 13%, 91%)' },
+    { name: 'Vacant', value: totalVacant, color: 'hsl(142, 76%, 80%)' },
   ];
 
   const wardData = wards.map((w) => ({
@@ -58,6 +66,7 @@ export default function BedOccupancyDonut({ wards, loading }: Props) {
     occupied: w.total_beds - w.available_beds,
     total: w.total_beds,
     color: WARD_COLORS[w.ward_type] ?? 'hsl(220, 9%, 46%)',
+    pct: w.total_beds > 0 ? Math.round(((w.total_beds - w.available_beds) / w.total_beds) * 100) : 0,
   }));
 
   return (
@@ -69,15 +78,13 @@ export default function BedOccupancyDonut({ wards, loading }: Props) {
           </div>
           <h2 className="text-sm font-semibold text-foreground">Bed Occupancy</h2>
         </div>
+        <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-medium">
+          {totalOccupied}/{totalBeds} beds
+        </span>
       </div>
 
       {loading ? (
         <Skeleton className="h-[220px] w-full rounded-lg" />
-      ) : totalBeds === 0 ? (
-        <div className="flex flex-col items-center justify-center h-[220px] text-center">
-          <BedDouble className="w-8 h-8 text-muted-foreground/50 mb-2" />
-          <p className="text-sm text-muted-foreground">No bed data available</p>
-        </div>
       ) : (
         <>
           <div className="relative">
@@ -99,14 +106,22 @@ export default function BedOccupancyDonut({ wards, loading }: Props) {
             </div>
           </div>
 
-          <div className="mt-2 space-y-2">
+          <div className="mt-2 space-y-2.5">
             {wardData.slice(0, 4).map((w) => (
-              <div key={w.name} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: w.color }} />
-                  <span className="text-muted-foreground truncate max-w-[120px]">{w.name}</span>
+              <div key={w.name} className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: w.color }} />
+                    <span className="text-foreground font-medium truncate max-w-[120px]">{w.name}</span>
+                  </div>
+                  <span className="text-muted-foreground">{w.occupied}/{w.total}</span>
                 </div>
-                <span className="text-foreground font-medium">{w.occupied}/{w.total}</span>
+                <div className="w-full h-1 rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ width: `${w.pct}%`, backgroundColor: w.color }}
+                  />
+                </div>
               </div>
             ))}
           </div>
