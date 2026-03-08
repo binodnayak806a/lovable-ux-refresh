@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '../../../components/ui/table';
-import { supabase } from '../../../lib/supabase';
+// Mock-backed - no supabase needed
 import { toast } from 'sonner';
 import LeaveRequestDialog from './LeaveRequestDialog';
 import type { Staff, LeaveRequest } from '../types';
@@ -29,11 +29,11 @@ const STATUS_CONFIG = {
   rejected: { label: 'Rejected', icon: XCircle, color: 'bg-red-50 text-red-700 border-red-200' },
 };
 
-export default function LeaveTab({ staff, leaves, onRefresh, currentUserId }: LeaveTabProps) {
+export default function LeaveTab({ staff, leaves, onRefresh, currentUserId: _currentUserId }: LeaveTabProps) {
   const [showDialog, setShowDialog] = useState(false);
   const [actioning, setActioning] = useState<string | null>(null);
 
-  const handleSave = async (data: {
+  const handleSave = async (_data: {
     staff_id: string;
     leave_type: string;
     from_date: string;
@@ -41,8 +41,7 @@ export default function LeaveTab({ staff, leaves, onRefresh, currentUserId }: Le
     total_days: number;
     reason: string;
   }) => {
-    const { error } = await supabase.from('leave_requests').insert(data as never);
-    if (error) { toast.error('Failed to submit leave request'); return; }
+    // Mock save
     toast.success('Leave request submitted');
     setShowDialog(false);
     onRefresh();
@@ -51,11 +50,7 @@ export default function LeaveTab({ staff, leaves, onRefresh, currentUserId }: Le
   const handleApprove = async (id: string, status: 'approved' | 'rejected') => {
     setActioning(id);
     try {
-      const { error } = await supabase
-        .from('leave_requests')
-        .update({ status, approved_by: currentUserId } as never)
-        .eq('id', id);
-      if (error) throw error;
+      // Mock update
       toast.success(`Leave request ${status}`);
       onRefresh();
     } catch {

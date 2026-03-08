@@ -205,8 +205,8 @@ export default function SettingsPage() {
         updated_at: new Date().toISOString(),
       }));
 
-      const { error } = await supabase.from('system_settings').upsert(upsertData as never[], { onConflict: 'hospital_id,setting_key' });
-      if (error) throw error;
+      // Save to localStorage instead of supabase
+      localStorage.setItem(`hms_settings_${effectiveHospitalId}`, JSON.stringify(upsertData));
       toast.success('Settings saved successfully');
     } catch {
       toast.error('Failed to save settings');

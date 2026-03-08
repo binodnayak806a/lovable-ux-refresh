@@ -3,7 +3,7 @@ import { Plus, Trash2, Loader2, DoorOpen } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
-import { supabase } from '../../../lib/supabase';
+import { mockStore } from '../../../lib/mockStore';
 import { toast } from 'sonner';
 
 interface RoomAssignment {
@@ -25,6 +25,23 @@ interface Props {
   hospitalId: string;
 }
 
+const STORAGE_KEY = 'hms_opd_rooms';
+
+function loadRoomsFromStorage(): RoomAssignment[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [
+      { id: '1', room_name: 'OPD Room 1', room_number: '101', doctor_id: null, is_active: true },
+      { id: '2', room_name: 'OPD Room 2', room_number: '102', doctor_id: null, is_active: true },
+      { id: '3', room_name: 'OPD Room 3', room_number: '103', doctor_id: null, is_active: true },
+    ];
+  } catch { return []; }
+}
+
+function saveRoomsToStorage(rooms: RoomAssignment[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms));
+}
+
 export default function OpdRoomConfig({ hospitalId }: Props) {
   const [rooms, setRooms] = useState<RoomAssignment[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -32,23 +49,17 @@ export default function OpdRoomConfig({ hospitalId }: Props) {
   const [newRoom, setNewRoom] = useState({ room_name: '', room_number: '' });
   const [adding, setAdding] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const [{ data: roomData }, { data: docData }] = await Promise.all([
-        supabase.from('opd_rooms').select('*, doctor:profiles!opd_rooms_doctor_id_fkey(full_name)').eq('hospital_id', hospitalId).order('room_number'),
-        supabase.from('profiles').select('id, full_name, department').eq('role', 'doctor').eq('is_active', true).order('full_name'),
-      ]);
-
-      setRooms((roomData ?? []).map((r: Record<string, unknown>) => ({
-        ...r,
-        doctor_name: (r.doctor as { full_name: string } | null)?.full_name || null,
-      })) as RoomAssignment[]);
-      setDoctors((docData ?? []) as Doctor[]);
-    } catch {
-      toast.error('Failed to load room configuration');
-    } finally {
-      setLoading(false);
-    }
+  const load = useCallback(() => {
+    const roomData = loadRoomsFromStorage();
+    const docData = mockStore.getDoctors(hospitalId);
+    
+    // Enrich rooms with doctor names
+    setRooms(roomData.map(r => ({
+      ...r,
+      doctor_name: r.doctor_id ? docData.find(d => d.id === r.doctor_id)?.full_name : undefined,
+    })));
+    setDoctors(docData.map(d => ({ id: d.id, full_name: d.full_name, department: d.department })));
+    setLoading(false);
   }, [hospitalId]);
 
   useEffect(() => { load(); }, [load]);
@@ -59,41 +70,32 @@ export default function OpdRoomConfig({ hospitalId }: Props) {
       return;
     }
     setAdding(true);
-    try {
-      await supabase.from('opd_rooms').insert({
-        hospital_id: hospitalId,
-        room_name: newRoom.room_name,
-        room_number: newRoom.room_number,
-        is_active: true,
-      } as never);
-      toast.success('Room added');
-      setNewRoom({ room_name: '', room_number: '' });
-      load();
-    } catch {
-      toast.error('Failed to add room');
-    } finally {
-      setAdding(false);
-    }
+    const updated = [...rooms, {
+      id: Date.now().toString(),
+      room_name: newRoom.room_name,
+      room_number: newRoom.room_number,
+      doctor_id: null,
+      is_active: true,
+    }];
+    saveRoomsToStorage(updated);
+    toast.success('Room added');
+    setNewRoom({ room_name: '', room_number: '' });
+    setAdding(false);
+    load();
   };
 
   const assignDoctor = async (roomId: string, doctorId: string | null) => {
-    try {
-      await supabase.from('opd_rooms').update({ doctor_id: doctorId || null } as never).eq('id', roomId);
-      toast.success('Doctor assigned');
-      load();
-    } catch {
-      toast.error('Failed to assign doctor');
-    }
+    const updated = rooms.map(r => r.id === roomId ? { ...r, doctor_id: doctorId || null } : r);
+    saveRoomsToStorage(updated);
+    toast.success('Doctor assigned');
+    load();
   };
 
   const deleteRoom = async (roomId: string) => {
-    try {
-      await supabase.from('opd_rooms').delete().eq('id', roomId);
-      toast.success('Room deleted');
-      load();
-    } catch {
-      toast.error('Failed to delete room');
-    }
+    const updated = rooms.filter(r => r.id !== roomId);
+    saveRoomsToStorage(updated);
+    toast.success('Room deleted');
+    load();
   };
 
   if (loading) {
@@ -102,58 +104,63 @@ export default function OpdRoomConfig({ hospitalId }: Props) {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-end gap-3">
-        <div className="flex-1 grid grid-cols-2 gap-2">
-          <Input value={newRoom.room_number} onChange={e => setNewRoom({ ...newRoom, room_number: e.target.value })} placeholder="Room Number (e.g., 101)" className="h-9" />
-          <Input value={newRoom.room_name} onChange={e => setNewRoom({ ...newRoom, room_name: e.target.value })} placeholder="Room Name (e.g., OPD Room 1)" className="h-9" />
-        </div>
-        <Button size="sm" onClick={addRoom} disabled={adding} className="gap-1.5 h-9">
-          {adding ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-          Add Room
-        </Button>
+      <div className="flex items-center gap-2">
+        <DoorOpen className="w-4 h-4 text-muted-foreground" />
+        <h4 className="text-sm font-semibold text-foreground">OPD Room Assignment</h4>
       </div>
 
-      {rooms.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <DoorOpen className="w-10 h-10 mx-auto mb-2 opacity-30" />
-          <p className="text-sm">No OPD rooms configured yet</p>
-        </div>
-      ) : (
-        <div className="border border-border rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-muted/50">
-                <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">Room #</th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">Room Name</th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">Assigned Doctor</th>
-                <th className="px-4 py-2.5 w-16"></th>
+      <div className="border border-border rounded-lg overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50">
+            <tr>
+              <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Room</th>
+              <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Number</th>
+              <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Assigned Doctor</th>
+              <th className="w-10"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rooms.map(room => (
+              <tr key={room.id} className="border-t border-border">
+                <td className="py-2 px-3 font-medium">{room.room_name}</td>
+                <td className="py-2 px-3 text-muted-foreground">{room.room_number}</td>
+                <td className="py-2 px-3">
+                  <Select value={room.doctor_id || 'none'} onValueChange={(v) => assignDoctor(room.id, v === 'none' ? null : v)}>
+                    <SelectTrigger className="h-8 text-xs w-48">
+                      <SelectValue placeholder="Assign doctor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">— Unassigned —</SelectItem>
+                      {doctors.map(d => (
+                        <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </td>
+                <td className="py-2 px-3">
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive/60 hover:text-destructive" onClick={() => deleteRoom(room.id)}>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {rooms.map(room => (
-                <tr key={room.id} className="border-t border-border/50 hover:bg-muted/30">
-                  <td className="px-4 py-2.5 font-mono font-medium">{room.room_number}</td>
-                  <td className="px-4 py-2.5">{room.room_name}</td>
-                  <td className="px-4 py-2.5">
-                    <Select value={room.doctor_id || 'none'} onValueChange={v => assignDoctor(room.id, v === 'none' ? null : v)}>
-                      <SelectTrigger className="h-8 w-56"><SelectValue placeholder="Assign doctor..." /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">— Unassigned —</SelectItem>
-                        {doctors.map(d => <SelectItem key={d.id} value={d.id}>Dr. {d.full_name}{d.department ? ` (${d.department})` : ''}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <button onClick={() => deleteRoom(room.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-end gap-2">
+        <div className="flex-1 space-y-1">
+          <label className="text-xs text-muted-foreground">Room Name</label>
+          <Input value={newRoom.room_name} onChange={e => setNewRoom(p => ({ ...p, room_name: e.target.value }))} placeholder="OPD Room 4" className="h-8 text-sm" />
         </div>
-      )}
+        <div className="w-28 space-y-1">
+          <label className="text-xs text-muted-foreground">Number</label>
+          <Input value={newRoom.room_number} onChange={e => setNewRoom(p => ({ ...p, room_number: e.target.value }))} placeholder="104" className="h-8 text-sm" />
+        </div>
+        <Button size="sm" className="h-8 gap-1" onClick={addRoom} disabled={adding}>
+          <Plus className="w-3.5 h-3.5" /> Add
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,202 +1,163 @@
-import { supabase } from '../lib/supabase';
-import { format, startOfDay, endOfDay, eachDayOfInterval } from 'date-fns';
+import { mockStore } from '../lib/mockStore';
+import { mockMasterStore } from '../lib/mockMasterStore';
+import { format, eachDayOfInterval } from 'date-fns';
 import type {
   DateRange, DailyOPDRow, RevenueRow, BedOccupancyRow, CollectionRow,
   DoctorOPDRow, IPDCensusRow, SavedReport,
 } from '../modules/reports/types/report-types';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const rpc = (name: string, params: Record<string, unknown>) => (supabase.rpc as any)(name, params);
-
 const enhancedReportsService = {
-  async getDailyOPDSummary(hospitalId: string, date: Date, doctorId?: string): Promise<DailyOPDRow[]> {
-    const { data, error } = await rpc('get_daily_opd_summary', {
-      p_hospital_id: hospitalId,
-      p_date: format(date, 'yyyy-MM-dd'),
-      p_doctor_id: doctorId || null,
-    });
-    if (error) throw error;
-    return (data ?? []) as DailyOPDRow[];
+  async getDailyOPDSummary(hospitalId: string, date: Date, _doctorId?: string): Promise<DailyOPDRow[]> {
+    const store = mockStore.get();
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const appts = store.appointments.filter(a => a.hospital_id === hospitalId && a.appointment_date === dateStr);
+    
+    return appts.map((a, idx) => ({
+      token_number: idx + 1,
+      patient_name: mockStore.getPatientName(a.patient_id),
+      uhid: mockStore.getPatientById(a.patient_id)?.uhid ?? '',
+      doctor_name: mockStore.getDoctorName(a.doctor_id),
+      department_name: 'General Medicine',
+      visit_type: a.type === 'follow_up' ? 'Follow-up' : 'First Visit',
+      amount: a.type === 'follow_up' ? 300 : 500,
+      payment_mode: 'Cash',
+      status: a.status,
+      appointment_time: a.appointment_time,
+    }));
   },
 
-  async getRevenueReport(hospitalId: string, dateRange: DateRange, groupBy: string): Promise<RevenueRow[]> {
-    const { data, error } = await rpc('get_revenue_report', {
-      p_hospital_id: hospitalId,
-      p_from: format(dateRange.from, 'yyyy-MM-dd'),
-      p_to: format(dateRange.to, 'yyyy-MM-dd'),
-      p_group_by: groupBy,
+  async getRevenueReport(_hospitalId: string, dateRange: DateRange, _groupBy: string): Promise<RevenueRow[]> {
+    const days = eachDayOfInterval({ start: dateRange.from, end: dateRange.to });
+    return days.map(day => {
+      const opd = Math.floor(Math.random() * 25000) + 8000;
+      const ipd = Math.floor(Math.random() * 20000) + 5000;
+      const lab = Math.floor(Math.random() * 8000) + 2000;
+      const pharma = Math.floor(Math.random() * 12000) + 3000;
+      const total = opd + ipd + lab + pharma;
+      const gst = Math.round(total * 0.05);
+      return {
+        group_key: format(day, 'dd MMM'),
+        opd_revenue: opd,
+        ipd_revenue: ipd,
+        lab_revenue: lab,
+        pharmacy_revenue: pharma,
+        total_revenue: total,
+        gst_collected: gst,
+        total_paid: Math.round(total * 0.85),
+        total_pending: Math.round(total * 0.15),
+      };
     });
-    if (error) throw error;
-    return (data ?? []) as RevenueRow[];
   },
 
   async getBedOccupancy(hospitalId: string): Promise<BedOccupancyRow[]> {
-    const { data, error } = await rpc('get_bed_occupancy', { p_hospital_id: hospitalId });
-    if (error) throw error;
-    return (data ?? []) as BedOccupancyRow[];
+    const wards = mockMasterStore.getAll<{
+      id: string; name: string; ward_type: string; total_beds: number; available_beds: number; hospital_id: string;
+    }>('wards', hospitalId);
+    return wards.map(w => {
+      const total = w.total_beds || 10;
+      const vacant = w.available_beds ?? 4;
+      const occupied = total - vacant;
+      return {
+        ward_name: w.name,
+        ward_type: w.ward_type || 'General',
+        total_beds: total,
+        occupied_beds: occupied,
+        vacant_beds: vacant,
+        occupancy_pct: Math.round((occupied / total) * 100),
+      };
+    });
   },
 
-  async getCollectionReport(hospitalId: string, dateRange: DateRange, paymentMode?: string): Promise<CollectionRow[]> {
-    const { data, error } = await rpc('get_collection_report', {
-      p_hospital_id: hospitalId,
-      p_from: format(dateRange.from, 'yyyy-MM-dd'),
-      p_to: format(dateRange.to, 'yyyy-MM-dd'),
-      p_payment_mode: paymentMode || null,
-    });
-    if (error) throw error;
-    return (data ?? []) as CollectionRow[];
+  async getCollectionReport(_hospitalId: string, _dateRange: DateRange, _paymentMode?: string): Promise<CollectionRow[]> {
+    const modes = [
+      { mode: 'Cash', count: 145, amount: 287500 },
+      { mode: 'Card', count: 67, amount: 198000 },
+      { mode: 'UPI', count: 89, amount: 156000 },
+      { mode: 'Online', count: 23, amount: 67500 },
+      { mode: 'Insurance', count: 12, amount: 345000 },
+    ];
+    const total = modes.reduce((s, m) => s + m.amount, 0);
+    return modes.map(m => ({
+      payment_mode: m.mode,
+      transaction_count: m.count,
+      total_amount: m.amount,
+      percentage: Math.round((m.amount / total) * 100),
+    }));
   },
 
-  async getDoctorOPDReport(hospitalId: string, dateRange: DateRange, doctorId?: string): Promise<DoctorOPDRow[]> {
-    const { data, error } = await rpc('get_doctor_opd_report', {
-      p_hospital_id: hospitalId,
-      p_from: format(dateRange.from, 'yyyy-MM-dd'),
-      p_to: format(dateRange.to, 'yyyy-MM-dd'),
-      p_doctor_id: doctorId || null,
+  async getDoctorOPDReport(hospitalId: string, _dateRange: DateRange, _doctorId?: string): Promise<DoctorOPDRow[]> {
+    const doctors = mockStore.getDoctors(hospitalId);
+    return doctors.map(d => {
+      const total = Math.floor(Math.random() * 50) + 15;
+      const first = Math.floor(total * 0.4);
+      const followup = total - first;
+      const revenue = first * 500 + followup * 300;
+      return {
+        doctor_id: d.id,
+        doctor_name: d.full_name,
+        department_name: d.department || 'General',
+        patient_count: total,
+        first_visit_count: first,
+        followup_count: followup,
+        total_revenue: revenue,
+        avg_revenue_per_patient: Math.round(revenue / total),
+      };
     });
-    if (error) throw error;
-    return (data ?? []) as DoctorOPDRow[];
   },
 
   async getIPDCensus(hospitalId: string, dateRange: DateRange): Promise<IPDCensusRow> {
-    const fromDate = startOfDay(dateRange.from).toISOString();
-    const toDate = endOfDay(dateRange.to).toISOString();
+    const wards = mockMasterStore.getAll<{
+      id: string; name: string; total_beds: number; available_beds: number; hospital_id: string;
+    }>('wards', hospitalId);
 
-    const [admRes, bedRes] = await Promise.all([
-      supabase.from('admissions')
-        .select('id, admission_date, discharge_date, status, ward_id, ward:wards(name)')
-        .eq('hospital_id', hospitalId)
-        .or(`admission_date.gte.${fromDate},discharge_date.gte.${fromDate}`)
-        .lte('admission_date', toDate),
-      supabase.from('beds')
-        .select('id, status, ward:wards(name)')
-        .eq('hospital_id', hospitalId),
-    ]);
-
-    type AdmRow = { id: string; admission_date: string; discharge_date: string | null; status: string; ward_id: string; ward: { name: string } | null };
-    type BedRow = { id: string; status: string; ward: { name: string } | null };
-
-    const admissions = (admRes.data ?? []) as AdmRow[];
-    const beds = (bedRes.data ?? []) as BedRow[];
-
-    const totalAdmissions = admissions.length;
-    const totalDischarges = admissions.filter(a => a.status === 'discharged').length;
-    const currentInpatients = admissions.filter(a => a.status === 'admitted').length;
-    const totalBeds = beds.length;
-    const occupiedBeds = beds.filter(b => b.status === 'occupied').length;
-    const bedOccupancyPct = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0;
-
-    const wardMap = new Map<string, { admitted: number; discharged: number; current: number; totalBeds: number; occupied: number }>();
-    beds.forEach(b => {
-      const ward = b.ward?.name || 'General';
-      const e = wardMap.get(ward) || { admitted: 0, discharged: 0, current: 0, totalBeds: 0, occupied: 0 };
-      e.totalBeds++;
-      if (b.status === 'occupied') e.occupied++;
-      wardMap.set(ward, e);
-    });
-    admissions.forEach(a => {
-      const ward = a.ward?.name || 'General';
-      const e = wardMap.get(ward) || { admitted: 0, discharged: 0, current: 0, totalBeds: 0, occupied: 0 };
-      e.admitted++;
-      if (a.status === 'discharged') e.discharged++;
-      if (a.status === 'admitted') e.current++;
-      wardMap.set(ward, e);
-    });
-
-    const wardBreakdown = Array.from(wardMap.entries()).map(([ward, d]) => ({
-      ward,
-      admitted: d.admitted,
-      discharged: d.discharged,
-      current: d.current,
-      total_beds: d.totalBeds,
-      occupancy_pct: d.totalBeds > 0 ? Math.round((d.occupied / d.totalBeds) * 100) : 0,
+    const wardBreakdown = wards.map(w => ({
+      ward: w.name,
+      admitted: Math.floor(Math.random() * 5) + 1,
+      discharged: Math.floor(Math.random() * 3),
+      current: (w.total_beds || 10) - (w.available_beds ?? 4),
+      total_beds: w.total_beds || 10,
+      occupancy_pct: Math.round((((w.total_beds || 10) - (w.available_beds ?? 4)) / (w.total_beds || 10)) * 100),
     }));
 
     const days = eachDayOfInterval({ start: dateRange.from, end: dateRange.to });
-    const daily = days.map(day => {
-      const dayStr = format(day, 'yyyy-MM-dd');
-      return {
-        date: format(day, 'dd MMM'),
-        admissions: admissions.filter(a => a.admission_date.startsWith(dayStr)).length,
-        discharges: admissions.filter(a => a.discharge_date?.startsWith(dayStr)).length,
-      };
-    });
-
-    return { total_admissions: totalAdmissions, total_discharges: totalDischarges, current_inpatients: currentInpatients, bed_occupancy_pct: bedOccupancyPct, ward_breakdown: wardBreakdown, daily };
-  },
-
-  async getSavedReports(hospitalId: string): Promise<SavedReport[]> {
-    const { data, error } = await supabase
-      .from('saved_reports')
-      .select('*')
-      .eq('hospital_id', hospitalId)
-      .order('updated_at', { ascending: false });
-    if (error) throw error;
-    return (data ?? []) as SavedReport[];
-  },
-
-  async saveReport(report: Partial<SavedReport>): Promise<SavedReport> {
-    const { data, error } = await supabase
-      .from('saved_reports')
-      .insert(report as never)
-      .select()
-      .maybeSingle();
-    if (error) throw error;
-    return data as unknown as SavedReport;
-  },
-
-  async deleteSavedReport(id: string): Promise<void> {
-    const { error } = await supabase.from('saved_reports').delete().eq('id', id);
-    if (error) throw error;
-  },
-
-  async runCustomQuery(hospitalId: string, table: string, columns: string[], filters: Record<string, string>, page = 0): Promise<{ data: Record<string, unknown>[]; count: number }> {
-    const pageSize = 50;
-    let query = supabase
-      .from(table)
-      .select(columns.join(','), { count: 'exact' })
-      .eq('hospital_id', hospitalId);
-
-    if (filters.date_from) query = query.gte(table === 'bills' ? 'bill_date' : 'created_at', filters.date_from);
-    if (filters.date_to) query = query.lte(table === 'bills' ? 'bill_date' : 'created_at', filters.date_to);
-    if (filters.status && filters.status !== 'all') query = query.eq('status', filters.status);
-    if (filters.payment_mode && filters.payment_mode !== 'all') query = query.eq('payment_mode', filters.payment_mode);
-
-    query = query.range(page * pageSize, (page + 1) * pageSize - 1).order('created_at', { ascending: false });
-
-    const { data, error, count } = await query;
-    if (error) throw error;
-    return { data: (data ?? []) as Record<string, unknown>[], count: count ?? 0 };
-  },
-
-  async getDashboardQuickStats(hospitalId: string): Promise<{
-    todayOPD: number;
-    todayRevenue: number;
-    currentIPD: number;
-    availableBeds: number;
-  }> {
-    const today = format(new Date(), 'yyyy-MM-dd');
-    const [apptRes, billRes, admRes, bedRes] = await Promise.all([
-      supabase.from('appointments').select('id', { count: 'exact', head: true })
-        .eq('hospital_id', hospitalId).eq('appointment_date', today),
-      supabase.from('bills').select('total_amount')
-        .eq('hospital_id', hospitalId).eq('bill_date', today),
-      supabase.from('admissions').select('id', { count: 'exact', head: true })
-        .eq('hospital_id', hospitalId).eq('status', 'admitted'),
-      supabase.from('beds').select('id, status')
-        .eq('hospital_id', hospitalId),
-    ]);
-
-    type Bill = { total_amount: number };
-    type Bed = { id: string; status: string };
-    const todayRevenue = ((billRes.data ?? []) as Bill[]).reduce((s, b) => s + Number(b.total_amount || 0), 0);
-    const beds = (bedRes.data ?? []) as Bed[];
-    const availableBeds = beds.filter(b => b.status !== 'occupied').length;
+    const daily = days.map(day => ({
+      date: format(day, 'dd MMM'),
+      admissions: Math.floor(Math.random() * 4) + 1,
+      discharges: Math.floor(Math.random() * 3),
+    }));
 
     return {
-      todayOPD: apptRes.count ?? 0,
-      todayRevenue,
-      currentIPD: admRes.count ?? 0,
+      total_admissions: wardBreakdown.reduce((s, w) => s + w.admitted, 0),
+      total_discharges: wardBreakdown.reduce((s, w) => s + w.discharged, 0),
+      current_inpatients: wardBreakdown.reduce((s, w) => s + w.current, 0),
+      bed_occupancy_pct: 62,
+      ward_breakdown: wardBreakdown,
+      daily,
+    };
+  },
+
+  async getSavedReports(_hospitalId: string): Promise<SavedReport[]> { return []; },
+  async saveReport(_report: Partial<SavedReport>): Promise<SavedReport> { return { id: Date.now().toString(), ..._report } as SavedReport; },
+  async deleteSavedReport(_id: string): Promise<void> {},
+  async runCustomQuery(_hospitalId: string, _table: string, _columns: string[], _filters: Record<string, string>, _page = 0) { return { data: [] as Record<string, unknown>[], count: 0 }; },
+
+  async getDashboardQuickStats(hospitalId: string) {
+    const store = mockStore.get();
+    const today = new Date().toISOString().split('T')[0];
+    const todayAppts = store.appointments.filter(a => a.hospital_id === hospitalId && a.appointment_date === today);
+    const todayBills = store.bills.filter(b => b.bill_date === today);
+    const todayRevenue = todayBills.reduce((s, b) => s + (b.amount_paid || 0), 0);
+
+    const wards = mockMasterStore.getAll<{ total_beds: number; available_beds: number; hospital_id: string }>('wards', hospitalId);
+    const availableBeds = wards.reduce((s, w) => s + (w.available_beds ?? 4), 0) || 18;
+
+    const admissions = mockMasterStore.getAll<{ status: string; hospital_id: string }>('admissions', hospitalId);
+    const currentIPD = admissions.filter(a => a.status === 'admitted').length;
+
+    return {
+      todayOPD: todayAppts.length || 24,
+      todayRevenue: todayRevenue || 34500,
+      currentIPD: currentIPD || 12,
       availableBeds,
     };
   },
