@@ -40,7 +40,6 @@ export default function CashBankPage() {
     };
     setTransactions(prev => [newTxn, ...prev]);
 
-    // Update balances
     setAccounts(prev => prev.map(acc => {
       if (txn.fromAccountId === acc.id) return { ...acc, balance: acc.balance - txn.amount };
       if (txn.toAccountId === acc.id) return { ...acc, balance: acc.balance + txn.amount };
@@ -57,8 +56,12 @@ export default function CashBankPage() {
     setAccounts(prev => [...prev, newAcc]);
   }, []);
 
+  const handleUpdateAccount = useCallback((id: string, updates: Partial<Account>) => {
+    setAccounts(prev => prev.map(acc => acc.id === id ? { ...acc, ...updates } : acc));
+  }, []);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-fade-in">
       <PageHeader
         title="Cash & Bank"
         subtitle="Manage cash, bank accounts, and fund transfers"
@@ -66,7 +69,7 @@ export default function CashBankPage() {
         actions={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" className="gap-1.5 bg-rose-500 hover:bg-rose-600">
+              <Button size="sm" variant="destructive" className="gap-1.5 rounded-xl">
                 Deposit / Withdraw
                 <ChevronDown className="h-3.5 w-3.5" />
               </Button>
@@ -89,8 +92,8 @@ export default function CashBankPage() {
         }
       />
 
-      {/* Split layout like reference */}
-      <div className="flex border border-border/50 rounded-xl bg-card overflow-hidden" style={{ height: 'calc(100vh - 180px)' }}>
+      {/* Split layout — glass card */}
+      <div className="glass-card flex overflow-hidden" style={{ height: 'calc(100vh - 180px)' }}>
         {/* Left: Accounts list */}
         <div className="w-72 shrink-0">
           <AccountsList
@@ -98,6 +101,7 @@ export default function CashBankPage() {
             selectedId={selectedAccountId}
             onSelect={setSelectedAccountId}
             onAddAccount={() => setAddAccountOpen(true)}
+            onUpdateAccount={handleUpdateAccount}
           />
         </div>
 

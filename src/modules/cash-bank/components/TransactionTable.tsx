@@ -52,13 +52,13 @@ export default function TransactionTable({ transactions, accounts, selectedAccou
   return (
     <div className="flex flex-col h-full">
       {/* Account header */}
-      <div className="p-4 border-b border-border/50 flex items-center justify-between">
+      <div className="p-4 border-b border-border/40 flex items-center justify-between">
         <div>
           <h2 className="text-base font-semibold text-foreground">
             {selectedAccount?.name || 'All Accounts'}
           </h2>
           {selectedAccount?.accountNumber && (
-            <p className="text-xs text-muted-foreground font-mono">{selectedAccount.accountNumber}</p>
+            <p className="text-xs text-muted-foreground font-mono mt-0.5">{selectedAccount.accountNumber}</p>
           )}
         </div>
         <div className="relative w-56">
@@ -81,8 +81,8 @@ export default function TransactionTable({ transactions, accounts, selectedAccou
       <div className="flex-1 overflow-auto">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-3">
-              <Receipt className="h-8 w-8 text-muted-foreground/50" />
+            <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-3">
+              <Receipt className="h-8 w-8 text-muted-foreground/40" />
             </div>
             <p className="text-sm font-medium text-foreground">No Transactions to show</p>
             <p className="text-xs text-muted-foreground mt-0.5">You haven't added any transactions yet.</p>
@@ -90,12 +90,12 @@ export default function TransactionTable({ transactions, accounts, selectedAccou
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/30">
-                <TableHead className="text-xs w-28">Type</TableHead>
-                <TableHead className="text-xs">Description</TableHead>
-                <TableHead className="text-xs w-32">Date</TableHead>
-                <TableHead className="text-xs text-right w-28">Amount</TableHead>
-                <TableHead className="text-xs w-32">Reference</TableHead>
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground w-28">Type</TableHead>
+                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Description</TableHead>
+                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground w-32">Date</TableHead>
+                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right w-28">Amount</TableHead>
+                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground w-32">Reference</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -104,31 +104,30 @@ export default function TransactionTable({ transactions, accounts, selectedAccou
                 const credit = isCredit(txn.type);
 
                 return (
-                  <TableRow key={txn.id} className="group hover:bg-muted/20">
-                    <TableCell>
-                      <Badge variant="secondary" className={cn('text-[10px] font-medium gap-1', TRANSACTION_TYPE_COLORS[txn.type])}>
+                  <TableRow key={txn.id} className="group hover:bg-accent/30 transition-colors">
+                    <TableCell className="py-3">
+                      <Badge variant="secondary" className={cn('text-[10px] font-medium gap-1 border-0', TRANSACTION_TYPE_COLORS[txn.type])}>
                         <TxnIcon className="h-3 w-3" />
                         {TRANSACTION_TYPE_LABELS[txn.type]}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-3">
                       <p className="text-xs font-medium text-foreground">{txn.description}</p>
                       {txn.billNumber && (
-                        <p className="text-[10px] text-muted-foreground">
-                          Bill: <span className="font-mono">{txn.billNumber}</span>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          Bill: <span className="font-mono text-primary/80">{txn.billNumber}</span>
                           {txn.patientName && <> • {txn.patientName}</>}
                         </p>
                       )}
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {format(new Date(txn.date), 'dd MMM yyyy')}
-                      <br />
-                      <span className="text-[10px]">{format(new Date(txn.date), 'hh:mm a')}</span>
+                    <TableCell className="py-3">
+                      <p className="text-xs text-muted-foreground">{format(new Date(txn.date), 'dd MMM yyyy')}</p>
+                      <p className="text-[10px] text-muted-foreground/70">{format(new Date(txn.date), 'hh:mm a')}</p>
                     </TableCell>
-                    <TableCell className={cn('text-right text-xs font-mono font-semibold', credit ? 'text-emerald-600' : 'text-red-600')}>
+                    <TableCell className={cn('py-3 text-right text-xs font-mono font-semibold', credit ? 'text-[hsl(var(--success))]' : 'text-destructive')}>
                       {credit ? '+' : '-'}{formatCurrency(txn.amount)}
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground font-mono">
+                    <TableCell className="py-3 text-xs text-muted-foreground font-mono">
                       {txn.referenceNumber || '—'}
                     </TableCell>
                   </TableRow>
