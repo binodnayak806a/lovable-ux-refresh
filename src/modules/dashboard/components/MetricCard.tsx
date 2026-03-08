@@ -102,7 +102,8 @@ export default function MetricCard({
   return (
     <article
       className={cn(
-        'rounded-2xl p-6 shadow-card border border-border/50',
+        'rounded-2xl shadow-card border border-border/50',
+        compact ? 'p-4' : 'p-6',
         'hover:shadow-hover transition-all duration-300 group overflow-hidden relative',
         GRADIENT_MAP[gradient],
         ACCENT_MAP[gradient],
