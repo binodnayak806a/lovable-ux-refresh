@@ -1,13 +1,2 @@
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../types/database';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    storageKey: 'wellnotes_auth',
-  },
-});
+// Re-export the canonical Supabase client
+export { supabase } from '../integrations/supabase/client';
