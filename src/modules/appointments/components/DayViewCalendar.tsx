@@ -17,7 +17,7 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }
   in_progress: { bg: 'bg-amber-50',   border: 'border-l-amber-500',   text: 'text-amber-700' },
   completed:   { bg: 'bg-emerald-50', border: 'border-l-emerald-500', text: 'text-emerald-700' },
   cancelled:   { bg: 'bg-red-50',     border: 'border-l-red-400',     text: 'text-red-600' },
-  no_show:     { bg: 'bg-gray-50',    border: 'border-l-gray-400',    text: 'text-gray-600' },
+  no_show:     { bg: 'bg-gray-100',   border: 'border-l-gray-400',    text: 'text-gray-500' },
   qr_booked:   { bg: 'bg-teal-50',    border: 'border-l-teal-500',    text: 'text-teal-700' },
 };
 
@@ -41,6 +41,9 @@ function formatTime12(time: string): string {
 export default function DayViewCalendar({ appointments, date, slotInterval, onSlotClick, onAppointmentClick }: Props) {
   const dateStr = format(date, 'yyyy-MM-dd');
   const timeSlots = useMemo(() => generateTimeSlots(slotInterval), [slotInterval]);
+  const today = isToday(date);
+  const nowH = new Date().getHours();
+  const nowM = new Date().getMinutes();
 
   const appointmentsBySlot = useMemo(() => {
     const map: Record<string, WeekAppointment[]> = {};
@@ -55,90 +58,52 @@ export default function DayViewCalendar({ appointments, date, slotInterval, onSl
     return map;
   }, [appointments, dateStr, slotInterval]);
 
-  const today = isToday(date);
-  const nowHour = new Date().getHours();
-  const nowMin = new Date().getMinutes();
-
   return (
-    <div className="glass-card overflow-hidden">
-      {/* Day header */}
-      <div className={cn(
-        'px-6 py-4 border-b border-border/50 flex items-center gap-3',
-        today && 'bg-primary/5'
-      )}>
-        <div className={cn(
-          'w-12 h-12 rounded-xl flex flex-col items-center justify-center',
-          today ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-        )}>
-          <span className="text-[10px] font-bold uppercase leading-none">{format(date, 'EEE')}</span>
-          <span className="text-lg font-bold leading-none mt-0.5">{format(date, 'd')}</span>
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">{format(date, 'EEEE, MMMM d, yyyy')}</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {appointments.filter(a => a.appointment_date === dateStr).length} appointments
-          </p>
-        </div>
-      </div>
-
-      {/* Time grid */}
-      <div className="max-h-[calc(100vh-280px)] overflow-y-auto scrollbar-thin">
-        {timeSlots.map((slot, idx) => {
+    <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+      <div className="max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin">
+        {timeSlots.map((slot) => {
           const cellAppts = appointmentsBySlot[slot] ?? [];
           const [slotH, slotM] = slot.split(':').map(Number);
-          const isCurrentSlot = today && slotH === nowHour && nowMin >= slotM && nowMin < slotM + slotInterval;
+          const isCurrent = today && slotH === nowH && nowM >= slotM && nowM < slotM + slotInterval;
 
           return (
             <div
               key={slot}
               className={cn(
-                'grid grid-cols-[80px_1fr] min-h-[52px] border-b border-border/30 last:border-b-0 group',
-                isCurrentSlot && 'bg-primary/5',
-                idx % 2 === 0 && 'bg-muted/20'
+                'grid grid-cols-[72px_1fr] min-h-[44px] border-b border-border/15 last:border-b-0 group',
+                isCurrent && 'bg-primary/[0.04]'
               )}
             >
-              <div className="px-3 py-2 text-xs font-medium text-muted-foreground flex items-start justify-end pr-4 pt-2 border-r border-border/30 select-none">
+              <div className="px-2 py-1.5 text-[11px] text-muted-foreground/70 font-medium flex items-start justify-end pr-3 pt-2 border-r border-border/20 select-none">
                 {formatTime12(slot)}
               </div>
               <div
-                className="p-1.5 cursor-pointer hover:bg-accent/30 transition-colors relative"
-                onClick={() => {
-                  if (cellAppts.length === 0) onSlotClick(date, slot);
-                }}
+                className="p-1 cursor-pointer hover:bg-muted/30 transition-colors relative"
+                onClick={() => { if (cellAppts.length === 0) onSlotClick(date, slot); }}
               >
                 {cellAppts.map(appt => {
-                  const colors = STATUS_COLORS[appt.status] ?? STATUS_COLORS.scheduled;
+                  const c = STATUS_COLORS[appt.status] ?? STATUS_COLORS.scheduled;
                   return (
                     <button
                       key={appt.id}
                       onClick={(e) => { e.stopPropagation(); onAppointmentClick(appt); }}
-                      className={cn(
-                        'w-full text-left px-3 py-2 rounded-lg border-l-[3px] mb-1 transition-all hover:shadow-md',
-                        colors.bg, colors.border
-                      )}
+                      className={cn('w-full text-left px-2.5 py-1.5 rounded-md border-l-[3px] mb-0.5 transition-all hover:shadow-sm', c.bg, c.border)}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className={cn('text-xs font-semibold truncate', colors.text)}>
-                          {appt.patient_name}
-                        </span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={cn('text-[11px] font-semibold truncate', c.text)}>{appt.patient_name}</span>
                         {appt.token_number && (
-                          <span className="text-[10px] font-mono text-muted-foreground bg-background/80 px-1.5 py-0.5 rounded">
-                            #{appt.token_number}
-                          </span>
+                          <span className="text-[9px] font-mono text-muted-foreground/60 bg-muted/50 px-1 rounded">#{appt.token_number}</span>
                         )}
                       </div>
-                      <div className="text-[10px] text-muted-foreground truncate mt-0.5 flex items-center gap-1.5">
-                        <span>{appt.appointment_time?.slice(0, 5)}</span>
-                        <span className="text-border">•</span>
-                        <span className="truncate">{appt.doctor_name}</span>
+                      <div className="text-[10px] text-muted-foreground/60 truncate mt-0.5">
+                        {appt.appointment_time?.slice(0, 5)} · {appt.doctor_name}
                       </div>
                     </button>
                   );
                 })}
-
                 {cellAppts.length === 0 && (
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <span className="text-xs text-muted-foreground/60 font-medium">+ Add</span>
+                    <span className="text-[10px] text-muted-foreground/40">+</span>
                   </div>
                 )}
               </div>
