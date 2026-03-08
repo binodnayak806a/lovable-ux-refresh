@@ -43,7 +43,7 @@ export default function PrintTemplatesPage() {
   const {
     canvasRef, containerRef, initCanvas, addTextField, addRect, addLine,
     addImage, deleteSelected, updateSelected, selectedObj, zoom,
-    setCanvasZoom, toJSON, loadJSON, toDataURL, canvasWidthPx, canvasHeightPx,
+    setCanvasZoom, toJSON, loadJSON, canvasWidthPx, canvasHeightPx,
     bringForward, sendBackward, duplicateSelected, clearCanvas, objectCount,
   } = useCanvasDesigner(pageSize, pageWidthMm, pageHeightMm);
 
