@@ -5,7 +5,6 @@ import {
 import { Button } from '../../../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../../components/ui/dialog';
-import { Separator } from '../../../../components/ui/separator';
 import { Input } from '../../../../components/ui/input';
 import { useHospitalId } from '../../../../hooks/useHospitalId';
 import { useToast } from '../../../../hooks/useToast';
