@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, Eye, EyeOff, HeartPulse, Lock, Mail, RefreshCw, Stethoscope, Shield, ClipboardList, Pill, FlaskConical, BedDouble, CreditCard, UserCheck } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, HeartPulse, Lock, Mail, RefreshCw, Stethoscope, Shield, ClipboardList, Pill, FlaskConical, BedDouble, CreditCard } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
