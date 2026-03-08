@@ -1,7 +1,7 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import {
   CalendarCheck, BedDouble, TrendingUp, Clock,
-  ChevronRight, Stethoscope, UserPlus, RefreshCw,
+  ChevronRight, Stethoscope, UserPlus,
   IndianRupee, FileText, Activity, Users, LogIn, LogOut,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -39,35 +39,10 @@ import { cn } from '../../lib/utils';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
-function getTimeOfDay(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Morning';
-  if (hour < 17) return 'Afternoon';
-  return 'Evening';
-}
-
-function formatDate(): string {
-  return new Date().toLocaleDateString('en-IN', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
 function formatCurrency(value: number): string {
   if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
   if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
   return `₹${value.toLocaleString('en-IN')}`;
-}
-
-function useLiveClock() {
-  const [time, setTime] = useState(new Date());
-  useEffect(() => {
-    const id = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  return time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 }
 
 export default function DashboardPage() {
@@ -88,16 +63,13 @@ export default function DashboardPage() {
     dateRange,
   } = useAppSelector((state) => state.dashboard);
 
-  const { canAccessModule, isAdmin, isRole } = usePermissions();
+  const { isAdmin, isRole } = usePermissions();
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
   const prevDateRange = useRef(dateRange);
   const loading = status === 'loading';
-  const [refreshing, setRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   const loadData = useCallback(() => {
     dispatch(fetchDashboardData(hospitalId));
-    setLastUpdated(new Date());
   }, [dispatch, hospitalId]);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -124,31 +96,15 @@ export default function DashboardPage() {
     () => { dispatch(incrementTodayAppointments()); },
   );
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadData();
-    setTimeout(() => setRefreshing(false), 500);
-  };
 
   const totalBeds = extendedMetrics?.totalBeds ?? 0;
   const occupiedBeds = extendedMetrics?.occupiedBeds ?? 0;
   const bedOccupancyRate = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0;
   const todayRevenue = revenueSummary?.today ?? 0;
-  const userName = user?.full_name?.split(' ')[0] || 'User';
+  
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <DashboardHeader
-        userName={userName}
-        refreshing={refreshing}
-        loading={loading}
-        onRefresh={handleRefresh}
-        onNewPatient={() => navigate('/opd')}
-        showNewPatient={canAccessModule('opd')}
-        lastUpdated={lastUpdated}
-        todayOPD={extendedMetrics?.todayAppointments ?? 0}
-        newPatients={extendedMetrics?.newPatients ?? 0}
-      />
 
       {(isAdmin || isRole('receptionist')) && (
         <AdminDashboard
@@ -204,62 +160,6 @@ export default function DashboardPage() {
   );
 }
 
-/* ─── Hero Banner ─── */
-function DashboardHeader({
-  userName, refreshing, loading, onRefresh, onNewPatient, showNewPatient,
-  lastUpdated,
-}: {
-  userName: string; refreshing: boolean; loading: boolean;
-  onRefresh: () => void; onNewPatient: () => void; showNewPatient: boolean;
-  lastUpdated: Date; todayOPD: number; newPatients: number;
-}) {
-  const clock = useLiveClock();
-
-  function timeSince(date: Date): string {
-    const mins = Math.floor((Date.now() - date.getTime()) / 60000);
-    if (mins < 1) return 'just now';
-    return `${mins}m ago`;
-  }
-
-  return (
-    <div className="hero-banner flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div className="space-y-2 relative z-10">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">
-              Good {getTimeOfDay().toLowerCase()}, {userName}!
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {formatDate()} · <span className="font-medium text-foreground/70">{clock}</span>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 flex-wrap relative z-10">
-        <span className="text-[11px] text-muted-foreground mr-1">
-          Updated {timeSince(lastUpdated)}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onRefresh}
-          disabled={refreshing || loading}
-          className="gap-2 bg-card/50 backdrop-blur-sm"
-        >
-          <RefreshCw className={cn('w-4 h-4', (refreshing || loading) && 'animate-spin')} />
-          Refresh
-        </Button>
-        {showNewPatient && (
-          <Button size="sm" onClick={onNewPatient} className="gap-2 shadow-sm">
-            <UserPlus className="w-4 h-4" />
-            New Patient
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-}
 
 /* ─── Admin Dashboard — Industry Standard HMS Layout ─── */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
