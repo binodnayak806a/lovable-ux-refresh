@@ -1,10 +1,11 @@
-import { Search } from 'lucide-react';
+import { Search, UserPlus, CalendarPlus } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { setSearchOpen } from '../../store/slices/globalSlice';
 import NotificationDropdown from '../common/NotificationDropdown';
 import { SidebarTrigger } from '../ui/sidebar';
 import { Separator } from '../ui/separator';
+import { Button } from '../ui/button';
 import {
   Breadcrumb,
   BreadcrumbItem,
