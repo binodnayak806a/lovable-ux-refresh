@@ -173,6 +173,8 @@ export default function OPDPage() {
 
   const handleStartConsultation = (appt: AppointmentRow) => {
     mockStore.updateAppointmentStatus(appt.id, 'in_progress');
+    setSelectedPatientId(appt.patient_id);
+    setSelectedAppointmentId(appt.id);
     setTab('consultation');
   };
 
