@@ -18,7 +18,7 @@ export default function FieldPalette({ fields, onAddField }: Props) {
         {fields.map((field) => (
           <button
             key={field.variable}
-            onClick={() => onAddField(field.variable, field.label)}
+            onClick={() => onAddField(field.variable)}
             className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left hover:bg-blue-50 group transition-colors"
           >
             <Type className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-500 shrink-0" />
