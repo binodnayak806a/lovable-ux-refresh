@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Activity, UserPlus, BedDouble, LogOut, Stethoscope, Clock } from 'lucide-react';
-import { supabase } from '../../../lib/supabase';
+import { mockStore } from '../../../lib/mockStore';
 import { useHospitalId } from '../../../hooks/useHospitalId';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { Badge } from '../../../components/ui/badge';
