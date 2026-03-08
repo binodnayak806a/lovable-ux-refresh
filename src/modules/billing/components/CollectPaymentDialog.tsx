@@ -25,7 +25,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-type PaymentMode = 'cash' | 'card' | 'upi' | 'online' | 'insurance';
+type PaymentMode = 'cash' | 'card' | 'upi' | 'online' | 'insurance' | 'rtgs';
 
 const PAYMENT_MODES: Array<{ value: PaymentMode; label: string; icon: typeof Banknote }> = [
   { value: 'cash', label: 'Cash', icon: Banknote },
