@@ -138,17 +138,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <DashboardHeader
-        userName={userName}
-        refreshing={refreshing}
-        loading={loading}
-        onRefresh={handleRefresh}
-        onNewPatient={() => navigate('/opd')}
-        showNewPatient={canAccessModule('opd')}
-        lastUpdated={lastUpdated}
-        todayOPD={extendedMetrics?.todayAppointments ?? 0}
-        newPatients={extendedMetrics?.newPatients ?? 0}
-      />
 
       {(isAdmin || isRole('receptionist')) && (
         <AdminDashboard
