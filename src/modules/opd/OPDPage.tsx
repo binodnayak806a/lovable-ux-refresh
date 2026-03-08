@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';
+import SharedStatCard from '../../components/shared/StatCard';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { useAppSelector } from '../../store';

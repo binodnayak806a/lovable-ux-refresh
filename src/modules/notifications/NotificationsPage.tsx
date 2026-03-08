@@ -7,6 +7,7 @@ import SharedStatCard from '../../components/shared/StatCard';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../store/slices/notificationsSlice';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+// Card still needed for the notifications list card below
 import { Badge } from '../../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Skeleton } from '../../components/ui/skeleton';

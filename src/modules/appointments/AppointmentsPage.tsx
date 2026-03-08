@@ -308,7 +308,7 @@ export default function AppointmentsPage() {
             )}
           </div>
 
-          <div className="hidden lg:block w-80 border-l border-gray-100 p-4 overflow-hidden">
+          <div className="hidden lg:block w-80 border-l border-border p-4 overflow-hidden">
             {loading ? (
               <QueueSkeleton />
             ) : (

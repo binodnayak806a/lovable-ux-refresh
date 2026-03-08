@@ -338,7 +338,7 @@ export default function SettingsPage() {
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="flex items-center gap-2 px-4 py-3.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-700 data-[state=active]:bg-blue-50/50 text-slate-600 font-medium text-sm"
+                  className="flex items-center gap-2 px-4 py-3.5 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-accent text-muted-foreground font-medium text-sm"
                 >
                   <tab.icon className="h-4 w-4" />
                   <span className="hidden sm:inline">{tab.label}</span>

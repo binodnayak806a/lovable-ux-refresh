@@ -289,7 +289,7 @@ export default function ProfilePage() {
       </Card>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-gray-100/50 p-1">
+        <TabsList className="bg-muted p-1">
           <TabsTrigger value="profile" className="gap-2">
             <User className="w-4 h-4" />
             Profile
