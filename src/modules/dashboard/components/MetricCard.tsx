@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, ChevronRight } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { cn } from '../../../lib/utils';
 import { useCountUp } from '../../../hooks/useCountUp';
