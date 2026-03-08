@@ -43,19 +43,23 @@ function AppInit() {
     // Try demo session first
     if (restoreDemoSession(dispatch)) return;
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        let profile = null;
-        try {
-          profile = await authService.getUserProfile(session.user.id);
-        } catch {
-          // profile may not exist
+    supabase.auth.getSession()
+      .then(async ({ data: { session } }) => {
+        if (session?.user) {
+          let profile = null;
+          try {
+            profile = await authService.getUserProfile(session.user.id);
+          } catch {
+            // profile may not exist
+          }
+          dispatch(setSession({ session, user: profile }));
+        } else {
+          dispatch(setLoading(false));
         }
-        dispatch(setSession({ session, user: profile }));
-      } else {
+      })
+      .catch(() => {
         dispatch(setLoading(false));
-      }
-    });
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
