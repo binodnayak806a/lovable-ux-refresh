@@ -172,10 +172,10 @@ export default function OPDPage() {
 
       {tab === 'queue' && (
         <div className="space-y-5">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <SharedStatCard label="Today's Total" value={stats.total} icon={CalendarClock} iconClassName="bg-blue-50 text-blue-600" />
-            <SharedStatCard label="In Progress" value={stats.inProgress} icon={Stethoscope} iconClassName="bg-amber-50 text-amber-600" />
-            <SharedStatCard label="Completed" value={stats.completed} icon={CheckCircle2} iconClassName="bg-emerald-50 text-emerald-600" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 stagger-children">
+            <SharedStatCard label="Today's Total" value={stats.total} icon={CalendarClock} iconClassName="bg-primary/10 text-primary" accentColor="blue" />
+            <SharedStatCard label="In Progress" value={stats.inProgress} icon={Stethoscope} iconClassName="bg-amber-50 text-amber-600" accentColor="amber" />
+            <SharedStatCard label="Completed" value={stats.completed} icon={CheckCircle2} iconClassName="bg-emerald-50 text-emerald-600" accentColor="green" />
             <SharedStatCard label="Pending" value={stats.total - stats.completed - stats.inProgress} icon={Clock} iconClassName="bg-muted text-muted-foreground" />
           </div>
 
