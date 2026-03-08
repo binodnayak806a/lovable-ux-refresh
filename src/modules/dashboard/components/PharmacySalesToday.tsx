@@ -15,16 +15,20 @@ export default function PharmacySalesToday() {
     (async () => {
       try {
         const today = format(new Date(), 'yyyy-MM-dd');
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('pharmacy_sales')
           .select('total')
           .eq('hospital_id', hospitalId)
           .gte('created_at', `${today}T00:00:00`)
           .lte('created_at', `${today}T23:59:59`);
 
-        const sales = (data ?? []) as { total: number }[];
-        setSaleCount(sales.length);
-        setTotalSales(sales.reduce((s, r) => s + (Number(r.total) || 0), 0));
+        if (error) {
+          console.warn('pharmacy_sales query failed:', error.message);
+        } else {
+          const sales = (data ?? []) as { total: number }[];
+          setSaleCount(sales.length);
+          setTotalSales(sales.reduce((s, r) => s + (Number(r.total) || 0), 0));
+        }
       } catch {
         /* ignore */
       } finally {

@@ -30,7 +30,7 @@ export default function PendingLabOrders() {
   useEffect(() => {
     (async () => {
       try {
-        const { data, count } = await supabase
+        const { data, count, error } = await supabase
           .from('lab_orders')
           .select('id, status, priority, created_at, patient:patients(full_name)', { count: 'exact' })
           .eq('hospital_id', hospitalId)
@@ -38,15 +38,21 @@ export default function PendingLabOrders() {
           .order('created_at', { ascending: false })
           .limit(5);
 
-        const mapped = (data ?? []).map((row: Record<string, unknown>) => ({
-          id: row.id as string,
-          patient_name: ((row.patient as Record<string, unknown>)?.full_name as string) ?? 'Unknown',
-          status: row.status as string,
-          priority: (row.priority as string) ?? 'routine',
-          created_at: row.created_at as string,
-        }));
-        setOrders(mapped);
-        setTotalPending(count ?? 0);
+        if (error) {
+          console.warn('lab_orders query failed:', error.message);
+          setOrders([]);
+          setTotalPending(0);
+        } else {
+          const mapped = (data ?? []).map((row: Record<string, unknown>) => ({
+            id: row.id as string,
+            patient_name: ((row.patient as Record<string, unknown>)?.full_name as string) ?? 'Unknown',
+            status: row.status as string,
+            priority: (row.priority as string) ?? 'routine',
+            created_at: row.created_at as string,
+          }));
+          setOrders(mapped);
+          setTotalPending(count ?? 0);
+        }
       } catch {
         /* ignore */
       } finally {

@@ -49,18 +49,17 @@ export default function NotificationDropdown() {
           .eq('appointment_date', today)
           .eq('status', 'scheduled'),
         supabase
-          .from('medicines_master')
-          .select('id, stock_quantity, reorder_level', { count: 'exact' })
+          .from('pharmacy_inventory')
+          .select('id, quantity_in_stock, reorder_level')
           .eq('hospital_id', hospitalId)
+          .eq('is_active', true)
           .gt('reorder_level', 0)
           .then((res) => {
-            if (res.data) {
-              const lowStock = res.data.filter((m: any) =>
-                (m.stock_quantity ?? 0) < (m.reorder_level ?? 0)
-              );
-              return { count: lowStock.length };
-            }
-            return { count: 0 };
+            if (res.error) return { count: 0 };
+            const lowStock = (res.data ?? []).filter((m: any) =>
+              (m.quantity_in_stock ?? 0) <= (m.reorder_level ?? 10)
+            );
+            return { count: lowStock.length };
           }),
       ]);
 
