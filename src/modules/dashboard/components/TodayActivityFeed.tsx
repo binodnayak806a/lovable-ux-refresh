@@ -47,54 +47,44 @@ export default function TodayActivityFeed() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const items: ActivityItem[] = [];
-
-        const { data: appts } = await supabase
-          .from('appointments')
-          .select('id, appointment_time, status, patient:patients(full_name), doctor:profiles(full_name)')
-          .eq('hospital_id', hospitalId)
-          .eq('appointment_date', today)
-          .order('appointment_time', { ascending: false })
-          .limit(10);
-
-        for (const row of (appts ?? []) as Record<string, unknown>[]) {
+    try {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const items: ActivityItem[] = [];
+      const store = mockStore.get();
+      
+      // Get today's appointments
+      store.appointments
+        .filter(a => a.hospital_id === hospitalId && a.appointment_date === today)
+        .slice(0, 6)
+        .forEach(a => {
           items.push({
-            id: `appt-${row.id}`,
-            time: `${today}T${row.appointment_time || '00:00'}`,
-            patient_name: ((row.patient as Record<string, unknown>)?.full_name as string) ?? 'Unknown',
+            id: `appt-${a.id}`,
+            time: `${today}T${a.appointment_time || '09:00'}`,
+            patient_name: mockStore.getPatientName(a.patient_id),
             type: 'appointment',
-            detail: ((row.doctor as Record<string, unknown>)?.full_name as string) ?? '',
+            detail: mockStore.getDoctorName(a.doctor_id),
           });
-        }
+        });
 
-        const { data: patients } = await supabase
-          .from('patients')
-          .select('id, full_name, created_at')
-          .eq('hospital_id', hospitalId)
-          .gte('created_at', `${today}T00:00:00`)
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        for (const row of (patients ?? []) as Record<string, unknown>[]) {
+      // Get today's new patients
+      store.patients
+        .filter(p => p.hospital_id === hospitalId && p.created_at?.startsWith(today))
+        .slice(0, 3)
+        .forEach(p => {
           items.push({
-            id: `pat-${row.id}`,
-            time: row.created_at as string,
-            patient_name: (row.full_name as string) ?? 'Unknown',
+            id: `pat-${p.id}`,
+            time: p.created_at,
+            patient_name: p.full_name,
             type: 'new_patient',
           });
-        }
+        });
 
-        items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-        const finalItems = items.slice(0, 8);
-        setActivities(finalItems.length > 0 ? finalItems : DEMO_ACTIVITIES);
-      } catch {
-        setActivities(DEMO_ACTIVITIES);
-      }
-      finally { setLoading(false); }
-    })();
+      items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+      setActivities(items.length > 0 ? items.slice(0, 8) : DEMO_ACTIVITIES);
+    } catch {
+      setActivities(DEMO_ACTIVITIES);
+    }
+    setLoading(false);
   }, [hospitalId]);
 
   return (

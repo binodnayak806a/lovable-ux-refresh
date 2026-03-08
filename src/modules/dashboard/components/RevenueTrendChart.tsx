@@ -59,45 +59,9 @@ export default function RevenueTrendChart() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const days: DayRevenue[] = [];
-        const today = new Date();
-        for (let i = 6; i >= 0; i--) {
-          const d = subDays(today, i);
-          const dateStr = format(d, 'yyyy-MM-dd');
-          days.push({ date: dateStr, label: format(d, 'EEE'), opd: 0, ipd: 0, total: 0 });
-        }
-
-        const fromDate = format(subDays(today, 6), 'yyyy-MM-dd');
-        const toDate = format(today, 'yyyy-MM-dd');
-
-        const { data: bills } = await supabase
-          .from('bills')
-          .select('total_amount, bill_type, created_at')
-          .eq('hospital_id', hospitalId)
-          .gte('created_at', `${fromDate}T00:00:00`)
-          .lte('created_at', `${toDate}T23:59:59`)
-          .in('status', ['paid', 'partial']);
-
-        (bills as { total_amount: number; bill_type: string; created_at: string }[] ?? []).forEach((bill) => {
-          const billDate = format(new Date(bill.created_at), 'yyyy-MM-dd');
-          const day = days.find((d) => d.date === billDate);
-          if (day) {
-            const amount = Number(bill.total_amount) || 0;
-            if (bill.bill_type === 'ipd') day.ipd += amount;
-            else day.opd += amount;
-            day.total += amount;
-          }
-        });
-
-        const hasData = days.some(d => d.total > 0);
-        setData(hasData ? days : DEMO_DATA);
-      } catch {
-        setData(DEMO_DATA);
-      }
-      finally { setLoading(false); }
-    })();
+    // Use demo data directly - no Supabase tables available
+    setData(DEMO_DATA);
+    setLoading(false);
   }, [hospitalId]);
 
   const totalWeek = data.reduce((s, d) => s + d.total, 0);

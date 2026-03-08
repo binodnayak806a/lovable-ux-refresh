@@ -13,35 +13,20 @@ export default function PharmacySalesToday() {
   const animatedTotal = useCountUp(totalSales);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const { data, error } = await supabase
-          .from('pharmacy_sales')
-          .select('total')
-          .eq('hospital_id', hospitalId)
-          .gte('created_at', `${today}T00:00:00`)
-          .lte('created_at', `${today}T23:59:59`);
-
-        if (error) {
-          setTotalSales(35400);
-          setSaleCount(28);
-        } else {
-          const sales = (data ?? []) as { total: number }[];
-          if (sales.length > 0) {
-            setSaleCount(sales.length);
-            setTotalSales(sales.reduce((s, r) => s + (Number(r.total) || 0), 0));
-          } else {
-            setTotalSales(35400);
-            setSaleCount(28);
-          }
-        }
-      } catch {
+    try {
+      const sales = mockMasterStore.getAll<{ total: number; hospital_id: string }>('pharmacy_sales', hospitalId);
+      if (sales.length > 0) {
+        setSaleCount(sales.length);
+        setTotalSales(sales.reduce((s, r) => s + (Number(r.total) || 0), 0));
+      } else {
         setTotalSales(35400);
         setSaleCount(28);
       }
-      finally { setLoading(false); }
-    })();
+    } catch {
+      setTotalSales(35400);
+      setSaleCount(28);
+    }
+    setLoading(false);
   }, [hospitalId]);
 
   return (

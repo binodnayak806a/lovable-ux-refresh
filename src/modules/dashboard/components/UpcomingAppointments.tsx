@@ -33,31 +33,26 @@ export default function UpcomingAppointments({ showQuickAdd = false }: { showQui
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const { data } = await supabase
-          .from('appointments')
-          .select('id, patient_id, appointment_time, status, type, patient:patients(full_name), doctor:profiles(full_name)')
-          .eq('hospital_id', hospitalId)
-          .eq('appointment_date', today)
-          .in('status', ['scheduled', 'confirmed', 'qr_booked', 'in_progress'])
-          .order('appointment_time', { ascending: true })
-          .limit(10);
-
-        const mapped = (data ?? []).map((row: Record<string, unknown>) => ({
-          id: row.id as string,
-          patient_id: row.patient_id as string,
-          patient_name: ((row.patient as Record<string, unknown>)?.full_name as string) ?? 'Unknown',
-          doctor_name: ((row.doctor as Record<string, unknown>)?.full_name as string) ?? '',
-          appointment_time: row.appointment_time as string,
-          status: row.status as string,
-          type: row.type as string,
+    try {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const store = mockStore.get();
+      const mapped = store.appointments
+        .filter(a => a.hospital_id === hospitalId && a.appointment_date === today &&
+          ['scheduled', 'confirmed', 'in_progress'].includes(a.status))
+        .sort((a, b) => a.appointment_time.localeCompare(b.appointment_time))
+        .slice(0, 10)
+        .map(a => ({
+          id: a.id,
+          patient_id: a.patient_id,
+          patient_name: mockStore.getPatientName(a.patient_id),
+          doctor_name: mockStore.getDoctorName(a.doctor_id),
+          appointment_time: a.appointment_time,
+          status: a.status,
+          type: a.type,
         }));
-        setAppointments(mapped);
-      } catch { /* ignore */ }
-      finally { setLoading(false); }
-    })();
+      setAppointments(mapped);
+    } catch { /* ignore */ }
+    setLoading(false);
   }, [hospitalId]);
 
   function formatTime(time: string): string {
