@@ -146,6 +146,15 @@ export default function LoginPage() {
         } catch {
           // profile may not exist yet
         }
+        // Ensure role entry exists in user_roles table (server-side source of truth)
+        if (profile?.role) {
+          try {
+            const { roleService } = await import('../../services/role.service');
+            await roleService.ensureUserRole(result.user.id, profile.role as UserRole);
+          } catch {
+            // non-blocking — role will be synced on next permissions check
+          }
+        }
       }
       dispatch(setSession({ session: result.session, user: profile }));
       const userRole = (profile?.role as UserRole) ?? 'receptionist';
