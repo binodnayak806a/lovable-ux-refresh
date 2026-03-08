@@ -144,7 +144,7 @@ export default function RevenueTrendChart() {
               type="monotone"
               dataKey="ipd"
               name="IPD"
-              stroke="#10b981"
+              stroke="hsl(152, 60%, 42%)"
               strokeWidth={2.5}
               dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
               activeDot={{ r: 6 }}
