@@ -21,9 +21,10 @@ export default function DischargeSummaryView({ admission, onClose }: Props) {
   const { toast } = useToast();
   const [summary, setSummary] = useState<DischargeSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = useReactToPrint({ content: () => printRef.current });
+  const handlePrint = () => {
+    if (summary) printDischargeSummary({ admission, summary });
+  };
 
   useEffect(() => {
     const load = async () => {
