@@ -111,22 +111,23 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">Analytics Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Real-time hospital performance metrics</p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => void loadData(true)}
-          disabled={refreshing}
-          className="gap-2"
-        >
-          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
+      <PageHeader
+        title="Analytics Dashboard"
+        subtitle="Real-time hospital performance metrics"
+        icon={Activity}
+        actions={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void loadData(true)}
+            disabled={refreshing}
+            className="gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-white">
