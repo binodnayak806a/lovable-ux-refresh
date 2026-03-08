@@ -96,7 +96,7 @@ export default function HRMSPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 p-6">
+      <div className="space-y-6">
         <div className="space-y-2">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-4 w-72" />
@@ -112,11 +112,12 @@ export default function HRMSPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">HR Management</h1>
-        <p className="text-muted-foreground mt-1">Staff directory, attendance tracking, and leave management</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="HR Management"
+        subtitle="Staff directory, attendance tracking, and leave management"
+        icon={Users}
+      />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
