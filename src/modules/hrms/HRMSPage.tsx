@@ -102,34 +102,10 @@ export default function HRMSPage() {
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          title="Total Staff"
-          value={staff.length}
-          sub={`${activeStaff.length} active`}
-          icon={Users}
-          accent="bg-blue-50 text-blue-600"
-        />
-        <MetricCard
-          title="Present Today"
-          value={todayPresent}
-          sub={`of ${activeStaff.length} active`}
-          icon={CalendarCheck}
-          accent="bg-emerald-50 text-emerald-600"
-        />
-        <MetricCard
-          title="On Leave"
-          value={onLeave}
-          sub="today"
-          icon={Clock}
-          accent="bg-amber-50 text-amber-600"
-        />
-        <MetricCard
-          title="Pending Leaves"
-          value={pendingLeaves}
-          sub="awaiting approval"
-          icon={TrendingUp}
-          accent="bg-rose-50 text-rose-600"
-        />
+        <SharedStatCard label="Total Staff" value={staff.length} subtitle={`${activeStaff.length} active`} icon={Users} iconClassName="bg-blue-50 text-blue-600" />
+        <SharedStatCard label="Present Today" value={todayPresent} subtitle={`of ${activeStaff.length} active`} icon={CalendarCheck} iconClassName="bg-emerald-50 text-emerald-600" />
+        <SharedStatCard label="On Leave" value={onLeave} subtitle="today" icon={Clock} iconClassName="bg-amber-50 text-amber-600" />
+        <SharedStatCard label="Pending Leaves" value={pendingLeaves} subtitle="awaiting approval" icon={TrendingUp} iconClassName="bg-rose-50 text-rose-600" />
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
