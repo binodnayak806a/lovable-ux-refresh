@@ -37,31 +37,6 @@ const ICON_BG_MAP: Record<string, string> = {
   green: 'bg-emerald-50 text-emerald-600',
 };
 
-function MiniSparkline({ trend }: { trend: number }) {
-  const isPositive = trend >= 0;
-  const strokeColor = isPositive
-    ? 'hsl(142, 76%, 36%)'
-    : 'hsl(0, 84%, 60%)';
-  const fillColor = isPositive
-    ? 'hsl(142, 76%, 36%, 0.08)'
-    : 'hsl(0, 84%, 60%, 0.08)';
-
-  const points = isPositive
-    ? 'M0,20 L10,18 L20,15 L30,12 L40,14 L50,10 L60,8'
-    : 'M0,8 L10,10 L20,12 L30,15 L40,13 L50,17 L60,20';
-
-  const areaPoints = isPositive
-    ? 'M0,20 L10,18 L20,15 L30,12 L40,14 L50,10 L60,8 L60,28 L0,28 Z'
-    : 'M0,8 L10,10 L20,12 L30,15 L40,13 L50,17 L60,20 L60,28 L0,28 Z';
-
-  return (
-    <svg width="60" height="28" viewBox="0 0 60 28" className="opacity-60" aria-hidden="true">
-      <path d={areaPoints} fill={fillColor} />
-      <path d={points} fill="none" stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 export default function MetricCard({
   title,
   value,
