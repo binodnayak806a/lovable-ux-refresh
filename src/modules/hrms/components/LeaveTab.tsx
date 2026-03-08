@@ -29,11 +29,11 @@ const STATUS_CONFIG = {
   rejected: { label: 'Rejected', icon: XCircle, color: 'bg-red-50 text-red-700 border-red-200' },
 };
 
-export default function LeaveTab({ staff, leaves, onRefresh, currentUserId }: LeaveTabProps) {
+export default function LeaveTab({ staff, leaves, onRefresh, currentUserId: _currentUserId }: LeaveTabProps) {
   const [showDialog, setShowDialog] = useState(false);
   const [actioning, setActioning] = useState<string | null>(null);
 
-  const handleSave = async (data: {
+  const handleSave = async (_data: {
     staff_id: string;
     leave_type: string;
     from_date: string;
