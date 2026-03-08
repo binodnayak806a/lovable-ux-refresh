@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Save, Trash2, AlertTriangle, Users, User, MapPin, ClipboardList, CreditCard, CheckCircle, Plus, X } from 'lucide-react';
+import QuickBookAppointment from '../../patients/components/QuickBookAppointment';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Badge } from '../../../components/ui/badge';
