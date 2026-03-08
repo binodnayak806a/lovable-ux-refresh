@@ -6,7 +6,7 @@ import {
 import { Skeleton } from '../../../components/ui/skeleton';
 // Revenue data from mockStore or demo fallback
 import { useHospitalId } from '../../../hooks/useHospitalId';
-import { format, subDays } from 'date-fns'; // kept for DEMO_DATA dates
+// date-fns used in DEMO_DATA dates
 
 interface DayRevenue {
   date: string;
