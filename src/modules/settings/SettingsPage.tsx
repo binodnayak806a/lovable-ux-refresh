@@ -19,6 +19,8 @@ import {
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import { toast } from 'sonner';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
@@ -126,6 +128,7 @@ function SettingRow({ label, description, children }: { label: string; descripti
 }
 
 export default function SettingsPage() {
+  usePageTitle('Settings');
   const { hospitalId } = useAuth();
   const { can } = usePermissions();
   const effectiveHospitalId = hospitalId ?? SAMPLE_HOSPITAL_ID;
@@ -308,25 +311,26 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-          <p className="text-muted-foreground mt-1">Configure hospital preferences and system behaviour</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchSettings} disabled={saving}>
-            <RefreshCw className="h-4 w-4 mr-1.5" />
-            Reset
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            <Save className="h-4 w-4 mr-1.5" />
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Settings"
+        subtitle="Configure hospital preferences and system behaviour"
+        icon={Building2}
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={fetchSettings} disabled={saving}>
+              <RefreshCw className="h-4 w-4 mr-1.5" />
+              Reset
+            </Button>
+            <Button size="sm" onClick={handleSave} disabled={saving}>
+              <Save className="h-4 w-4 mr-1.5" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+        }
+      />
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="border-b border-slate-200">
             <TabsList className="bg-transparent p-0 h-auto w-full justify-start rounded-none overflow-x-auto">

@@ -53,7 +53,7 @@ export default function MetricCard({
   if (loading) {
     return (
       <div
-        className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm"
+        className="bg-card border border-border rounded-xl p-5 shadow-sm"
         role="status"
         aria-label={`Loading ${title}`}
       >
@@ -68,13 +68,13 @@ export default function MetricCard({
 
   return (
     <article
-      className="bg-white rounded-2xl p-6 shadow-card hover:shadow-hover transition-all duration-300"
+      className="bg-card rounded-2xl p-6 shadow-card hover:shadow-hover transition-all duration-300"
       aria-label={`${title}: ${value}`}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-gray-500 font-medium mb-4">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 tracking-tight mb-2">{value}</p>
+          <p className="text-sm text-muted-foreground font-medium mb-4">{title}</p>
+          <p className="text-3xl font-bold text-foreground tracking-tight mb-2">{value}</p>
           {trend !== undefined && (
             <div className="flex items-center gap-2 mt-3">
               <span
@@ -91,7 +91,7 @@ export default function MetricCard({
             </div>
           )}
           {!trend && subtitle && (
-            <p className="text-sm text-gray-500 mt-1.5">{subtitle}</p>
+            <p className="text-sm text-muted-foreground mt-1.5">{subtitle}</p>
           )}
         </div>
         {trend !== undefined && (

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Bell, Check, CheckCheck, Filter, AlertCircle, Calendar, FileText, Pill, BedDouble, Info, CheckCircle } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../store/slices/notificationsSlice';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -91,6 +93,7 @@ function NotificationItem({
 }
 
 export default function NotificationsPage() {
+  usePageTitle('Notifications');
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const { items, unreadCount, status } = useAppSelector((state) => state.notifications);
@@ -124,15 +127,12 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {unreadCount > 0 ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {unreadCount > 0 && (
+      <PageHeader
+        title="Notifications"
+        subtitle={unreadCount > 0 ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
+        icon={Bell}
+        actions={
+          unreadCount > 0 ? (
             <Button
               variant="outline"
               size="sm"
@@ -142,9 +142,9 @@ export default function NotificationsPage() {
               <CheckCheck className="w-4 h-4" />
               Mark all read
             </Button>
-          )}
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>

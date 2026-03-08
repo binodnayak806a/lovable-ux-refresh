@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Mail, Phone, Shield, Camera, Save, Key, Bell, Moon, Globe, Loader2 } from 'lucide-react';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { updateUser } from '../../store/slices/authSlice';
 import { supabase } from '../../lib/supabase';
@@ -28,6 +30,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 };
 
 export default function ProfilePage() {
+  usePageTitle('Profile');
   const dispatch = useAppDispatch();
   const { user, session } = useAppSelector((state) => state.auth);
   const [saving, setSaving] = useState(false);
@@ -227,10 +230,11 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage your account settings and preferences</p>
-      </div>
+      <PageHeader
+        title="Profile Settings"
+        subtitle="Manage your account settings and preferences"
+        icon={User}
+      />
 
       <Card>
         <CardContent className="pt-6">

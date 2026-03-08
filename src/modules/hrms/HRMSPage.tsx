@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import { Users, CalendarCheck, Clock, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -39,6 +41,7 @@ function MetricCard({ title, value, sub, icon: Icon, accent }: {
 }
 
 export default function HRMSPage() {
+  usePageTitle('HRMS');
   const { hospitalId, user } = useAuth();
   const effectiveHospitalId = hospitalId ?? SAMPLE_HOSPITAL_ID;
 
@@ -96,7 +99,7 @@ export default function HRMSPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 p-6">
+      <div className="space-y-6">
         <div className="space-y-2">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-4 w-72" />
@@ -112,11 +115,12 @@ export default function HRMSPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">HR Management</h1>
-        <p className="text-muted-foreground mt-1">Staff directory, attendance tracking, and leave management</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="HR Management"
+        subtitle="Staff directory, attendance tracking, and leave management"
+        icon={Users}
+      />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
@@ -149,7 +153,7 @@ export default function HRMSPage() {
         />
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
         <Tabs defaultValue="directory">
           <div className="border-b border-slate-200 px-6 pt-4">
             <TabsList className="bg-transparent p-0 h-auto gap-1">

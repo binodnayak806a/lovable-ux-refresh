@@ -10,13 +10,14 @@ import { Input } from '../../components/ui/input';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Card, CardContent } from '../../components/ui/card';
+import { Card } from '../../components/ui/card';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useSmartNavigation } from '../../hooks/useSmartNavigation';
 import { loadPatientContext } from '../../store/slices/globalSlice';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';
+import SharedStatCard from '../../components/shared/StatCard';
 import dashboardService from '../../services/dashboard.service';
 import PatientCard from './components/PatientCard';
 import PatientDetailSidebar from './components/PatientDetailSidebar';
@@ -190,10 +191,10 @@ export default function PatientsPage() {
         />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard label="Total Patients" value={total} icon={Users} iconBg="bg-blue-50" iconColor="text-blue-600" sub="All registered" />
-          <StatCard label="Male Patients" value={maleCount} icon={User} iconBg="bg-sky-50" iconColor="text-sky-600" sub="Current page" />
-          <StatCard label="Female Patients" value={femaleCount} icon={Heart} iconBg="bg-rose-50" iconColor="text-rose-500" sub="Current page" />
-          <StatCard label="Emergency Cases" value={emergencyCount} icon={Activity} iconBg="bg-red-50" iconColor="text-red-500" sub="Current page" />
+          <SharedStatCard label="Total Patients" value={total} icon={Users} iconClassName="bg-blue-50 text-blue-600" subtitle="All registered" />
+          <SharedStatCard label="Male Patients" value={maleCount} icon={User} iconClassName="bg-sky-50 text-sky-600" subtitle="Current page" />
+          <SharedStatCard label="Female Patients" value={femaleCount} icon={Heart} iconClassName="bg-rose-50 text-rose-500" subtitle="Current page" />
+          <SharedStatCard label="Emergency Cases" value={emergencyCount} icon={Activity} iconClassName="bg-red-50 text-red-500" subtitle="Current page" />
         </div>
 
         <Card>
@@ -362,26 +363,4 @@ export default function PatientsPage() {
   );
 }
 
-function StatCard({ label, value, icon: Icon, iconBg, iconColor, sub }: {
-  label: string;
-  value: number;
-  icon: React.ElementType;
-  iconBg: string;
-  iconColor: string;
-  sub: string;
-}) {
-  return (
-    <Card className="border shadow-card hover:shadow-hover transition-all">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-muted-foreground">{label}</span>
-          <div className={`w-7 h-7 rounded-lg ${iconBg} flex items-center justify-center`}>
-            <Icon className={`w-4 h-4 ${iconColor}`} />
-          </div>
-        </div>
-        <p className="text-2xl font-bold text-foreground">{value.toLocaleString('en-IN')}</p>
-        <p className="text-xs text-muted-foreground mt-1">{sub}</p>
-      </CardContent>
-    </Card>
-  );
-}
+// Uses shared StatCard from components/shared

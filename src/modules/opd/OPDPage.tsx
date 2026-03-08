@@ -11,7 +11,7 @@ import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
+import PageHeader from '../../components/shared/PageHeader';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { useAppSelector } from '../../store';
@@ -141,12 +141,12 @@ export default function OPDPage() {
 
   return (
     <div className="space-y-5">
-      <Breadcrumbs />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">OPD Management</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Outpatient Department — {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-        </div>
+        <PageHeader
+          title="OPD Management"
+          subtitle={`Outpatient Department — ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
+          icon={Stethoscope}
+        />
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
           <TabsList>
             <TabsTrigger value="queue" className="gap-1.5">
