@@ -347,7 +347,7 @@ export default function DoctorQueuePage() {
                 const isSelected = selectedAppt?.id === appt.id;
                 const isWaiting = appt.status === 'scheduled' || appt.status === 'confirmed';
                 const isEngaged = appt.status === 'in_progress';
-                const isCompleted = appt.status === 'completed';
+                const _isCompleted = appt.status === 'completed';
                 const demo = [getAge(appt.patient_dob, appt.patient_age), appt.patient_gender?.charAt(0).toUpperCase()].filter(Boolean).join(' ');
                 const wt = getWaitTime(appt.created_at);
 
