@@ -111,7 +111,7 @@ const RxContent = forwardRef<HTMLDivElement, Omit<Props, 'onClose'>>((props, ref
         <div style={{ marginBottom: '12px' }}>
           <strong>Investigations Ordered:</strong>
           <div style={{ marginTop: '4px' }}>
-            {investigations.map((inv, i) => (
+            {investigations.map((inv) => (
               <span key={inv.test_id} style={{ display: 'inline-block', margin: '2px 4px 2px 0', padding: '2px 8px', background: '#f1f5f9', borderRadius: '3px', border: '1px solid #e2e8f0' }}>
                 {inv.test_name} <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '10px' }}>({inv.test_code})</span>
               </span>

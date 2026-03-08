@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Search, RefreshCw, Clock, Stethoscope, Printer,
-  FileText, AlertTriangle, ChevronDown, ChevronLeft, ClipboardList,
-  X, Download, Eye, User, Phone, Edit, Info, SlidersHorizontal,
-  MoreVertical, SkipBack, Mail, Save,
+  FileText, AlertTriangle, ChevronLeft, ClipboardList,
+  Download, Eye, Phone, SlidersHorizontal, Save,
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
