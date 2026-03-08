@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import {
   CalendarCheck, BedDouble, TrendingUp, Clock,
-  ChevronRight, AlertTriangle, Stethoscope, UserPlus, RefreshCw,
+  ChevronRight, Stethoscope, UserPlus, RefreshCw,
   IndianRupee, FileText, Activity, Users, LogIn, LogOut,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
