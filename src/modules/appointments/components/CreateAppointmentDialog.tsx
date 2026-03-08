@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   X, Search, UserPlus, Calendar, Clock, MessageCircle,
   AlertTriangle, Zap,
@@ -105,7 +105,19 @@ export default function CreateAppointmentDialog({
   } | null>(null);
   const [showWhatsAppButton, setShowWhatsAppButton] = useState(false);
 
-  const debouncedSearch = useDebounce(patientSearch, 280);
+  const debouncedSearch = useDebounce(patientSearch, 150);
+  const patientSearchRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus patient search when dialog opens
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => patientSearchRef.current?.focus(), 100);
+      // Auto-select doctor if only one available
+      if (doctors.length === 1 && !doctorId) {
+        setDoctorId(doctors[0].id);
+      }
+    }
+  }, [open, doctors]);
 
   useEffect(() => {
     if (prefillDate) setAppointmentDate(format(prefillDate, 'yyyy-MM-dd'));
@@ -305,7 +317,7 @@ export default function CreateAppointmentDialog({
             </button>
           </div>
 
-          <div className="p-6 space-y-5">
+          <form onSubmit={(e) => { e.preventDefault(); if (selectedPatient && doctorId && !submitting) handleSubmit(); }} className="p-6 space-y-5">
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-2 block">Patient *</Label>
               {selectedPatient ? (
@@ -328,10 +340,12 @@ export default function CreateAppointmentDialog({
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
+                    ref={patientSearchRef}
                     value={patientSearch}
                     onChange={e => setPatientSearch(e.target.value)}
                     placeholder="Search by name, UHID, or phone..."
                     className="pl-10"
+                    autoFocus
                   />
                   {(patients.length > 0 || (debouncedSearch.length >= 2 && !searchLoading)) && (
                     <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-56 overflow-y-auto">
@@ -568,20 +582,23 @@ export default function CreateAppointmentDialog({
                 Walk-in appointments are auto-set to Waiting status
               </Badge>
             )}
-          </div>
 
-          <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3 rounded-b-2xl">
-            <Button variant="outline" onClick={handleClose} disabled={submitting}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={!selectedPatient || !doctorId || submitting}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {submitting ? 'Creating...' : 'Create Appointment'}
-            </Button>
-          </div>
+            <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex items-center justify-between rounded-b-2xl">
+              <p className="text-[10px] text-muted-foreground">Press <kbd className="px-1 py-0.5 bg-muted rounded text-[9px] font-mono">Enter</kbd> to create</p>
+              <div className="flex items-center gap-3">
+                <Button type="button" variant="outline" onClick={handleClose} disabled={submitting}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!selectedPatient || !doctorId || submitting}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {submitting ? 'Creating...' : 'Create Appointment'}
+                </Button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
 

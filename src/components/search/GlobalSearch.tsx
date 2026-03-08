@@ -29,7 +29,7 @@ export default function GlobalSearch() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debouncedQuery = useDebounce(query, 250);
+  const debouncedQuery = useDebounce(query, 150);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

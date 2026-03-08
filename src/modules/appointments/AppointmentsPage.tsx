@@ -117,6 +117,18 @@ export default function AppointmentsPage() {
   const handleSlotClick = (date: Date, time: string) => { setPrefillDate(date); setPrefillTime(time); setDialogOpen(true); };
   const handleNewAppointment = () => { setPrefillDate(undefined); setPrefillTime(undefined); setDialogOpen(true); };
 
+  // Keyboard shortcut: N to create new appointment (when no input is focused)
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'n' && !dialogOpen && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement)) {
+        e.preventDefault();
+        handleNewAppointment();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [dialogOpen]);
+
   const handleStatusChange = async (id: string, status: string) => {
     try { await appointmentsService.updateStatus(id, status); setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a)); } catch { /* */ }
   };
@@ -256,9 +268,10 @@ export default function AppointmentsPage() {
 
           <div className="w-px h-5 bg-border/50" />
 
-          <Button size="sm" onClick={handleNewAppointment} className="h-7 gap-1.5 text-[11px] px-3 rounded-lg">
+          <Button size="sm" onClick={handleNewAppointment} className="h-7 gap-1.5 text-[11px] px-3 rounded-lg" title="New Appointment (N)">
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">New</span>
+            <kbd className="hidden lg:inline ml-1 text-[9px] opacity-60 font-mono">N</kbd>
           </Button>
         </div>
       </div>
