@@ -308,23 +308,24 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-          <p className="text-muted-foreground mt-1">Configure hospital preferences and system behaviour</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchSettings} disabled={saving}>
-            <RefreshCw className="h-4 w-4 mr-1.5" />
-            Reset
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            <Save className="h-4 w-4 mr-1.5" />
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Settings"
+        subtitle="Configure hospital preferences and system behaviour"
+        icon={Building2}
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={fetchSettings} disabled={saving}>
+              <RefreshCw className="h-4 w-4 mr-1.5" />
+              Reset
+            </Button>
+            <Button size="sm" onClick={handleSave} disabled={saving}>
+              <Save className="h-4 w-4 mr-1.5" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+        }
+      />
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
