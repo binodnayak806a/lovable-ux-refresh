@@ -95,7 +95,8 @@ export default function OPDPage() {
   const registeredUhid = searchParams.get('registered');
 
   const [tab, setTab] = useState<Tab>('queue');
-  const [appointments, setAppointments] = useState<AppointmentRow[]>([]);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
