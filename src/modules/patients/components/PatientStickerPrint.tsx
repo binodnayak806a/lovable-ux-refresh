@@ -56,7 +56,7 @@ const FIELD_OPTIONS: FieldOption[] = [
   { key: 'blood_group', label: 'Blood Group', getValue: (p) => p.blood_group || '', defaultChecked: false },
 ];
 
-export default function PatientStickerPrint({ patient, onClose, stickerSize, onSizeChange }: Props) {
+export default function PatientStickerPrint({ patient, onClose }: Props) {
   const printRef = useRef<HTMLDivElement>(null);
   const [printerType, setPrinterType] = useState<'sticker' | 'general'>('sticker');
   const [fontSize, setFontSize] = useState('9');
