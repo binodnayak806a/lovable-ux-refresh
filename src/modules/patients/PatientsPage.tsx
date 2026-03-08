@@ -282,6 +282,7 @@ export default function PatientsPage() {
                       onConsult={() => startConsultation(p.id)}
                       onAdmit={() => admitPatient(p.id)}
                       onBill={() => goToBilling(p.id)}
+                      onBookAppointment={() => setBookingPatient(p)}
                     />
                   ))}
                 </div>
