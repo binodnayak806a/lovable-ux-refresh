@@ -23,7 +23,7 @@ export default function LowStockAlert() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('pharmacy_inventory')
           .select('id, medication_name, batch_number, quantity_in_stock, reorder_level')
           .eq('hospital_id', hospitalId)
@@ -31,11 +31,16 @@ export default function LowStockAlert() {
           .order('quantity_in_stock', { ascending: true })
           .limit(8);
 
-        const rows = (data ?? []) as LowStockItem[];
-        const lowStock = rows.filter(
-          (item) => item.quantity_in_stock <= (item.reorder_level || 10)
-        );
-        setItems(lowStock);
+        if (error) {
+          console.warn('pharmacy_inventory table not available:', error.message);
+          setItems([]);
+        } else {
+          const rows = (data ?? []) as LowStockItem[];
+          const lowStock = rows.filter(
+            (item) => item.quantity_in_stock <= (item.reorder_level || 10)
+          );
+          setItems(lowStock);
+        }
       } catch {
         /* ignore */
       } finally {
