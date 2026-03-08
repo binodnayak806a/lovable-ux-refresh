@@ -18,8 +18,7 @@ function formatTime(time: string): string {
   if (!time) return '-';
   const [h, m] = time.split(':').map(Number);
   const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12 = h % 12 || 12;
-  return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${ampm}`;
 }
 
 function formatDate(dateStr: string): string {
@@ -40,19 +39,20 @@ export default function RecentAppointmentsPanel({ appointments, loading }: Props
   return (
     <section
       aria-labelledby="recent-appointments-heading"
-      className="bg-card border border-border rounded-xl overflow-hidden"
+      className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-card"
     >
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <Clock aria-hidden="true" className="w-4 h-4 text-muted-foreground" />
+          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+            <Clock aria-hidden="true" className="w-4 h-4 text-muted-foreground" />
+          </div>
           <h2 id="recent-appointments-heading" className="text-sm font-semibold text-foreground">
             Recent Appointments
           </h2>
         </div>
         <button
           onClick={() => navigate('/appointments')}
-          className="text-sm text-primary hover:text-primary/80 font-medium hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded px-2 py-1"
-          aria-label="View all appointments"
+          className="text-xs text-primary hover:text-primary/80 font-medium hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded px-2 py-1"
         >
           View all
         </button>
@@ -61,22 +61,20 @@ export default function RecentAppointmentsPanel({ appointments, loading }: Props
       <div className="overflow-x-auto">
         <table className="w-full text-sm" role="grid">
           <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground">Patient</th>
-              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground">Doctor</th>
-              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground hidden sm:table-cell">Type</th>
-              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground">Date</th>
-              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground hidden md:table-cell">Time</th>
-              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground">Status</th>
-              <th scope="col" className="w-10 px-2">
-                <span className="sr-only">Actions</span>
-              </th>
+            <tr className="border-b border-border bg-muted/30">
+              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground text-xs">Patient</th>
+              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground text-xs">Doctor</th>
+              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground text-xs hidden sm:table-cell">Type</th>
+              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground text-xs">Date</th>
+              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground text-xs hidden md:table-cell">Time</th>
+              <th scope="col" className="px-5 py-3 text-left font-medium text-muted-foreground text-xs">Status</th>
+              <th scope="col" className="w-10 px-2"><span className="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="border-b border-border/50" role="row" aria-busy="true">
+                <tr key={i} className="border-b border-border/50">
                   <td className="px-5 py-4"><Skeleton className="w-32 h-5" /></td>
                   <td className="px-5 py-4"><Skeleton className="w-28 h-5" /></td>
                   <td className="px-5 py-4 hidden sm:table-cell"><Skeleton className="w-20 h-5" /></td>
@@ -109,11 +107,9 @@ export default function RecentAppointmentsPanel({ appointments, loading }: Props
                 return (
                   <tr
                     key={appt.id}
-                    className="border-b border-border/50 hover:bg-primary/5 active:bg-primary/10 transition-colors cursor-pointer group"
+                    className="border-b border-border/50 hover:bg-primary/5 transition-colors cursor-pointer group"
                     onClick={() => goToPatient(appt.patient_id)}
                     tabIndex={0}
-                    role="row"
-                    aria-label={`Appointment for ${appt.patient_name} on ${formatDate(appt.appointment_date)}`}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
@@ -121,22 +117,19 @@ export default function RecentAppointmentsPanel({ appointments, loading }: Props
                       }
                     }}
                   >
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div
-                          aria-hidden="true"
-                          className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary group-hover:bg-primary/20 transition-colors"
-                        >
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary group-hover:bg-primary/20 transition-colors">
                           {patientInitials}
                         </div>
                         <span className="font-medium text-foreground">{appt.patient_name}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-foreground/80">{appt.doctor_name || 'Unassigned'}</td>
-                    <td className="px-5 py-4 text-muted-foreground capitalize hidden sm:table-cell">{appt.type || '-'}</td>
-                    <td className="px-5 py-4 text-muted-foreground">{formatDate(appt.appointment_date)}</td>
-                    <td className="px-5 py-4 text-muted-foreground hidden md:table-cell">{formatTime(appt.appointment_time)}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3.5 text-foreground/80">{appt.doctor_name || 'Unassigned'}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground capitalize hidden sm:table-cell">{appt.type || '-'}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground">{formatDate(appt.appointment_date)}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground hidden md:table-cell">{formatTime(appt.appointment_time)}</td>
+                    <td className="px-5 py-3.5">
                       <span className={cn(
                         'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold capitalize',
                         style.bg, style.text
@@ -145,13 +138,13 @@ export default function RecentAppointmentsPanel({ appointments, loading }: Props
                         {appt.status.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="px-2 py-4">
+                    <td className="px-2 py-3.5">
                       <button
                         aria-label={`More actions for ${appt.patient_name}'s appointment`}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted active:bg-accent transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <MoreHorizontal aria-hidden="true" className="w-4 h-4" />
+                        <MoreHorizontal className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>
