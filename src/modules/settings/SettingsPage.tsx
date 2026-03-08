@@ -20,6 +20,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import OpdRoomConfig from './components/OpdRoomConfig';
 import PageHeader from '../../components/shared/PageHeader';
 import { toast } from 'sonner';
 
