@@ -1,6 +1,14 @@
+/**
+ * Professional OPD Bill Print — A4 format with hospital branding.
+ * Opens in a new window for print/PDF.
+ */
 import { useRef } from 'react';
 import { Printer, X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
+import {
+  hospitalHeaderHTML, openPrintWindow, formatCurrencyINR, formatDateIN,
+  calculateAge, numberToWordsINR,
+} from '../../../lib/printStyles';
 import type { BillItem, BillRecord } from './types';
 import { ITEM_TYPES, PAYMENT_MODES } from './types';
 
@@ -25,153 +33,99 @@ interface Props {
   onClose: () => void;
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 2,
-  }).format(amount);
-}
+function buildOPDBillHTML(bill: BillRecord, patient: PatientInfo, items: BillItem[], totals: Props['totals']): string {
+  const paymentLabel = PAYMENT_MODES.find(m => m.value === bill.payment_mode)?.label || bill.payment_mode;
 
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '-';
-  return new Date(dateStr).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
+  const itemRows = items.map((item, idx) => `
+    <tr>
+      <td class="c">${idx + 1}</td>
+      <td>${item.itemName}</td>
+      <td><span class="type-badge">${ITEM_TYPES.find(t => t.value === item.itemType)?.label || item.itemType}</span></td>
+      <td class="c">${item.quantity}</td>
+      <td class="r">${formatCurrencyINR(item.unitPrice)}</td>
+      <td class="r">${formatCurrencyINR(item.totalPrice)}</td>
+    </tr>
+  `).join('');
 
-function calculateAge(dob: string | null): string {
-  if (!dob) return '-';
-  const birth = new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return `${age} yrs`;
-}
+  return `
+    ${hospitalHeaderHTML()}
+    <div class="doc-title">TAX INVOICE / OPD RECEIPT</div>
 
-function numberToWords(num: number): string {
-  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
-    'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Patient Details</h4>
+        <div class="info-row"><span class="lbl">Name</span><span class="val">${patient.full_name}</span></div>
+        <div class="info-row"><span class="lbl">UHID</span><span class="val">${patient.uhid}</span></div>
+        <div class="info-row"><span class="lbl">Age / Gender</span><span class="val">${calculateAge(patient.date_of_birth)} / ${patient.gender}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Invoice Details</h4>
+        <div class="info-row"><span class="lbl">Invoice No</span><span class="val">${bill.bill_number}</span></div>
+        <div class="info-row"><span class="lbl">Date</span><span class="val">${formatDateIN(bill.bill_date)}</span></div>
+        <div class="info-row"><span class="lbl">Type</span><span class="val">${bill.bill_type}</span></div>
+      </div>
+    </div>
 
-  if (num === 0) return 'Zero';
-  if (num < 0) return 'Minus ' + numberToWords(-num);
+    <table class="bill-table">
+      <thead>
+        <tr>
+          <th class="c" style="width:5%">#</th>
+          <th style="width:35%">Description</th>
+          <th style="width:15%">Type</th>
+          <th class="c" style="width:10%">Qty</th>
+          <th class="r" style="width:17%">Rate</th>
+          <th class="r" style="width:18%">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemRows}
+      </tbody>
+    </table>
 
-  const rupees = Math.floor(num);
-  const paise = Math.round((num - rupees) * 100);
+    <div class="summary-wrap">
+      <div class="summary-tbl">
+        <div class="summary-row"><span class="lbl">Subtotal</span><span class="val">${formatCurrencyINR(totals.subtotal)}</span></div>
+        ${totals.discountAmount > 0 ? `<div class="summary-row"><span class="lbl">Discount (${bill.discount_percentage}%)</span><span class="val" style="color:#dc2626">-${formatCurrencyINR(totals.discountAmount)}</span></div>` : ''}
+        <div class="summary-row"><span class="lbl">GST (${bill.tax_percentage}%)</span><span class="val">+${formatCurrencyINR(totals.taxAmount)}</span></div>
+        <div class="summary-row total"><span class="lbl">Total</span><span class="val">${formatCurrencyINR(totals.totalAmount)}</span></div>
+      </div>
+    </div>
 
-  let words = '';
+    <div class="words-box">
+      <strong>Amount in words:</strong> ${numberToWordsINR(totals.totalAmount)}
+    </div>
 
-  if (rupees >= 10000000) {
-    words += numberToWords(Math.floor(rupees / 10000000)) + ' Crore ';
-    num = rupees % 10000000;
-  }
-  if (rupees >= 100000) {
-    words += numberToWords(Math.floor((rupees % 10000000) / 100000)) + ' Lakh ';
-  }
-  if (rupees >= 1000) {
-    words += numberToWords(Math.floor((rupees % 100000) / 1000)) + ' Thousand ';
-  }
-  if (rupees >= 100) {
-    words += numberToWords(Math.floor((rupees % 1000) / 100)) + ' Hundred ';
-  }
-  const remainder = rupees % 100;
-  if (remainder > 0) {
-    if (remainder < 20) {
-      words += ones[remainder];
-    } else {
-      words += tens[Math.floor(remainder / 10)] + ' ' + ones[remainder % 10];
-    }
-  }
+    <div class="payment-bar">
+      <div><strong>Payment Status:</strong> <span class="paid">PAID</span></div>
+      <div><strong>Payment Mode:</strong> ${paymentLabel}</div>
+      <div><strong>Amount Paid:</strong> ${formatCurrencyINR(bill.amount_paid)}</div>
+    </div>
 
-  words = words.trim() + ' Rupees';
-  if (paise > 0) {
-    words += ' and ' + (paise < 20 ? ones[paise] : tens[Math.floor(paise / 10)] + ' ' + ones[paise % 10]) + ' Paise';
-  }
-  return words.trim() + ' Only';
+    <div class="footer">
+      <div class="barcode">${bill.bill_number}</div>
+      <div class="sig"><div class="sig-line">Authorized Signature</div></div>
+    </div>
+
+    <div class="thank-you">Thank you for choosing WellNotes Healthcare. Get well soon!</div>
+  `;
 }
 
 export default function ReceiptPrintPreview({ bill, patient, items, totals, onClose }: Props) {
-  const printRef = useRef<HTMLDivElement>(null);
-
-  const paymentModeLabel = PAYMENT_MODES.find((m) => m.value === bill.payment_mode)?.label || bill.payment_mode;
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {
-    const content = printRef.current;
-    if (!content) return;
-
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Receipt - ${bill.bill_number}</title>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; color: #1a1a1a; padding: 15px; max-width: 800px; margin: 0 auto; }
-            .header { text-align: center; border-bottom: 2px solid #0066cc; padding-bottom: 12px; margin-bottom: 12px; }
-            .hospital-name { font-size: 18px; font-weight: 700; color: #0066cc; margin-bottom: 3px; }
-            .hospital-info { font-size: 10px; color: #666; line-height: 1.5; }
-            .receipt-title { font-size: 14px; font-weight: 600; text-align: center; margin: 10px 0; padding: 6px; background: #f0f7ff; border-radius: 4px; }
-            .info-grid { display: flex; justify-content: space-between; margin-bottom: 12px; gap: 20px; }
-            .info-box { flex: 1; padding: 10px; background: #f8f9fa; border-radius: 6px; }
-            .info-box h4 { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-            .info-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
-            .info-row span:first-child { color: #666; }
-            .info-row span:last-child { font-weight: 500; }
-            .items-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-            .items-table th { background: #0066cc; color: white; padding: 8px 10px; text-align: left; font-size: 10px; font-weight: 600; }
-            .items-table th:nth-child(3), .items-table th:nth-child(4), .items-table th:nth-child(5) { text-align: right; }
-            .items-table td { padding: 8px 10px; border-bottom: 1px solid #e5e5e5; }
-            .items-table td:nth-child(3), .items-table td:nth-child(4), .items-table td:nth-child(5) { text-align: right; font-family: monospace; }
-            .items-table tr:nth-child(even) { background: #f9f9f9; }
-            .type-badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; background: #e8f4fd; color: #0066cc; }
-            .summary-box { display: flex; justify-content: flex-end; margin-top: 10px; }
-            .summary-table { width: 280px; }
-            .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
-            .summary-row span:last-child { font-family: monospace; }
-            .summary-row.total { border-top: 2px solid #0066cc; border-bottom: none; padding-top: 10px; margin-top: 6px; }
-            .summary-row.total span { font-size: 14px; font-weight: 700; color: #0066cc; }
-            .amount-words { padding: 10px; background: #fff9e6; border-radius: 4px; margin: 12px 0; font-style: italic; font-size: 10px; }
-            .payment-info { display: flex; justify-content: space-between; padding: 10px; background: #e8f5e9; border-radius: 4px; margin: 10px 0; }
-            .footer { margin-top: 30px; display: flex; justify-content: space-between; }
-            .signature { text-align: center; width: 150px; }
-            .signature-line { border-top: 1px solid #333; padding-top: 5px; margin-top: 40px; font-size: 10px; }
-            .barcode { font-family: monospace; font-size: 12px; letter-spacing: 2px; color: #666; }
-            .thank-you { text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px dashed #ccc; font-size: 11px; color: #666; }
-            @media print {
-              body { padding: 0; }
-              @page { margin: 10mm; size: A4; }
-            }
-          </style>
-        </head>
-        <body>
-          ${content.innerHTML}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
+    openPrintWindow(`OPD_Bill_${bill.bill_number}`, buildOPDBillHTML(bill, patient, items, totals));
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-5 py-3 border-b">
-          <h2 className="text-lg font-semibold text-gray-800">Receipt Preview</h2>
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+          <h2 className="text-lg font-semibold text-foreground">OPD Bill Preview</h2>
           <div className="flex gap-2">
-            <Button size="sm" onClick={handlePrint} className="gap-1.5 bg-blue-600 hover:bg-blue-700">
+            <Button size="sm" onClick={handlePrint} className="gap-1.5 bg-primary hover:bg-primary/90">
               <Printer className="w-4 h-4" />
-              Print
+              Print / PDF
             </Button>
             <Button size="sm" variant="outline" onClick={onClose}>
               <X className="w-4 h-4" />
@@ -179,135 +133,117 @@ export default function ReceiptPrintPreview({ bill, patient, items, totals, onCl
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-6 bg-gray-50">
+        <div className="flex-1 overflow-auto p-6 bg-muted/30">
           <div
-            ref={printRef}
-            className="bg-white p-8 shadow-sm border border-gray-200 rounded-lg max-w-[210mm] mx-auto"
+            ref={previewRef}
+            className="bg-white p-8 shadow-sm border border-border rounded-lg max-w-[210mm] mx-auto"
+            style={{ fontSize: '11px', fontFamily: "'Segoe UI', Tahoma, Arial, sans-serif" }}
           >
-            <div className="header">
-              <div className="hospital-name">HEALTHRAY MEDICAL CENTER</div>
-              <div className="hospital-info">
+            {/* In-page preview */}
+            <div className="text-center pb-3 mb-4 border-b-[3px] border-double border-[#1a3a5c]">
+              <h1 className="text-xl font-extrabold text-[#1a3a5c] tracking-wider">WELLNOTES HEALTHCARE</h1>
+              <p className="text-[10px] text-muted-foreground font-medium">Multi-Specialty Hospital & Research Centre</p>
+              <p className="text-[9px] text-muted-foreground mt-1">
                 123 Healthcare Avenue, Medical District, City - 400001<br />
-                Phone: +91 22 1234 5678 | Email: info@healthray.com<br />
-                GSTIN: 27AAAAA0000A1Z5 | Reg. No: MH/2024/12345
-              </div>
+                Phone: +91 22 1234 5678 | GSTIN: 27AAAAA0000A1Z5
+              </p>
             </div>
 
-            <div className="receipt-title">TAX INVOICE / RECEIPT</div>
+            <div className="text-center text-xs font-bold text-white bg-[#1a3a5c] py-1.5 rounded mb-4 tracking-widest">
+              TAX INVOICE / OPD RECEIPT
+            </div>
 
-            <div className="info-grid">
-              <div className="info-box">
-                <h4>Patient Details</h4>
-                <div className="info-row">
-                  <span>Name:</span>
-                  <span>{patient.full_name}</span>
-                </div>
-                <div className="info-row">
-                  <span>UHID:</span>
-                  <span>{patient.uhid}</span>
-                </div>
-                <div className="info-row">
-                  <span>Age/Gender:</span>
-                  <span>{calculateAge(patient.date_of_birth)} / {patient.gender}</span>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="p-3 bg-muted/50 rounded-lg border border-border">
+                <h4 className="text-[8px] text-muted-foreground uppercase tracking-wider font-bold mb-1.5">Patient Details</h4>
+                <div className="space-y-0.5 text-[10.5px]">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Name</span><span className="font-semibold">{patient.full_name}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">UHID</span><span className="font-semibold">{patient.uhid}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Age/Gender</span><span className="font-semibold">{calculateAge(patient.date_of_birth)} / {patient.gender}</span></div>
                 </div>
               </div>
-              <div className="info-box">
-                <h4>Invoice Details</h4>
-                <div className="info-row">
-                  <span>Invoice No:</span>
-                  <span>{bill.bill_number}</span>
-                </div>
-                <div className="info-row">
-                  <span>Date:</span>
-                  <span>{formatDate(bill.bill_date)}</span>
-                </div>
-                <div className="info-row">
-                  <span>Type:</span>
-                  <span>{bill.bill_type}</span>
+              <div className="p-3 bg-muted/50 rounded-lg border border-border">
+                <h4 className="text-[8px] text-muted-foreground uppercase tracking-wider font-bold mb-1.5">Invoice Details</h4>
+                <div className="space-y-0.5 text-[10.5px]">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Invoice No</span><span className="font-semibold font-mono">{bill.bill_number}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Date</span><span className="font-semibold">{formatDateIN(bill.bill_date)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span className="font-semibold">{bill.bill_type}</span></div>
                 </div>
               </div>
             </div>
 
-            <table className="items-table">
+            <table className="w-full text-[10.5px] mb-4">
               <thead>
-                <tr>
-                  <th style={{ width: '5%' }}>#</th>
-                  <th style={{ width: '40%' }}>Description</th>
-                  <th style={{ width: '15%' }}>Type</th>
-                  <th style={{ width: '10%' }}>Qty</th>
-                  <th style={{ width: '15%' }}>Rate</th>
-                  <th style={{ width: '15%' }}>Amount</th>
+                <tr className="bg-[#1a3a5c] text-white">
+                  <th className="py-1.5 px-2 text-center text-[9px] font-semibold w-[5%]">#</th>
+                  <th className="py-1.5 px-2 text-left text-[9px] font-semibold">Description</th>
+                  <th className="py-1.5 px-2 text-left text-[9px] font-semibold w-[15%]">Type</th>
+                  <th className="py-1.5 px-2 text-center text-[9px] font-semibold w-[10%]">Qty</th>
+                  <th className="py-1.5 px-2 text-right text-[9px] font-semibold w-[17%]">Rate</th>
+                  <th className="py-1.5 px-2 text-right text-[9px] font-semibold w-[18%]">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, idx) => (
-                  <tr key={item.id}>
-                    <td>{idx + 1}</td>
-                    <td>{item.itemName}</td>
-                    <td>
-                      <span className="type-badge">
-                        {ITEM_TYPES.find((t) => t.value === item.itemType)?.label}
+                  <tr key={item.id} className={idx % 2 === 1 ? 'bg-muted/30' : ''}>
+                    <td className="py-1.5 px-2 text-center">{idx + 1}</td>
+                    <td className="py-1.5 px-2 font-medium">{item.itemName}</td>
+                    <td className="py-1.5 px-2">
+                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[9px]">
+                        {ITEM_TYPES.find(t => t.value === item.itemType)?.label}
                       </span>
                     </td>
-                    <td>{item.quantity}</td>
-                    <td>{formatCurrency(item.unitPrice)}</td>
-                    <td>{formatCurrency(item.totalPrice)}</td>
+                    <td className="py-1.5 px-2 text-center">{item.quantity}</td>
+                    <td className="py-1.5 px-2 text-right font-mono">{formatCurrencyINR(item.unitPrice)}</td>
+                    <td className="py-1.5 px-2 text-right font-mono font-medium">{formatCurrencyINR(item.totalPrice)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
-            <div className="summary-box">
-              <div className="summary-table">
-                <div className="summary-row">
-                  <span>Subtotal:</span>
-                  <span>{formatCurrency(totals.subtotal)}</span>
+            <div className="flex justify-end mb-3">
+              <div className="w-[260px] space-y-1 text-[10.5px]">
+                <div className="flex justify-between border-b border-border/50 pb-1">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-mono">{formatCurrencyINR(totals.subtotal)}</span>
                 </div>
                 {totals.discountAmount > 0 && (
-                  <div className="summary-row">
-                    <span>Discount ({bill.discount_percentage}%):</span>
-                    <span>-{formatCurrency(totals.discountAmount)}</span>
+                  <div className="flex justify-between border-b border-border/50 pb-1">
+                    <span className="text-muted-foreground">Discount ({bill.discount_percentage}%)</span>
+                    <span className="font-mono text-destructive">-{formatCurrencyINR(totals.discountAmount)}</span>
                   </div>
                 )}
-                <div className="summary-row">
-                  <span>GST ({bill.tax_percentage}%):</span>
-                  <span>+{formatCurrency(totals.taxAmount)}</span>
+                <div className="flex justify-between border-b border-border/50 pb-1">
+                  <span className="text-muted-foreground">GST ({bill.tax_percentage}%)</span>
+                  <span className="font-mono">+{formatCurrencyINR(totals.taxAmount)}</span>
                 </div>
-                <div className="summary-row total">
-                  <span>Total:</span>
-                  <span>{formatCurrency(totals.totalAmount)}</span>
+                <div className="flex justify-between pt-2 border-t-2 border-[#1a3a5c]">
+                  <span className="font-extrabold text-sm text-[#1a3a5c]">Total</span>
+                  <span className="font-extrabold text-sm text-[#1a3a5c] font-mono">{formatCurrencyINR(totals.totalAmount)}</span>
                 </div>
               </div>
             </div>
 
-            <div className="amount-words">
-              <strong>Amount in words:</strong> {numberToWords(totals.totalAmount)}
+            <div className="p-2 bg-amber-50 border border-amber-200 rounded text-[10px] italic mb-3">
+              <strong>Amount in words:</strong> {numberToWordsINR(totals.totalAmount)}
             </div>
 
-            <div className="payment-info">
-              <div>
-                <strong>Payment Status:</strong> <span style={{ color: '#2e7d32' }}>PAID</span>
-              </div>
-              <div>
-                <strong>Payment Mode:</strong> {paymentModeLabel}
-              </div>
-              <div>
-                <strong>Amount Paid:</strong> {formatCurrency(bill.amount_paid)}
-              </div>
+            <div className="flex justify-between p-2 bg-emerald-50 border border-emerald-200 rounded text-[10.5px] mb-6">
+              <span><strong>Status:</strong> <span className="text-emerald-700 font-bold">PAID</span></span>
+              <span><strong>Mode:</strong> {PAYMENT_MODES.find(m => m.value === bill.payment_mode)?.label}</span>
+              <span><strong>Paid:</strong> {formatCurrencyINR(bill.amount_paid)}</span>
             </div>
 
-            <div className="footer">
-              <div>
-                <div className="barcode">{bill.bill_number}</div>
-              </div>
-              <div className="signature">
-                <div className="signature-line">Authorized Signature</div>
+            <div className="flex justify-between items-end mt-8">
+              <span className="font-mono text-[11px] tracking-widest text-muted-foreground">{bill.bill_number}</span>
+              <div className="text-center">
+                <div className="w-[180px] border-t border-foreground pt-1 text-[10px] text-muted-foreground mt-12">Authorized Signature</div>
               </div>
             </div>
 
-            <div className="thank-you">
-              Thank you for choosing Healthray Medical Center. Get well soon!
-            </div>
+            <p className="text-center text-[10px] text-muted-foreground mt-4 pt-2 border-t border-dashed border-border">
+              Thank you for choosing WellNotes Healthcare. Get well soon!
+            </p>
           </div>
         </div>
       </div>

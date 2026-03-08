@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   X, Printer, Loader2, FileText, Calendar, User, BedDouble,
   Stethoscope, Pill, ClipboardList, Activity, Utensils,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
-import { useReactToPrint } from 'react-to-print';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { useToast } from '../../../hooks/useToast';
 import ipdService from '../../../services/ipd.service';
 import type { Admission, DischargeSummary } from '../types';
 import { DISCHARGE_TYPE_CONFIG, CONDITION_CONFIG } from '../types';
+import { printDischargeSummary } from './DischargeSummaryPrint';
 
 interface Props {
   admission: Admission;
@@ -21,9 +21,10 @@ export default function DischargeSummaryView({ admission, onClose }: Props) {
   const { toast } = useToast();
   const [summary, setSummary] = useState<DischargeSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = useReactToPrint({ content: () => printRef.current });
+  const handlePrint = () => {
+    if (summary) printDischargeSummary({ admission, summary });
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -56,8 +57,8 @@ export default function DischargeSummaryView({ admission, onClose }: Props) {
             {summary && (
               <Button
                 size="sm"
-                onClick={() => handlePrint()}
-                className="gap-1.5 h-8 text-xs bg-blue-600 hover:bg-blue-700"
+                onClick={handlePrint}
+                className="gap-1.5 h-8 text-xs bg-primary hover:bg-primary/90"
               >
                 <Printer className="w-3.5 h-3.5" />
                 Print
@@ -186,71 +187,6 @@ export default function DischargeSummaryView({ admission, onClose }: Props) {
           )}
         </div>
 
-        {summary && (
-          <div style={{ display: 'none' }}>
-            <div ref={printRef} style={{ padding: '40px', fontFamily: 'Arial, sans-serif', fontSize: '12px' }}>
-              <div style={{ textAlign: 'center', borderBottom: '3px solid #1a1a1a', paddingBottom: '16px', marginBottom: '20px' }}>
-                <div style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '1px' }}>DISCHARGE SUMMARY</div>
-                <div style={{ fontSize: '11px', color: '#666', marginTop: '6px' }}>
-                  {admission.admission_number}
-                </div>
-              </div>
-
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px', fontSize: '11px' }}>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: '4px 8px', fontWeight: 600, width: '140px' }}>Patient Name</td>
-                    <td style={{ padding: '4px 8px' }}>{admission.patient?.full_name}</td>
-                    <td style={{ padding: '4px 8px', fontWeight: 600, width: '140px' }}>UHID</td>
-                    <td style={{ padding: '4px 8px' }}>{admission.patient?.uhid}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '4px 8px', fontWeight: 600 }}>Gender / Age</td>
-                    <td style={{ padding: '4px 8px' }}>{admission.patient?.gender}</td>
-                    <td style={{ padding: '4px 8px', fontWeight: 600 }}>Doctor</td>
-                    <td style={{ padding: '4px 8px' }}>Dr. {admission.doctor?.full_name}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '4px 8px', fontWeight: 600 }}>Admission Date</td>
-                    <td style={{ padding: '4px 8px' }}>{format(new Date(admission.admission_date), 'dd-MMM-yyyy')}</td>
-                    <td style={{ padding: '4px 8px', fontWeight: 600 }}>Discharge Date</td>
-                    <td style={{ padding: '4px 8px' }}>{summary.discharge_date ? format(new Date(summary.discharge_date), 'dd-MMM-yyyy') : '-'}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '4px 8px', fontWeight: 600 }}>Discharge Type</td>
-                    <td style={{ padding: '4px 8px' }}>{summary.discharge_type}</td>
-                    <td style={{ padding: '4px 8px', fontWeight: 600 }}>Condition</td>
-                    <td style={{ padding: '4px 8px' }}>{summary.condition_at_discharge}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <PrintSection title="Final Diagnosis" content={summary.final_diagnosis} />
-              <PrintSection title="Treatment Summary" content={summary.treatment_summary} />
-              <PrintSection title="Procedures Performed" content={summary.procedures_performed} />
-              <PrintSection title="Medications on Discharge" content={summary.medications_on_discharge} />
-              <PrintSection title="Follow-up Instructions" content={summary.follow_up_instructions} />
-              {summary.follow_up_date && (
-                <PrintSection title="Follow-up Date" content={format(new Date(summary.follow_up_date), 'dd-MMM-yyyy')} />
-              )}
-              <PrintSection title="Diet Advice" content={summary.diet_advice} />
-              <PrintSection title="Activity Restrictions" content={summary.activity_restrictions} />
-
-              <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ borderTop: '1px solid #333', width: '200px', paddingTop: '4px', fontSize: '11px' }}>
-                    Doctor's Signature
-                  </div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ borderTop: '1px solid #333', width: '200px', paddingTop: '4px', fontSize: '11px' }}>
-                    Patient / Attendant Signature
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -269,14 +205,3 @@ function SummarySection({ icon: Icon, title, content }: { icon: React.ElementTyp
   );
 }
 
-function PrintSection({ title, content }: { title: string; content: string | null }) {
-  if (!content) return null;
-  return (
-    <div style={{ marginBottom: '14px' }}>
-      <div style={{ fontWeight: 700, fontSize: '12px', marginBottom: '4px', borderBottom: '1px solid #eee', paddingBottom: '2px' }}>
-        {title}
-      </div>
-      <div style={{ fontSize: '11px', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{content}</div>
-    </div>
-  );
-}

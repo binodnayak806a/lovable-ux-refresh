@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   IndianRupee, Loader2, Download, Upload,
-  ArrowDownLeft, Receipt,
+  ArrowDownLeft, Receipt, Printer,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
@@ -17,6 +17,7 @@ import type { Admission, IpdBillItem } from '../types';
 import { PAYMENT_MODES, BILL_ITEM_TYPE_CONFIG } from '../types';
 import ipdService from '../../../services/ipd.service';
 import { cn } from '../../../lib/utils';
+import { printIpdBill } from './IpdBillPrint';
 
 interface Props {
   admission: Admission;
@@ -159,6 +160,14 @@ export default function IpdBillingTab({ admission, userId }: Props) {
         </Button>
         <Button size="sm" variant="outline" onClick={() => setShowRefundDialog(true)} disabled={summary.netDeposit <= 0} className="gap-1.5">
           <Upload className="w-3.5 h-3.5" /> Process Refund
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => printIpdBill({ admission, billItems, deposits: deposits as any, summary })}
+          className="gap-1.5"
+        >
+          <Printer className="w-3.5 h-3.5" /> Print Bill
         </Button>
       </div>
 
