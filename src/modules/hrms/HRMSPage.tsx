@@ -153,7 +153,7 @@ export default function HRMSPage() {
         />
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
         <Tabs defaultValue="directory">
           <div className="border-b border-slate-200 px-6 pt-4">
             <TabsList className="bg-transparent p-0 h-auto gap-1">

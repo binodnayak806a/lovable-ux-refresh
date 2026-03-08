@@ -141,11 +141,12 @@ export default function OPDPage() {
 
   return (
     <div className="space-y-5">
-      <Breadcrumbs />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">OPD Management</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Outpatient Department — {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <PageHeader
+          title="OPD Management"
+          subtitle={`Outpatient Department — ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
+          icon={Stethoscope}
+        />
         </div>
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
           <TabsList>

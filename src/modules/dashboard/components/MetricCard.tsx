@@ -91,7 +91,7 @@ export default function MetricCard({
             </div>
           )}
           {!trend && subtitle && (
-            <p className="text-sm text-gray-500 mt-1.5">{subtitle}</p>
+            <p className="text-sm text-muted-foreground mt-1.5">{subtitle}</p>
           )}
         </div>
         {trend !== undefined && (

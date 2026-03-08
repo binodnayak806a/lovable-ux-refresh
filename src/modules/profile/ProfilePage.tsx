@@ -30,6 +30,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 };
 
 export default function ProfilePage() {
+  usePageTitle('Profile');
   const dispatch = useAppDispatch();
   const { user, session } = useAppSelector((state) => state.auth);
   const [saving, setSaving] = useState(false);

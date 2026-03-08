@@ -93,6 +93,7 @@ function NotificationItem({
 }
 
 export default function NotificationsPage() {
+  usePageTitle('Notifications');
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const { items, unreadCount, status } = useAppSelector((state) => state.notifications);

@@ -15,6 +15,11 @@ export default function IPDPage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Inpatient Department"
+        subtitle="Manage beds, wards, and admissions"
+        icon={BedDouble}
+      />
       <Tabs defaultValue="beds">
         <TabsList>
           <TabsTrigger value="beds" className="gap-2">
