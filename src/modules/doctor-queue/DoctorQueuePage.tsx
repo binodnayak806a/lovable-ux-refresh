@@ -100,24 +100,12 @@ export default function DoctorQueuePage() {
   const emergencyCount = appointments.filter(a => a.emergency).length;
 
   return (
-    <div className="flex flex-col h-full min-h-0">
-      <div className="px-6 py-4 border-b border-gray-100 bg-white shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2.5">
-              <Stethoscope className="w-5 h-5 text-teal-600" />
-              Doctor Queue
-            </h1>
-            <p className="text-sm text-gray-500 mt-0.5">
-              {appointments.length} patient{appointments.length !== 1 ? 's' : ''} today
-              {emergencyCount > 0 && (
-                <span className="inline-flex items-center gap-1 ml-2 text-red-600 font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  {emergencyCount} emergency
-                </span>
-              )}
-            </p>
-          </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Doctor Queue"
+        subtitle={`${appointments.length} patient${appointments.length !== 1 ? 's' : ''} today${emergencyCount > 0 ? ` · ${emergencyCount} emergency` : ''}`}
+        icon={Stethoscope}
+        actions={
           <Button
             variant="ghost"
             size="sm"
@@ -127,22 +115,22 @@ export default function DoctorQueuePage() {
           >
             <RefreshCw className={cn('w-4 h-4', refreshing && 'animate-spin')} />
           </Button>
-        </div>
+        }
+      />
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as QueueTab)} className="mt-4">
-          <TabsList>
-            {tabConfig.map(tab => (
-              <TabsTrigger key={tab.key} value={tab.key} className="gap-2">
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-                <Badge variant="secondary" className="h-5 min-w-[20px] text-xs font-bold">
-                  {tab.count}
-                </Badge>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as QueueTab)}>
+        <TabsList>
+          {tabConfig.map(tab => (
+            <TabsTrigger key={tab.key} value={tab.key} className="gap-2">
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+              <Badge variant="secondary" className="h-5 min-w-[20px] text-xs font-bold">
+                {tab.count}
+              </Badge>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       <div className="flex-1 overflow-auto p-4">
         {loading ? (
