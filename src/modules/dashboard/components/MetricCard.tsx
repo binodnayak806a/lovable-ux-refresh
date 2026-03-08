@@ -112,15 +112,16 @@ export default function MetricCard({
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2.5 mb-3">
+          <div className={cn('flex items-center gap-2', compact ? 'mb-2' : 'mb-3')}>
             <div className={cn(
-              'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
+              'rounded-xl flex items-center justify-center shrink-0',
               'transition-all duration-300 group-hover:scale-110 group-hover:shadow-sm',
+              compact ? 'w-8 h-8' : 'w-10 h-10',
               ICON_BG_MAP[gradient] || ICON_BG_MAP.blue,
             )}>
-              <Icon className="w-5 h-5" />
+              <Icon className={compact ? 'w-4 h-4' : 'w-5 h-5'} />
             </div>
-            <p className="text-sm text-muted-foreground font-medium">{title}</p>
+            <p className={cn('text-muted-foreground font-medium', compact ? 'text-xs' : 'text-sm')}>{title}</p>
           </div>
           <p className="text-3xl font-bold tracking-tight text-foreground mb-1">{displayValue}</p>
           {trend !== undefined && (
