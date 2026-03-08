@@ -187,7 +187,7 @@ export default function GlobalSearch() {
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={() => dispatch(setSearchOpen(false))}
       />
-      <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+      <div className="relative w-full max-w-xl bg-card rounded-2xl shadow-2xl border border-border overflow-hidden">
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-gray-100">
           {loading ? (
             <Loader2 className="w-4 h-4 text-gray-400 animate-spin shrink-0" />
@@ -196,12 +196,13 @@ export default function GlobalSearch() {
           )}
           <input
             ref={inputRef}
+            data-search-input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search patients, admissions, bills…"
-            className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none"
+            placeholder="Search patients, admissions, bills… (or scan barcode)"
+            className="flex-1 bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none"
           />
           <div className="flex items-center gap-1.5">
             {query && (

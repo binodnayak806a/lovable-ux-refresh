@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { setSearchOpen } from '../../store/slices/globalSlice';
 import NotificationDropdown from '../common/NotificationDropdown';
+import ThemeToggle from '../common/ThemeToggle';
 import { SidebarTrigger } from '../ui/sidebar';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
@@ -86,7 +87,7 @@ export default function Navbar() {
     .toUpperCase() ?? 'AD';
 
   return (
-    <header className="flex h-16 shrink-0 items-center border-b border-gray-100 bg-white/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+    <header className="flex h-16 shrink-0 items-center border-b border-border bg-card/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
       <div className="flex items-center gap-2 min-w-0">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -128,6 +129,7 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-2">
+        <ThemeToggle />
         <NotificationDropdown />
 
         <button
