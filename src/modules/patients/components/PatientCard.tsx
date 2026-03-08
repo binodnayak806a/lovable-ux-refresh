@@ -1,7 +1,7 @@
 import {
   Hash, Phone, Calendar, User, Printer, History,
   Stethoscope, BedDouble, Receipt, Activity,
-  Droplets, ChevronRight,
+  Droplets, ChevronRight, CalendarCheck,
 } from 'lucide-react';
 import { Badge } from '../../../components/ui/badge';
 import { Button } from '../../../components/ui/button';
