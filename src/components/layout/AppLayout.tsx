@@ -11,6 +11,7 @@ import { useAppSelector } from '../../store';
 import { SidebarInset, SidebarProvider } from '../ui/sidebar';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
+const fullBleedRoutes = new Set(['/appointments']);
 
 export default function AppLayout() {
   const location = useLocation();
@@ -55,8 +56,8 @@ export default function AppLayout() {
         <OfflineBanner />
         <Navbar />
         <div ref={mainRef} className="flex-1 overflow-y-auto scrollbar-thin">
-          <div className="p-4 md:p-6">
-            <div key={location.pathname} className="animate-fade-in">
+          <div className={fullBleedRoutes.has(location.pathname) ? 'h-full' : 'p-4 md:p-6'}>
+            <div key={location.pathname} className="animate-fade-in h-full">
               <Outlet />
             </div>
           </div>
