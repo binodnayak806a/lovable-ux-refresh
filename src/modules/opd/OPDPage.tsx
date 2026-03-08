@@ -250,9 +250,9 @@ export default function OPDPage() {
                     const initials = appt.patient_name.split(' ').slice(0, 2).map((n) => n[0]).join('');
                     return (
                       <div key={appt.id} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-                        <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm shrink-0">
-                          {initials}
-                        </div>
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                           {initials}
+                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="text-sm font-semibold text-gray-900">{appt.patient_name}</p>
