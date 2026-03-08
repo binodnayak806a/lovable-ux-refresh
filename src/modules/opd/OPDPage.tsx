@@ -539,13 +539,13 @@ export default function OPDPage() {
 
       {tab === 'vitals' && (
         <div className="flex-1 overflow-auto p-6">
-          <VitalsPage />
+          <VitalsPage initialPatientId={selectedPatientId} />
         </div>
       )}
 
       {tab === 'consultation' && (
         <div className="flex-1 overflow-auto p-6">
-          <ConsultationPage />
+          <ConsultationPage initialPatientId={selectedPatientId} initialAppointmentId={selectedAppointmentId} />
         </div>
       )}
 
