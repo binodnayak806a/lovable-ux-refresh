@@ -89,10 +89,10 @@ export default function MetricCard({
 
   if (loading) {
     return (
-      <div className={cn('rounded-2xl p-6 shadow-card border border-border/50', GRADIENT_MAP[gradient])} role="status" aria-label={`Loading ${title}`}>
+      <div className={cn('rounded-2xl shadow-card border border-border/50', compact ? 'p-4' : 'p-6', GRADIENT_MAP[gradient])} role="status" aria-label={`Loading ${title}`}>
         <div className="space-y-3">
           <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-9 w-20" />
+          <Skeleton className={compact ? 'h-7 w-16' : 'h-9 w-20'} />
           <Skeleton className="h-3 w-28" />
         </div>
       </div>
