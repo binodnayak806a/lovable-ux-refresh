@@ -1,4 +1,4 @@
-import { Stethoscope, Users } from 'lucide-react';
+import { Stethoscope } from 'lucide-react';
 import { Skeleton } from '../../../components/ui/skeleton';
 import type { DoctorStat } from '../../../services/dashboard.service';
 import { cn } from '../../../lib/utils';
