@@ -4,7 +4,7 @@ import {
   UserPlus, List, Search, RefreshCw, Clock, CheckCircle2,
   XCircle, User, CalendarClock, Stethoscope, Activity,
   ChevronLeft, ChevronRight, AlertTriangle, Play, Eye,
-  MoreVertical, Ban,
+  MoreVertical, Ban, FileText, Printer,
   CalendarDays,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
