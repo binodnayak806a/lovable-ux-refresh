@@ -95,7 +95,6 @@ export default function DashboardPage() {
 
   const loadData = useCallback(() => {
     dispatch(fetchDashboardData(hospitalId));
-    setLastUpdated(new Date());
   }, [dispatch, hospitalId]);
 
   useEffect(() => { loadData(); }, [loadData]);
