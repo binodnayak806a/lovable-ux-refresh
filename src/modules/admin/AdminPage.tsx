@@ -54,7 +54,7 @@ export default function AdminPage() {
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <Tabs defaultValue="users">
-          <div className="border-b border-slate-200 px-6 pt-4">
+          <div className="border-b border-border px-6 pt-4">
             <TabsList className="bg-transparent p-0 h-auto gap-1">
               <TabsTrigger
                 value="users"
