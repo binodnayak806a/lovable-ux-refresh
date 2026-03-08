@@ -50,7 +50,8 @@ export function useCanvasDesigner(pageSize: string, pageWidthMm: number, pageHei
 
   const drawGrid = useCallback((c: Canvas) => {
     // Remove existing grid lines
-    const gridObjs = c.getObjects().filter((o) => (o as Record<string, unknown>)._isGrid);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const gridObjs = c.getObjects().filter((o) => (o as any)._isGrid);
     gridObjs.forEach((o) => c.remove(o));
     
     if (!showGrid) return;
