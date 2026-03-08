@@ -62,7 +62,7 @@ const pharmacyService = {
     return { totalItems, lowStockCount, expiringCount, totalValue };
   },
 
-  async addInventory(hospitalId: string, form: InventoryFormData, userId: string): Promise<PharmacyInventory> {
+  async addInventory(hospitalId: string, form: InventoryFormData, _userId: string): Promise<PharmacyInventory> {
     const existing = mockMasterStore.getAll<Record<string, unknown>>('pharmacy_inventory', hospitalId)
       .find(i => i.medication_id === form.medication_id && i.batch_number === form.batch_number);
 
