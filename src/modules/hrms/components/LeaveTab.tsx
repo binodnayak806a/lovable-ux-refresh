@@ -41,8 +41,7 @@ export default function LeaveTab({ staff, leaves, onRefresh, currentUserId }: Le
     total_days: number;
     reason: string;
   }) => {
-    // Mock save - store in memory
-    try {
+    // Mock save
     toast.success('Leave request submitted');
     setShowDialog(false);
     onRefresh();
@@ -51,11 +50,7 @@ export default function LeaveTab({ staff, leaves, onRefresh, currentUserId }: Le
   const handleApprove = async (id: string, status: 'approved' | 'rejected') => {
     setActioning(id);
     try {
-      const { error } = await supabase
-        .from('leave_requests')
-        .update({ status, approved_by: currentUserId } as never)
-        .eq('id', id);
-      if (error) throw error;
+      // Mock update
       toast.success(`Leave request ${status}`);
       onRefresh();
     } catch {
