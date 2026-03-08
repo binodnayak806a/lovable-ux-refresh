@@ -167,6 +167,9 @@ export default function DashboardPage() {
 function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, recentAppointments, revenueSummary, navigate, isAdmin, isReceptionist }: any) {
   return (
     <>
+      {/* ── Date Filter Bar ── */}
+      <DateFilterBar onDateChange={(range) => console.log('Date range:', range)} />
+
       {/* ── Section 1: KPI Cards (6 cards) ── */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 stagger-children">
         <div className="cursor-pointer" onClick={() => navigate('/patients')}>
