@@ -5,9 +5,12 @@ import AppSidebar from './Sidebar';
 import GlobalSearch from '../search/GlobalSearch';
 import ContextualPatientBar from '../common/ContextualPatientBar';
 import OfflineBanner from '../common/OfflineBanner';
+import KeyboardShortcuts from '../common/KeyboardShortcuts';
+import BarcodeScannerInput from '../common/BarcodeScannerInput';
 import { offlineStore } from '../../lib/offlineStore';
 import { supabase } from '../../lib/supabase';
-import { useAppSelector } from '../../store';
+import { useAppSelector, useAppDispatch } from '../../store';
+import { setSearchOpen } from '../../store/slices/globalSlice';
 import { SidebarInset, SidebarProvider } from '../ui/sidebar';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
