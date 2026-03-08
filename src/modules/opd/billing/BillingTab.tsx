@@ -270,8 +270,16 @@ export default function BillingTab({ patient, consultationId, prescriptionId }: 
               <Switch
                 checked={form.isSplitPayment}
                 onCheckedChange={(v) => {
-                  handleFormChange('isSplitPayment', v);
-                  if (v && form.splitEntries.length === 0) {
+                  setForm(prev => ({
+                    ...prev,
+                    isSplitPayment: v,
+                    ...(v && prev.splitEntries.length === 0 ? {
+                      splitEntries: [
+                        createEmptySplitEntry('cash'),
+                        createEmptySplitEntry('upi'),
+                      ],
+                    } : {}),
+                  }));
                     setForm(prev => ({
                       ...prev,
                       isSplitPayment: true,
