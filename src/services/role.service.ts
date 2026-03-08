@@ -2,8 +2,8 @@
  * Role Service — manages user roles in the dedicated user_roles table
  * instead of storing roles directly on the profiles table.
  */
-import { supabase } from '../lib/supabase';
-import type { UserRole } from '../types/database';
+import { supabase } from '@/integrations/supabase/client';
+import type { UserRole } from '../types/user.types';
 
 export interface UserRoleEntry {
   id: string;
