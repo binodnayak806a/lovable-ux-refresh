@@ -303,6 +303,7 @@ export default function SettingsPage() {
     { id: 'general', label: 'General', icon: Building2 },
     { id: 'billing', label: 'Billing', icon: Receipt },
     { id: 'clinical', label: 'Clinical', icon: Stethoscope },
+    { id: 'opd-rooms', label: 'OPD Rooms', icon: Stethoscope },
     { id: 'printing', label: 'Printing', icon: Printer },
     { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare },
     { id: 'notifications', label: 'Notifications', icon: Bell },
