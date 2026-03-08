@@ -83,26 +83,28 @@ export default function Navbar() {
     .toUpperCase() ?? 'AD';
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b border-gray-100 bg-white/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-      <div className="flex items-center gap-2">
+    <header className="flex h-16 shrink-0 items-center border-b border-gray-100 bg-white/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+      <div className="flex items-center gap-2 min-w-0">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
         <NavBreadcrumbs />
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="flex-1 flex justify-center px-4">
         <button
           aria-label="Open search (Cmd+K)"
           onClick={() => dispatch(setSearchOpen(true))}
-          className="flex items-center gap-2 h-9 px-3 text-sm text-gray-400 bg-gray-50/80 border border-gray-100 rounded-lg hover:bg-white hover:border-gray-200 focus:bg-white focus:border-primary-300 active:bg-white transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+          className="flex items-center gap-2 h-9 w-full max-w-md px-3 text-sm text-gray-400 bg-gray-50/80 border border-gray-100 rounded-lg hover:bg-white hover:border-gray-200 focus:bg-white focus:border-primary-300 active:bg-white transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
         >
           <Search className="w-3.5 h-3.5 shrink-0" />
-          <span className="hidden md:inline text-left">Search...</span>
-          <kbd className="hidden lg:inline-flex ml-1 items-center gap-0.5 px-1.5 h-5 rounded text-[10px] font-mono border border-gray-200 text-gray-400 bg-white">
+          <span className="hidden md:inline text-left flex-1">Search...</span>
+          <kbd className="hidden lg:inline-flex ml-auto items-center gap-0.5 px-1.5 h-5 rounded text-[10px] font-mono border border-gray-200 text-gray-400 bg-white">
             <span className="text-[11px]">&#8984;</span>K
           </kbd>
         </button>
+      </div>
 
+      <div className="flex items-center gap-2">
         <NotificationDropdown />
 
         <button
