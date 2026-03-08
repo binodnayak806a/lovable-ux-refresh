@@ -1,7 +1,7 @@
 import {
   Hash, Phone, Calendar, User, Printer, History,
   Stethoscope, BedDouble, Receipt, Activity,
-  Droplets, ChevronRight,
+  Droplets, ChevronRight, CalendarCheck,
 } from 'lucide-react';
 import { Badge } from '../../../components/ui/badge';
 import { Button } from '../../../components/ui/button';
@@ -27,6 +27,7 @@ interface PatientCardProps {
   onConsult: () => void;
   onAdmit: () => void;
   onBill: () => void;
+  onBookAppointment?: () => void;
 }
 
 const GENDER_COLORS: Record<string, string> = {
@@ -57,6 +58,7 @@ export default function PatientCard({
   onConsult,
   onAdmit,
   onBill,
+  onBookAppointment,
 }: PatientCardProps) {
   const initials = p.full_name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
   const genderStyle = GENDER_COLORS[p.gender ?? ''] ?? GENDER_COLORS.other;
@@ -137,6 +139,21 @@ export default function PatientCard({
 
       {isSelected && (
         <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/20 flex-wrap">
+          {onBookAppointment && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs gap-1 text-blue-700 hover:bg-blue-50"
+                  onClick={(e) => { e.stopPropagation(); onBookAppointment(); }}
+                >
+                  <CalendarCheck className="w-3 h-3" />Book Appt
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Book Appointment</TooltipContent>
+            </Tooltip>
+          )}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

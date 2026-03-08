@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Save, Trash2, AlertTriangle, Users, User, MapPin, ClipboardList, CreditCard, CheckCircle, Plus, X } from 'lucide-react';
+import QuickBookAppointment from '../../patients/components/QuickBookAppointment';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Badge } from '../../../components/ui/badge';
@@ -77,6 +78,7 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
   const [duplicates, setDuplicates] = useState<DuplicatePatient[]>([]);
   const [dismissedDuplicates, setDismissedDuplicates] = useState(false);
   const [allergyInput, setAllergyInput] = useState('');
+  const [registeredPatient, setRegisteredPatient] = useState<{ id: string; uhid: string; name: string } | null>(null);
 
   const saveDraft = useCallback((data: RegistrationFormData) => {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch { /* noop */ }
@@ -143,8 +145,9 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
       const p = patient as { id: string; uhid: string };
       localStorage.removeItem(DRAFT_KEY);
       toast('Patient Registered!', { description: `UHID: ${p.uhid}`, type: 'success' });
-      if (onSuccess) onSuccess(p.id);
-      else navigate(`/opd?registered=${p.uhid}`);
+      // Show quick book appointment dialog
+      const patientName = `${form.firstName} ${form.lastName}`.trim();
+      setRegisteredPatient({ id: p.id, uhid: p.uhid, name: patientName });
     } catch (err: unknown) {
       toast('Registration Failed', { description: err instanceof Error ? err.message : 'Something went wrong.', type: 'error' });
     } finally {
@@ -397,6 +400,29 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
           {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Registering…</> : 'Register Patient'}
         </Button>
       </div>
+
+      {registeredPatient && (
+        <QuickBookAppointment
+          open={!!registeredPatient}
+          onClose={() => {
+            const pid = registeredPatient.id;
+            setRegisteredPatient(null);
+            if (onSuccess) onSuccess(pid);
+            else navigate(`/opd?registered=${registeredPatient.uhid}`);
+          }}
+          hospitalId={hospitalId}
+          userId={user?.id ?? ''}
+          patientId={registeredPatient.id}
+          patientName={registeredPatient.name}
+          patientUhid={registeredPatient.uhid}
+          onSuccess={() => {
+            const pid = registeredPatient.id;
+            setRegisteredPatient(null);
+            if (onSuccess) onSuccess(pid);
+            else navigate(`/opd?registered=${registeredPatient.uhid}`);
+          }}
+        />
+      )}
     </div>
   );
 }

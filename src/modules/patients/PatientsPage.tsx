@@ -24,7 +24,7 @@ import PatientDetailSidebar from './components/PatientDetailSidebar';
 import PatientHistoryDrawer from './components/PatientHistoryDrawer';
 import PatientStickerPrint from './components/PatientStickerPrint';
 import CustomFieldsConfigPanel from './components/CustomFieldsConfigPanel';
-
+import QuickBookAppointment from './components/QuickBookAppointment';
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
 interface Patient {
@@ -86,6 +86,7 @@ export default function PatientsPage() {
   const [stickerPatient, setStickerPatient] = useState<Patient | null>(null);
   const [stickerSize, setStickerSize] = useState<'thermal' | 'a4'>('thermal');
   const [showCustomFields, setShowCustomFields] = useState(false);
+  const [bookingPatient, setBookingPatient] = useState<Patient | null>(null);
 
   const search = useDebounce(searchInput, 280);
   const limit = 15;
@@ -281,6 +282,7 @@ export default function PatientsPage() {
                       onConsult={() => startConsultation(p.id)}
                       onAdmit={() => admitPatient(p.id)}
                       onBill={() => goToBilling(p.id)}
+                      onBookAppointment={() => setBookingPatient(p)}
                     />
                   ))}
                 </div>
@@ -357,6 +359,19 @@ export default function PatientsPage() {
         <CustomFieldsConfigPanel
           hospitalId={hospitalId}
           onClose={() => setShowCustomFields(false)}
+        />
+      )}
+
+      {bookingPatient && (
+        <QuickBookAppointment
+          open={!!bookingPatient}
+          onClose={() => setBookingPatient(null)}
+          hospitalId={hospitalId}
+          userId={user?.id ?? ''}
+          patientId={bookingPatient.id}
+          patientName={bookingPatient.full_name}
+          patientUhid={bookingPatient.uhid}
+          onSuccess={loadPatients}
         />
       )}
     </TooltipProvider>
