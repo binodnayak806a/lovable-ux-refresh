@@ -78,6 +78,7 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
   const [duplicates, setDuplicates] = useState<DuplicatePatient[]>([]);
   const [dismissedDuplicates, setDismissedDuplicates] = useState(false);
   const [allergyInput, setAllergyInput] = useState('');
+  const [registeredPatient, setRegisteredPatient] = useState<{ id: string; uhid: string; name: string } | null>(null);
 
   const saveDraft = useCallback((data: RegistrationFormData) => {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch { /* noop */ }
