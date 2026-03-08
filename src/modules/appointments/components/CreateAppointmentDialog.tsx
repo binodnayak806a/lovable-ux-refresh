@@ -105,7 +105,8 @@ export default function CreateAppointmentDialog({
   } | null>(null);
   const [showWhatsAppButton, setShowWhatsAppButton] = useState(false);
 
-  const debouncedSearch = useDebounce(patientSearch, 280);
+  const debouncedSearch = useDebounce(patientSearch, 150);
+  const patientSearchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (prefillDate) setAppointmentDate(format(prefillDate, 'yyyy-MM-dd'));
