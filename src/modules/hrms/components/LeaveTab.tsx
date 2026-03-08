@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '../../../components/ui/table';
-import { supabase } from '../../../lib/supabase';
+// Mock-backed - no supabase needed
 import { toast } from 'sonner';
 import LeaveRequestDialog from './LeaveRequestDialog';
 import type { Staff, LeaveRequest } from '../types';
