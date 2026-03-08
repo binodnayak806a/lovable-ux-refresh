@@ -1,4 +1,4 @@
-import { Canvas, Textbox } from 'fabric';
+import { Canvas } from 'fabric';
 import { DOCUMENT_TYPES, PAGE_SIZES, MM_TO_PX } from './types';
 
 export function getSampleData(documentType: string): Record<string, string> {
@@ -20,7 +20,7 @@ export function substituteVariables(
   const objects = (json as any).objects;
   if (Array.isArray(objects)) {
     for (const obj of objects) {
-      if (obj.type === 'textbox' || obj.type === 'i-text') {
+      if (obj.type === 'Textbox' || obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'IText') {
         let text: string = obj.text || '';
         for (const [variable, value] of Object.entries(data)) {
           text = text.split(variable).join(value);
@@ -58,11 +58,14 @@ export async function renderPreviewToDataURL(
     width: widthPx,
     height: heightPx,
     backgroundColor: '#ffffff',
-    renderOnAddRemove: false,
+    renderOnAddRemove: true,
   });
 
   try {
     await tempCanvas.loadFromJSON(substituted);
+    tempCanvas.requestRenderAll();
+    // Small delay to ensure rendering completes
+    await new Promise(r => setTimeout(r, 100));
     tempCanvas.requestRenderAll();
     const url = tempCanvas.toDataURL({ multiplier: 2 });
     return url;
@@ -121,21 +124,4 @@ export function printWithRealData(
   pageHeightMm: number,
 ) {
   printTemplate(dataUrl, pageSize, pageWidthMm, pageHeightMm);
-}
-
-export function replaceTextboxVariables(
-  canvas: Canvas,
-  data: Record<string, string>,
-) {
-  const objects = canvas.getObjects();
-  for (const obj of objects) {
-    if (obj instanceof Textbox) {
-      let text: string = obj.text || '';
-      for (const [variable, value] of Object.entries(data)) {
-        text = text.split(variable).join(value);
-      }
-      obj.set('text', text);
-    }
-  }
-  canvas.requestRenderAll();
 }
