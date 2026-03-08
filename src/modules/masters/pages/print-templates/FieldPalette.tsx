@@ -5,7 +5,7 @@ import type { TemplateField } from './types';
 
 interface Props {
   fields: TemplateField[];
-  onAddField: (variable: string, label: string) => void;
+  onAddField: (variable: string) => void;
 }
 
 export default function FieldPalette({ fields, onAddField }: Props) {
