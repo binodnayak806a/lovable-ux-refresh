@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import {
   format, startOfWeek, addDays, addWeeks, subWeeks,
-  addMonths, subMonths, startOfMonth, endOfMonth, isToday,
+  addMonths, subMonths, startOfMonth, endOfMonth,
   subDays,
 } from 'date-fns';
 import { Button } from '../../components/ui/button';
