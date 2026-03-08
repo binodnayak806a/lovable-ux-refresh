@@ -72,6 +72,21 @@ export default function VitalsPage({ initialPatientId }: VitalsPageProps) {
   const [history, setHistory] = useState<VitalsRecord[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
+  // Auto-select patient from queue context
+  useEffect(() => {
+    if (initialPatientId && !patient) {
+      const p = mockStore.getPatientById(initialPatientId);
+      if (p) {
+        const result: PatientResult = {
+          id: p.id, uhid: p.uhid, full_name: p.full_name,
+          phone: p.phone, gender: p.gender, date_of_birth: p.date_of_birth,
+        };
+        setPatient(result);
+        loadHistory(p.id);
+      }
+    }
+  }, [initialPatientId]);
+
   const loadHistory = useCallback(async (patientId: string) => {
     setHistoryLoading(true);
     try {
