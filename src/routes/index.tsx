@@ -26,6 +26,7 @@ const SettingsPageReal = lazy(() => import('../modules/settings/SettingsPage'));
 const AdminPage = lazy(() => import('../modules/admin/AdminPage'));
 const MasterDataPage = lazy(() => import('../modules/master-data/MasterDataPage'));
 const BedMasterPage = lazy(() => import('../modules/ipd/BedMasterPage'));
+const WardManagementPage = lazy(() => import('../modules/ipd/WardManagementPage'));
 
 const MastersLayout = lazy(() => import('../modules/masters/MastersLayout'));
 const DoctorMasterPage = lazy(() => import('../modules/masters/pages/DoctorMasterPage'));
