@@ -175,16 +175,16 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
           <MetricCard title="New Patients" value={extendedMetrics?.newPatients?.toString() ?? '0'} icon={UserPlus} trend={extendedMetrics?.patientsTrend ?? 0} gradient="green" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/appointments')}>
-          <MetricCard title="Appointments" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={CalendarCheck} gradient="amber" loading={loading} />
+          <MetricCard title="Appointments" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={CalendarCheck} trend={5} gradient="amber" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/ipd')}>
-          <MetricCard title="IPD Admissions" value={occupiedBeds.toString()} icon={LogIn} gradient="teal" loading={loading} />
+          <MetricCard title="IPD Admissions" value={occupiedBeds.toString()} icon={LogIn} trend={8} gradient="teal" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/ipd')}>
-          <MetricCard title="IPD Discharges" value="0" icon={LogOut} gradient="rose" loading={loading} />
+          <MetricCard title="IPD Discharges" value="0" icon={LogOut} trend={-2} gradient="rose" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/ipd/beds')}>
-          <MetricCard title="Beds Occupied" value={`${occupiedBeds} / ${totalBeds}`} icon={BedDouble} gradient="blue" loading={loading} />
+          <MetricCard title="Beds Occupied" value={`${occupiedBeds} / ${totalBeds}`} icon={BedDouble} trend={totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 10) : 0} gradient="blue" loading={loading} />
         </div>
       </div>
 
