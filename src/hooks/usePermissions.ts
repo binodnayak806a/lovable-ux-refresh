@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '../lib/supabase';
 import { useAppSelector } from '../store';
+import { roleService } from '../services/role.service';
 import type { UserRole } from '../types/user.types';
 
 interface RolePermissions {
@@ -17,6 +17,7 @@ const FALLBACK_PERMISSIONS: Record<UserRole, RolePermissions> = {
       appointments: true, pharmacy: true, lab: true, billing: true, reports: true,
       analytics: true, emergency: true, ambulance: true, hrms: true, masters: true,
       master_data: true, admin: true, settings: true, notifications: true,
+      cash_bank: true,
     },
     actions: {
       edit_bill_amount: true, delete_master_records: true, export_data: true,
@@ -34,6 +35,7 @@ const FALLBACK_PERMISSIONS: Record<UserRole, RolePermissions> = {
       appointments: true, pharmacy: true, lab: true, billing: true, reports: true,
       analytics: true, emergency: true, ambulance: true, hrms: true, masters: true,
       master_data: true, admin: true, settings: true, notifications: true,
+      cash_bank: true,
     },
     actions: {
       edit_bill_amount: true, delete_master_records: true, export_data: true,
@@ -149,24 +151,56 @@ const FALLBACK_PERMISSIONS: Record<UserRole, RolePermissions> = {
   },
 };
 
+/**
+ * usePermissions hook — fetches role from `user_roles` table (server-side source of truth)
+ * instead of trusting `profiles.role` which is client-editable.
+ * 
+ * For demo sessions (no real auth), falls back to the role stored in Redux state.
+ */
 export function usePermissions() {
   const { user } = useAppSelector((s) => s.auth);
-  const role = (user?.role as UserRole) ?? 'receptionist';
+  const profileRole = (user?.role as UserRole) ?? 'receptionist';
+  const isDemoSession = user?.id?.startsWith('demo-') ?? false;
+
+  // Server-verified role from user_roles table
+  const [verifiedRole, setVerifiedRole] = useState<UserRole | null>(null);
   const [dbPermissions, setDbPermissions] = useState<RolePermissions | null>(null);
 
+  // The actual role: use server-verified role if available, else profile role
+  const role: UserRole = verifiedRole ?? profileRole;
+
+  useEffect(() => {
+    if (!user?.id || isDemoSession) {
+      // Demo sessions use client-side role directly
+      setVerifiedRole(null);
+      return;
+    }
+
+    // Fetch verified role from user_roles table
+    (async () => {
+      try {
+        const serverRole = await roleService.ensureUserRole(user.id, profileRole);
+        setVerifiedRole(serverRole);
+      } catch {
+        // If user_roles table doesn't have proper columns, fall back gracefully
+        setVerifiedRole(null);
+      }
+    })();
+  }, [user?.id, profileRole, isDemoSession]);
+
+  // Fetch role-level permissions (entries where user_id IS NULL)
   useEffect(() => {
     if (!role) return;
-    supabase
-      .from('user_roles')
-      .select('permissions')
-      .eq('role_name', role)
-      .is('user_id', null)
-      .maybeSingle()
-      .then(({ data }: { data: { permissions: unknown } | null }) => {
-        if (data?.permissions) {
-          setDbPermissions(data.permissions as RolePermissions);
+    (async () => {
+      try {
+        const perms = await roleService.getRolePermissions(role);
+        if (perms) {
+          setDbPermissions(perms as unknown as RolePermissions);
         }
-      });
+      } catch {
+        // silently fall back
+      }
+    })();
   }, [role]);
 
   const permissions = useMemo(
