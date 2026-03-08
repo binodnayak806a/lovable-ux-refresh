@@ -1,7 +1,7 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import {
   CalendarCheck, BedDouble, TrendingUp, Clock,
-  ChevronRight, Stethoscope, UserPlus, RefreshCw,
+  ChevronRight, Stethoscope, UserPlus,
   IndianRupee, FileText, Activity, Users, LogIn, LogOut,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -39,35 +39,10 @@ import { cn } from '../../lib/utils';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
-function getTimeOfDay(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Morning';
-  if (hour < 17) return 'Afternoon';
-  return 'Evening';
-}
-
-function formatDate(): string {
-  return new Date().toLocaleDateString('en-IN', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
 function formatCurrency(value: number): string {
   if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
   if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
   return `₹${value.toLocaleString('en-IN')}`;
-}
-
-function useLiveClock() {
-  const [time, setTime] = useState(new Date());
-  useEffect(() => {
-    const id = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  return time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 }
 
 export default function DashboardPage() {
