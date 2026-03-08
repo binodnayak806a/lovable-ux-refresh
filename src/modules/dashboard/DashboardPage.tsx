@@ -126,7 +126,7 @@ export default function DashboardPage() {
   const occupiedBeds = extendedMetrics?.occupiedBeds ?? 0;
   const bedOccupancyRate = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0;
   const todayRevenue = revenueSummary?.today ?? 0;
-  const userName = user?.full_name?.split(' ')[0] || 'User';
+  
 
   return (
     <div className="space-y-6 animate-fade-in">
