@@ -38,7 +38,7 @@ class BillingService {
     patientId: string,
     consultationId: string | null,
     prescriptionId: string | null,
-    items: BillItem[],
+    _items: BillItem[],
     form: BillFormData,
     totals: {
       subtotal: number;
