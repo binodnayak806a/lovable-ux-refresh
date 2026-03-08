@@ -71,7 +71,7 @@ export default function RevenueTrendChart() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
-            <IndianRupee className="w-4 h-4 text-amber-600" />
+            <IndianRupee className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
           <h2 className="text-sm font-semibold text-foreground">Revenue Trend</h2>
         </div>
