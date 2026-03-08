@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  BedDouble, Search, RefreshCw, Filter, Eye, FileText, Printer,
+  BedDouble, Search, RefreshCw, Filter, FileText,
   Download, MoreVertical, CheckCircle, Info, Phone, CreditCard,
   ShoppingCart, ClipboardList, ChevronLeft, ChevronRight,
 } from 'lucide-react';
