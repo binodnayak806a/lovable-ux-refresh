@@ -42,16 +42,6 @@ const STATUS_TABS: { id: StatusTab; label: string }[] = [
   { id: 'absconded', label: 'CANCELLED' },
 ];
 
-function calculateAge(dob: string | null): string {
-  if (!dob) return '-';
-  const birth = new Date(dob);
-  const today = new Date();
-  let years = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) years--;
-  return `${years} YEARS`;
-}
-
 function formatStayDuration(admDate: string): string {
   const start = new Date(admDate);
   const now = new Date();
