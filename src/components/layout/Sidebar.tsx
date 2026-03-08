@@ -187,7 +187,10 @@ function SidebarUserFooter() {
 
   const handleSignOut = useCallback(async () => {
     try {
+      localStorage.removeItem('demo_session');
       await authService.signOut();
+    } catch {
+      // ignore sign-out errors for demo sessions
     } finally {
       dispatch(clearAuth());
       navigate('/login', { replace: true });

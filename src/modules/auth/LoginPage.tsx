@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, Eye, EyeOff, HeartPulse, Lock, Mail, RefreshCw } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, HeartPulse, Lock, Mail, RefreshCw, Stethoscope, Shield, ClipboardList, Pill, FlaskConical, BedDouble, CreditCard } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Checkbox } from '../../components/ui/checkbox';
+import { DEMO_HOSPITAL_ID } from '../../hooks/useHospitalId';
 
 const loginSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -45,12 +46,66 @@ const ERROR_MESSAGES: Record<string, { title: string; detail: string }> = {
   },
 };
 
+interface DemoRole {
+  role: UserRole;
+  label: string;
+  icon: React.ElementType;
+  color: string;
+  bgColor: string;
+  description: string;
+}
+
+const DEMO_ROLES: DemoRole[] = [
+  { role: 'superadmin', label: 'Super Admin', icon: Shield, color: 'text-amber-600', bgColor: 'bg-amber-50 border-amber-200 hover:bg-amber-100', description: 'Full system access' },
+  { role: 'doctor', label: 'Doctor', icon: Stethoscope, color: 'text-emerald-600', bgColor: 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100', description: 'Patients, OPD, IPD, Lab' },
+  { role: 'receptionist', label: 'Receptionist', icon: ClipboardList, color: 'text-blue-600', bgColor: 'bg-blue-50 border-blue-200 hover:bg-blue-100', description: 'Appointments, Billing' },
+  { role: 'nurse', label: 'Nurse', icon: BedDouble, color: 'text-pink-600', bgColor: 'bg-pink-50 border-pink-200 hover:bg-pink-100', description: 'IPD, Patients, Emergency' },
+  { role: 'billing', label: 'Billing', icon: CreditCard, color: 'text-orange-600', bgColor: 'bg-orange-50 border-orange-200 hover:bg-orange-100', description: 'Bills, Payments, Reports' },
+  { role: 'pharmacist', label: 'Pharmacist', icon: Pill, color: 'text-teal-600', bgColor: 'bg-teal-50 border-teal-200 hover:bg-teal-100', description: 'Pharmacy, Stock, Sales' },
+  { role: 'lab_technician', label: 'Lab Tech', icon: FlaskConical, color: 'text-cyan-600', bgColor: 'bg-cyan-50 border-cyan-200 hover:bg-cyan-100', description: 'Lab orders & results' },
+];
+
+function makeDemoUser(role: UserRole): { session: { access_token: string; user: { id: string; email: string } }; user: import('../../types').User } {
+  const id = `demo-${role}-${Date.now()}`;
+  const names: Record<UserRole, string> = {
+    superadmin: 'Dr. Rajesh Kumar',
+    admin: 'Priya Sharma',
+    doctor: 'Dr. Anita Patel',
+    receptionist: 'Sunita Devi',
+    nurse: 'Kavita Singh',
+    billing: 'Amit Verma',
+    pharmacist: 'Ravi Gupta',
+    lab_technician: 'Manish Yadav',
+  };
+  return {
+    session: {
+      access_token: `demo-token-${role}`,
+      user: { id, email: `${role}@demo.healthcarehms.in` },
+    },
+    user: {
+      id,
+      email: `${role}@demo.healthcarehms.in`,
+      full_name: names[role] ?? role,
+      role,
+      hospital_id: DEMO_HOSPITAL_ID,
+      department: null,
+      designation: null,
+      phone: null,
+      avatar_url: null,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  };
+}
+
 export default function LoginPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user, error: authError } = useAppSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [showEmailForm, setShowEmailForm] = useState(false);
 
   useEffect(() => {
     return () => { dispatch(clearError()); };
@@ -59,8 +114,6 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -72,6 +125,14 @@ export default function LoginPage() {
     const defaultRoute = ROLE_DEFAULT_ROUTES[userRole] ?? '/dashboard';
     return <Navigate to={defaultRoute} replace />;
   }
+
+  const handleDemoLogin = (role: UserRole) => {
+    const { session, user: demoUser } = makeDemoUser(role);
+    localStorage.setItem('demo_session', JSON.stringify({ role }));
+    dispatch(setSession({ session, user: demoUser }));
+    const defaultRoute = ROLE_DEFAULT_ROUTES[role] ?? '/dashboard';
+    navigate(defaultRoute, { replace: true });
+  };
 
   const onSubmit = async (data: LoginFormData) => {
     setLocalError(null);
@@ -103,10 +164,9 @@ export default function LoginPage() {
     ? (ERROR_MESSAGES[errorKey] ?? ERROR_MESSAGES.unknown)
     : null;
 
-  const rememberMe = watch('rememberMe');
-
   return (
     <div className="min-h-screen bg-[#f4f5f9] flex">
+      {/* Left branding panel */}
       <div className="hidden lg:flex lg:w-[55%] bg-gradient-to-br from-primary-600 via-primary-500 to-sky-400 relative overflow-hidden flex-col justify-between p-12">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute top-20 left-20 w-64 h-64 rounded-full bg-white blur-3xl" />
@@ -152,6 +212,7 @@ export default function LoginPage() {
         </div>
       </div>
 
+      {/* Right login panel */}
       <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 bg-white">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
@@ -164,140 +225,159 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="mb-10">
+          <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
-            <p className="text-gray-500 mt-2">Sign in to your hospital account</p>
+            <p className="text-gray-500 mt-2">Choose a role to explore, or sign in with your account</p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setValue('email', 'demo@wellnotes.in');
-              setValue('password', 'demo1234');
-            }}
-            className="w-full mb-6 group relative overflow-hidden rounded-2xl border border-primary-200 bg-primary-50/60 p-4 text-left transition-all hover:bg-primary-50 hover:border-primary-300 hover:shadow-sm"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
-                  <HeartPulse className="w-4 h-4 text-primary-600" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-primary-700">Demo Account</p>
-                  <p className="text-[11px] text-primary-600 mt-0.5">demo@wellnotes.in / demo1234</p>
-                </div>
-              </div>
-              <span className="text-[10px] font-medium text-primary-600 bg-primary-100 px-2 py-0.5 rounded-full group-hover:bg-primary-200 transition-colors">
-                Click to fill
-              </span>
-            </div>
-          </button>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-            {displayError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
-                <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-red-700 font-medium text-sm">{displayError.title}</p>
-                  <p className="text-red-600 text-xs mt-0.5">{displayError.detail}</p>
+          {!showEmailForm ? (
+            <>
+              {/* Demo role picker */}
+              <div className="space-y-3 mb-6">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Quick Demo — Select Role</p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {DEMO_ROLES.map((dr) => {
+                    const Icon = dr.icon;
+                    return (
+                      <button
+                        key={dr.role}
+                        type="button"
+                        onClick={() => handleDemoLogin(dr.role)}
+                        className={`group relative flex items-start gap-2.5 rounded-xl border p-3 text-left transition-all ${dr.bgColor}`}
+                      >
+                        <div className={`mt-0.5 ${dr.color}`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 leading-tight">{dr.label}</p>
+                          <p className="text-[11px] text-gray-500 leading-snug mt-0.5">{dr.description}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            )}
 
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-gray-700 font-medium text-sm">
-                Email Address
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="doctor@hospital.com"
-                  {...register('email')}
-                  className="pl-10 h-12 rounded-xl border-gray-200 focus:border-primary-400 focus:ring-primary-400 text-base"
-                  autoComplete="email"
-                />
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-white px-3 text-gray-400 font-medium">or</span>
+                </div>
               </div>
-              {errors.email && (
-                <p className="text-red-500 text-xs">{errors.email.message}</p>
-              )}
-            </div>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-gray-700 font-medium text-sm">
-                  Password
-                </Label>
-                <Link
-                  to="/forgot-password"
-                  className="text-xs text-primary-600 hover:underline font-medium"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  {...register('password')}
-                  className="pl-10 pr-12 h-12 rounded-xl border-gray-200 focus:border-primary-400 focus:ring-primary-400 text-base"
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-red-500 text-xs">{errors.password.message}</p>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2.5">
-              <Checkbox
-                id="rememberMe"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setValue('rememberMe', !!checked)}
-                className="border-gray-300 data-[state=checked]:bg-primary-600 data-[state=checked]:border-primary-600"
-              />
-              <Label
-                htmlFor="rememberMe"
-                className="text-sm text-gray-600 font-normal cursor-pointer select-none"
+              <Button
+                variant="outline"
+                className="w-full h-11 rounded-xl"
+                onClick={() => setShowEmailForm(true)}
               >
-                Keep me signed in for 30 days
-              </Label>
-            </div>
+                <Mail className="w-4 h-4 mr-2" />
+                Sign in with Email
+              </Button>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full h-12 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-semibold rounded-xl transition-all duration-150 shadow-sm active:scale-[0.98] text-base"
-            >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  Signing in...
-                </span>
-              ) : (
-                'Sign In'
-              )}
-            </Button>
-          </form>
+              <p className="text-center text-sm text-gray-500 mt-6">
+                New to HealthCare?{' '}
+                <Link to="/register" className="text-primary-600 font-medium hover:underline">
+                  Create an account
+                </Link>
+              </p>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowEmailForm(false)}
+                className="text-sm text-primary-600 hover:underline mb-4 font-medium"
+              >
+                ← Back to role selection
+              </button>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
-            New to HealthCare?{' '}
-            <Link to="/register" className="text-primary-600 font-medium hover:underline">
-              Create an account
-            </Link>
-          </p>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                {displayError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-red-700 font-medium text-sm">{displayError.title}</p>
+                      <p className="text-red-600 text-xs mt-0.5">{displayError.detail}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-gray-700 font-medium text-sm">Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="doctor@hospital.com"
+                      {...register('email')}
+                      className="pl-10 h-12 rounded-xl border-gray-200 focus:border-primary-400 focus:ring-primary-400 text-base"
+                      autoComplete="email"
+                    />
+                  </div>
+                  {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-gray-700 font-medium text-sm">Password</Label>
+                    <Link to="/forgot-password" className="text-xs text-primary-600 hover:underline font-medium">Forgot password?</Link>
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      {...register('password')}
+                      className="pl-10 pr-12 h-12 rounded-xl border-gray-200 focus:border-primary-400 focus:ring-primary-400 text-base"
+                      autoComplete="current-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  <Checkbox id="rememberMe" {...register('rememberMe')} className="border-gray-300 data-[state=checked]:bg-primary-600 data-[state=checked]:border-primary-600" />
+                  <Label htmlFor="rememberMe" className="text-sm text-gray-600 font-normal cursor-pointer select-none">
+                    Keep me signed in for 30 days
+                  </Label>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full h-12 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-semibold rounded-xl transition-all duration-150 shadow-sm active:scale-[0.98] text-base"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Signing in...
+                    </span>
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              </form>
+
+              <p className="text-center text-sm text-gray-500 mt-6">
+                New to HealthCare?{' '}
+                <Link to="/register" className="text-primary-600 font-medium hover:underline">
+                  Create an account
+                </Link>
+              </p>
+            </>
+          )}
 
           <div className="mt-8 pt-6 border-t border-gray-100">
             <p className="text-center text-xs text-gray-400">
