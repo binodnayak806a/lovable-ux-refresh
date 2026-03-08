@@ -104,6 +104,7 @@
 }
 
 @layer components {
+  /* Sidebar active state */
   [data-sidebar="menu-button"][data-active="true"] {
     @apply font-semibold;
     background: hsl(var(--sidebar-accent));
@@ -114,6 +115,69 @@
   [data-sidebar="group-label"] {
     @apply text-[10px] font-semibold uppercase tracking-widest;
     color: hsl(var(--sidebar-foreground) / 0.45);
+  }
+
+  /* Glass card effect */
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl;
+    box-shadow: 0 1px 3px 0 hsl(var(--foreground) / 0.04);
+  }
+
+  .glass-card:hover {
+    box-shadow: 0 4px 12px -2px hsl(var(--foreground) / 0.08);
+  }
+
+  /* Accent border variants */
+  .accent-border-blue {
+    border-left: 3px solid hsl(204 80% 42%);
+  }
+  .accent-border-green {
+    border-left: 3px solid hsl(142 76% 36%);
+  }
+  .accent-border-amber {
+    border-left: 3px solid hsl(38 92% 50%);
+  }
+  .accent-border-rose {
+    border-left: 3px solid hsl(0 84% 60%);
+  }
+  .accent-border-teal {
+    border-left: 3px solid hsl(172 66% 40%);
+  }
+  .accent-border-violet {
+    border-left: 3px solid hsl(262 83% 58%);
+  }
+
+  /* Premium metric value */
+  .metric-value {
+    @apply text-3xl font-bold tracking-tight text-foreground;
+    animation: countUp 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Staggered animation children */
+  .stagger-children > * {
+    animation: slideUp 400ms ease-out both;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger-children > *:nth-child(6) { animation-delay: 300ms; }
+  .stagger-children > *:nth-child(7) { animation-delay: 360ms; }
+  .stagger-children > *:nth-child(8) { animation-delay: 420ms; }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--primary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Hero greeting banner */
+  .hero-banner {
+    background: linear-gradient(135deg, hsl(var(--primary-light)), hsl(var(--accent)));
+    @apply rounded-2xl p-6 border border-border/30;
   }
 }
 
