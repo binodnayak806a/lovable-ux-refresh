@@ -92,8 +92,6 @@ export default function DashboardPage() {
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
   const prevDateRange = useRef(dateRange);
   const loading = status === 'loading';
-  const [refreshing, setRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   const loadData = useCallback(() => {
     dispatch(fetchDashboardData(hospitalId));
