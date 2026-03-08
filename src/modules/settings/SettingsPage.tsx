@@ -112,14 +112,14 @@ const DEFAULT_SETTINGS: SettingsState = {
 };
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 mt-6 first:mt-0">{children}</h3>;
+  return <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 mt-6 first:mt-0">{children}</h3>;
 }
 
 function SettingRow({ label, description, children }: { label: string; description?: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between py-4 border-b border-slate-100 last:border-0">
+    <div className="flex items-start justify-between py-4 border-b border-border last:border-0">
       <div className="flex-1 pr-8">
-        <Label className="text-sm font-medium text-slate-800">{label}</Label>
+        <Label className="text-sm font-medium text-foreground">{label}</Label>
         {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
       </div>
       <div className="flex-shrink-0">{children}</div>
