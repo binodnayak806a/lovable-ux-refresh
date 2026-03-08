@@ -148,21 +148,21 @@ export default function OPDPage() {
           subtitle={`Outpatient Department — ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
           icon={Stethoscope}
         />
-        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-          <TabsList>
-            <TabsTrigger value="queue" className="gap-1.5">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList className="h-11 p-1 bg-muted/50 rounded-xl">
+            <TabsTrigger value="queue" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
               <List className="w-4 h-4" />
               Today's Queue
             </TabsTrigger>
-            <TabsTrigger value="register" className="gap-1.5">
+            <TabsTrigger value="register" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
               <UserPlus className="w-4 h-4" />
               Register Patient
             </TabsTrigger>
-            <TabsTrigger value="vitals" className="gap-1.5">
+            <TabsTrigger value="vitals" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
               <Activity className="w-4 h-4" />
               Record Vitals
             </TabsTrigger>
-            <TabsTrigger value="consultation" className="gap-1.5">
+            <TabsTrigger value="consultation" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
               <Stethoscope className="w-4 h-4" />
               Consultation
             </TabsTrigger>
