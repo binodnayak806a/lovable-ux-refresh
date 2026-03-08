@@ -4,7 +4,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { supabase } from '../../../lib/supabase';
+// Revenue data from mockStore or demo fallback
 import { useHospitalId } from '../../../hooks/useHospitalId';
 import { format, subDays } from 'date-fns';
 
