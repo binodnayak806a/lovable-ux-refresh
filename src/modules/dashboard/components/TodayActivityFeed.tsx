@@ -16,10 +16,10 @@ interface ActivityItem {
 }
 
 const TYPE_CONFIG = {
-  admission: { icon: BedDouble, label: 'Admitted', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-400' },
-  discharge: { icon: LogOut, label: 'Discharged', bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-400' },
-  new_patient: { icon: UserPlus, label: 'New Patient', bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-400' },
-  appointment: { icon: Stethoscope, label: 'OPD Visit', bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400' },
+  admission: { icon: BedDouble, label: 'Admitted', bg: 'bg-blue-50 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-400', dot: 'bg-blue-400' },
+  discharge: { icon: LogOut, label: 'Discharged', bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-400', dot: 'bg-emerald-400' },
+  new_patient: { icon: UserPlus, label: 'New Patient', bg: 'bg-violet-50 dark:bg-violet-900/30', text: 'text-violet-700 dark:text-violet-400', dot: 'bg-violet-400' },
+  appointment: { icon: Stethoscope, label: 'OPD Visit', bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-400', dot: 'bg-amber-400' },
 };
 
 const DEMO_ACTIVITIES: ActivityItem[] = [

@@ -34,9 +34,9 @@ export default function RevenueKPIStrip({ opdRevenue, ipdRevenue, pharmacyRevenu
   const hasData = opdRevenue > 0 || ipdRevenue > 0 || pharmacyRevenue > 0 || totalRevenue > 0;
 
   const items: RevenueItem[] = [
-    { label: 'OPD Revenue', value: hasData ? opdRevenue : 45000, trend: 12, color: 'text-blue-700', iconBg: 'bg-blue-50' },
-    { label: 'IPD Revenue', value: hasData ? ipdRevenue : 120000, trend: 8, color: 'text-emerald-700', iconBg: 'bg-emerald-50' },
-    { label: 'Pharmacy Revenue', value: hasData ? pharmacyRevenue : 35000, trend: -3, color: 'text-amber-700', iconBg: 'bg-amber-50' },
+    { label: 'OPD Revenue', value: hasData ? opdRevenue : 45000, trend: 12, color: 'text-blue-700 dark:text-blue-400', iconBg: 'bg-blue-50 dark:bg-blue-900/30' },
+    { label: 'IPD Revenue', value: hasData ? ipdRevenue : 120000, trend: 8, color: 'text-emerald-700 dark:text-emerald-400', iconBg: 'bg-emerald-50 dark:bg-emerald-900/30' },
+    { label: 'Pharmacy Revenue', value: hasData ? pharmacyRevenue : 35000, trend: -3, color: 'text-amber-700 dark:text-amber-400', iconBg: 'bg-amber-50 dark:bg-amber-900/30' },
     { label: 'Total Revenue', value: hasData ? totalRevenue : 200000, trend: 15, color: 'text-primary', iconBg: 'bg-primary/10' },
   ];
 

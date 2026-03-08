@@ -94,8 +94,8 @@ export default function PaymentModePieChart() {
   return (
     <section className="bg-card border border-border/50 rounded-2xl p-5 h-full shadow-card">
       <div className="flex items-center gap-2.5 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
-          <CreditCard className="w-4 h-4 text-violet-600" />
+        <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center">
+          <CreditCard className="w-4 h-4 text-violet-600 dark:text-violet-400" />
         </div>
         <h2 className="text-sm font-semibold text-foreground">Payment Modes</h2>
         <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-medium ml-auto">Today</span>

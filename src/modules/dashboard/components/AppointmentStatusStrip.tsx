@@ -22,10 +22,10 @@ const STATUS_CONFIG = [
     statuses: ['scheduled', 'confirmed'],
     label: 'Waiting',
     icon: Clock,
-    bgColor: 'bg-amber-50',
-    borderColor: 'border-amber-200/60',
-    textColor: 'text-amber-700',
-    iconColor: 'text-amber-500',
+    bgColor: 'bg-amber-50 dark:bg-amber-900/30',
+    borderColor: 'border-amber-200/60 dark:border-amber-700/40',
+    textColor: 'text-amber-700 dark:text-amber-400',
+    iconColor: 'text-amber-500 dark:text-amber-400',
     dotColor: 'bg-amber-400',
     progressColor: 'bg-amber-400',
   },
@@ -34,10 +34,10 @@ const STATUS_CONFIG = [
     statuses: ['in_progress'],
     label: 'Engaged',
     icon: UserCheck,
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200/60',
-    textColor: 'text-blue-700',
-    iconColor: 'text-blue-500',
+    bgColor: 'bg-blue-50 dark:bg-blue-900/30',
+    borderColor: 'border-blue-200/60 dark:border-blue-700/40',
+    textColor: 'text-blue-700 dark:text-blue-400',
+    iconColor: 'text-blue-500 dark:text-blue-400',
     dotColor: 'bg-blue-400',
     progressColor: 'bg-blue-400',
   },
@@ -46,10 +46,10 @@ const STATUS_CONFIG = [
     statuses: ['completed'],
     label: 'Done',
     icon: CheckCircle2,
-    bgColor: 'bg-emerald-50',
-    borderColor: 'border-emerald-200/60',
-    textColor: 'text-emerald-700',
-    iconColor: 'text-emerald-500',
+    bgColor: 'bg-emerald-50 dark:bg-emerald-900/30',
+    borderColor: 'border-emerald-200/60 dark:border-emerald-700/40',
+    textColor: 'text-emerald-700 dark:text-emerald-400',
+    iconColor: 'text-emerald-500 dark:text-emerald-400',
     dotColor: 'bg-emerald-400',
     progressColor: 'bg-emerald-400',
   },
@@ -58,9 +58,9 @@ const STATUS_CONFIG = [
     statuses: ['cancelled', 'no_show'],
     label: 'Cancelled',
     icon: XCircle,
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200/60',
-    textColor: 'text-red-700',
+    bgColor: 'bg-red-50 dark:bg-red-900/30',
+    borderColor: 'border-red-200/60 dark:border-red-700/40',
+    textColor: 'text-red-700 dark:text-red-400',
     iconColor: 'text-red-400',
     dotColor: 'bg-red-400',
     progressColor: 'bg-red-400',
@@ -117,7 +117,7 @@ export default function AppointmentStatusStrip({ data: rawData, loading }: Props
                 {config.label}
               </span>
             </div>
-            <div className="w-full h-1 rounded-full bg-black/5">
+            <div className="w-full h-1 rounded-full bg-black/5 dark:bg-white/10">
               <div
                 className={cn('h-full rounded-full transition-all duration-700', config.progressColor)}
                 style={{ width: `${pct}%` }}
