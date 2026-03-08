@@ -1,4 +1,4 @@
-import { Search, Filter, ArrowUpRight, ArrowDownLeft, ArrowLeftRight, Receipt } from 'lucide-react';
+import { Search, ArrowUpRight, ArrowDownLeft, ArrowLeftRight, Receipt } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';

@@ -1,4 +1,4 @@
-import { Landmark, Wallet, Plus, MoreVertical } from 'lucide-react';
+import { Landmark, Wallet, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Account } from '../types';

@@ -123,6 +123,7 @@ export const router = createBrowserRouter([
           { path: '/pathology', element: <S><PathologyPage /></S> },
           { path: '/blood-bank', element: <S><BloodBankPage /></S> },
           { path: '/billing', element: <S><BillingPage /></S> },
+          { path: '/cash-bank', element: <S><CashBankPage /></S> },
           { path: '/insurance', element: <S><InsurancePage /></S> },
           { path: '/tpa', element: <S><TPAPage /></S> },
           { path: '/accounts', element: <S><AccountsPage /></S> },
