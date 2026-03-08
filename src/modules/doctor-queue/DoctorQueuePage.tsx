@@ -19,6 +19,7 @@ import { cn } from '../../lib/utils';
 type QueueTab = 'waiting' | 'engaged' | 'completed';
 
 export default function DoctorQueuePage() {
+  usePageTitle('Doctor Queue');
   const hospitalId = useHospitalId();
   const user = useAppSelector(s => s.auth.user);
   const doctorId = user?.id ?? '';
