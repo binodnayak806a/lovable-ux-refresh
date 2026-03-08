@@ -41,6 +41,7 @@ function MetricCard({ title, value, sub, icon: Icon, accent }: {
 }
 
 export default function HRMSPage() {
+  usePageTitle('HRMS');
   const { hospitalId, user } = useAuth();
   const effectiveHospitalId = hospitalId ?? SAMPLE_HOSPITAL_ID;
 
