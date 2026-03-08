@@ -80,6 +80,7 @@ const NABHPage = stub('NABHPage');
 const NotificationsPage = lazy(() => import('../modules/notifications/NotificationsPage'));
 const StaffPortalPage = stub('StaffPortalPage');
 const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'));
+const CashBankPage = lazy(() => import('../modules/cash-bank/CashBankPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 const S = ({ children }: { children: React.ReactNode }) => (
