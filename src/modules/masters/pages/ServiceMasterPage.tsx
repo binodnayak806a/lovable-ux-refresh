@@ -80,6 +80,12 @@ export default function ServiceMasterPage() {
         columns={[
           { key: 'service_name', label: 'Service', sortable: true, render: d => <span className="font-medium">{d.service_name}</span> },
           { key: 'category', label: 'Category', sortable: true },
+          { key: 'service_type', label: 'Type', sortable: true, render: d => (
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+              d.service_type === 'OPD' ? 'bg-blue-100 text-blue-700' :
+              d.service_type === 'IPD' ? 'bg-teal-100 text-teal-700' : 'bg-purple-100 text-purple-700'
+            }`}>{d.service_type || 'BOTH'}</span>
+          )},
           { key: 'price', label: 'Price', sortable: true, render: d => `Rs. ${Number(d.price).toLocaleString('en-IN')}` },
           { key: 'gst_rate', label: 'GST', render: d => `${d.gst_rate}%` },
           { key: 'hsn_code', label: 'HSN' },
