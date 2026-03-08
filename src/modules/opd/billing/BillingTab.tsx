@@ -280,15 +280,6 @@ export default function BillingTab({ patient, consultationId, prescriptionId }: 
                       ],
                     } : {}),
                   }));
-                    setForm(prev => ({
-                      ...prev,
-                      isSplitPayment: true,
-                      splitEntries: [
-                        createEmptySplitEntry('cash'),
-                        createEmptySplitEntry('upi'),
-                      ],
-                    }));
-                  }
                 }}
               />
               <span className="text-xs text-gray-600 font-medium">Split Payment</span>
