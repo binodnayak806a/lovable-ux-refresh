@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCart, IndianRupee, TrendingUp } from 'lucide-react';
-import { supabase } from '../../../lib/supabase';
+import { mockMasterStore } from '../../../lib/mockMasterStore';
 import { useHospitalId } from '../../../hooks/useHospitalId';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { format } from 'date-fns';
 import { useCountUp } from '../../../hooks/useCountUp';
 
 export default function PharmacySalesToday() {
