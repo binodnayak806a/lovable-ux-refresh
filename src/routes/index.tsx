@@ -107,6 +107,7 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/dashboard" replace /> },
           { path: '/dashboard', element: <S><DashboardPage /></S> },
           { path: '/patients', element: <S><PatientsPage /></S> },
+          { path: '/add-patient', element: <S><AddPatientPage /></S> },
           { path: '/appointments', element: <S><AppointmentsPage /></S> },
           { path: '/doctor/queue', element: <S><DoctorQueuePage /></S> },
           { path: '/opd', element: <S><OPDPage /></S> },

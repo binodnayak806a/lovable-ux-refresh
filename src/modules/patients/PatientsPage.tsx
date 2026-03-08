@@ -227,7 +227,7 @@ export default function PatientsPage() {
                   <td colSpan={9} className="text-center py-16">
                     <User className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
                     <p className="text-sm text-muted-foreground">No patients found</p>
-                    <Button size="sm" variant="outline" className="mt-3 gap-1.5 text-xs" onClick={() => navigate('/opd?tab=register')}>
+                    <Button size="sm" variant="outline" className="mt-3 gap-1.5 text-xs" onClick={() => navigate('/add-patient')}>
                       <UserPlus className="w-3.5 h-3.5" /> Register First Patient
                     </Button>
                   </td>
