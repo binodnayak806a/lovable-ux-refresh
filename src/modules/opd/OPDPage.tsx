@@ -5,7 +5,7 @@ import {
   XCircle, User, CalendarClock, Stethoscope, Activity,
   ChevronLeft, ChevronRight, AlertTriangle, Play, Eye,
   MoreVertical, Ban, FileText, Printer,
-  CalendarDays,
+  CalendarDays, Ticket,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -18,10 +18,11 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 import { Skeleton } from '../../components/ui/skeleton';
 import { useAppSelector } from '../../store';
 import { useToast } from '../../hooks/useToast';
-import dashboardService from '../../services/dashboard.service';
+import { mockStore } from '../../lib/mockStore';
 import PatientRegistrationForm from './components/PatientRegistrationForm';
 import VitalsPage from './vitals/VitalsPage';
 import ConsultationPage from './consultation/ConsultationPage';
+import PatientStickerPrint from '../patients/components/PatientStickerPrint';
 import { useDebounce } from '../../hooks/useDebounce';
 import { format } from 'date-fns';
 import { cn } from '../../lib/utils';
@@ -48,7 +49,9 @@ const STATUS_STYLES: Record<string, { label: string; bg: string; text: string; i
 
 interface AppointmentRow {
   id: string;
+  patient_id: string;
   patient_name: string;
+  patient_uhid: string;
   doctor_name: string;
   appointment_date: string;
   appointment_time: string;
@@ -65,7 +68,6 @@ function formatTime(t: string) {
   return `${hour % 12 || 12}:${m} ${ampm}`;
 }
 
-/* ── Stat card inline (cleaner than SharedStatCard for this layout) ── */
 function OpdStat({ label, value, icon: Icon, iconBg, iconColor }: {
   label: string; value: number; icon: React.ElementType; iconBg: string; iconColor: string;
 }) {
@@ -94,63 +96,64 @@ export default function OPDPage() {
 
   const [tab, setTab] = useState<Tab>('queue');
   const [appointments, setAppointments] = useState<AppointmentRow[]>([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ scheduled: 0, inProgress: 0, completed: 0, total: 0 });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [stickerPatient, setStickerPatient] = useState<{ full_name: string; uhid: string; age?: number; gender?: string; phone: string; blood_group?: string | null } | null>(null);
+  const [stickerSize, setStickerSize] = useState<'thermal' | 'a4'>('thermal');
 
   const search = useDebounce(searchInput, 350);
-  const limit = 15;
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
-  const loadAppointments = useCallback(async () => {
+  const loadMockAppointments = useCallback(() => {
     setLoading(true);
-    try {
-      const res = await dashboardService.getAppointments(hospitalId, {
-        dateFrom: dateStr,
-        dateTo: dateStr,
-        status: statusFilter === 'all' ? undefined : statusFilter,
-        search: search || undefined,
-        page,
-        limit,
+    setTimeout(() => {
+      const allAppts = mockStore.getAppointments(hospitalId, dateStr, statusFilter === 'all' ? undefined : statusFilter);
+      
+      let rows: AppointmentRow[] = allAppts.map(a => ({
+        id: a.id,
+        patient_id: a.patient_id,
+        patient_name: mockStore.getPatientName(a.patient_id),
+        patient_uhid: mockStore.getPatientById(a.patient_id)?.uhid ?? '',
+        doctor_name: mockStore.getDoctorName(a.doctor_id),
+        appointment_date: a.appointment_date,
+        appointment_time: a.appointment_time,
+        type: a.type,
+        status: a.status,
+        chief_complaint: a.chief_complaint,
+      }));
+
+      if (typeFilter && typeFilter !== 'all') {
+        rows = rows.filter(r => r.type === typeFilter);
+      }
+
+      if (search) {
+        const q = search.toLowerCase();
+        rows = rows.filter(r =>
+          r.patient_name.toLowerCase().includes(q) ||
+          r.doctor_name.toLowerCase().includes(q) ||
+          r.patient_uhid.toLowerCase().includes(q)
+        );
+      }
+
+      setAppointments(rows);
+
+      const allForStats = mockStore.getAppointments(hospitalId, dateStr);
+      setStats({
+        total: allForStats.length,
+        scheduled: allForStats.filter(a => a.status === 'scheduled').length,
+        inProgress: allForStats.filter(a => a.status === 'in_progress').length,
+        completed: allForStats.filter(a => a.status === 'completed').length,
       });
-      setAppointments(res.data.map((r: Record<string, unknown>) => ({
-        id: r.id as string,
-        patient_name: ((r.patients as Record<string, unknown>)?.full_name as string) ?? '',
-        doctor_name: ((r.profiles as Record<string, unknown>)?.full_name as string) ?? '',
-        appointment_date: r.appointment_date as string,
-        appointment_time: r.appointment_time as string,
-        type: r.type as string,
-        status: r.status as string,
-        chief_complaint: r.chief_complaint as string | null,
-      })));
-      setTotal(res.total);
-      setTotalPages(res.totalPages);
-    } catch {
-      setAppointments([]);
-    } finally {
+
       setLoading(false);
-    }
-  }, [hospitalId, dateStr, statusFilter, search, page, limit]);
+    }, 200);
+  }, [hospitalId, dateStr, statusFilter, typeFilter, search]);
 
-  const loadStats = useCallback(async () => {
-    try {
-      const [all, prog, done] = await Promise.all([
-        dashboardService.getAppointments(hospitalId, { dateFrom: dateStr, dateTo: dateStr, limit: 1 }),
-        dashboardService.getAppointments(hospitalId, { dateFrom: dateStr, dateTo: dateStr, status: 'in_progress', limit: 1 }),
-        dashboardService.getAppointments(hospitalId, { dateFrom: dateStr, dateTo: dateStr, status: 'completed', limit: 1 }),
-      ]);
-      setStats({ scheduled: all.total, inProgress: prog.total, completed: done.total, total: all.total });
-    } catch { /* noop */ }
-  }, [hospitalId, dateStr]);
-
-  useEffect(() => { if (tab === 'queue') { loadAppointments(); loadStats(); } }, [tab, loadAppointments, loadStats]);
-  useEffect(() => { setPage(1); }, [search, statusFilter, typeFilter]);
+  useEffect(() => { if (tab === 'queue') loadMockAppointments(); }, [tab, loadMockAppointments]);
 
   useEffect(() => {
     if (registeredUhid) {
@@ -167,12 +170,40 @@ export default function OPDPage() {
 
   const pending = Math.max(0, stats.total - stats.completed - stats.inProgress);
 
+  const handleStartConsultation = (appt: AppointmentRow) => {
+    mockStore.updateAppointmentStatus(appt.id, 'in_progress');
+    setTab('consultation');
+  };
+
+  const handleRecordVitals = (_appt: AppointmentRow) => {
+    setTab('vitals');
+  };
+
+  const handlePrintSticker = (appt: AppointmentRow) => {
+    const patient = mockStore.getPatientById(appt.patient_id);
+    if (patient) {
+      setStickerPatient({
+        full_name: patient.full_name,
+        uhid: patient.uhid,
+        age: patient.age ?? undefined,
+        gender: patient.gender,
+        phone: patient.phone,
+        blood_group: patient.blood_group,
+      });
+    }
+  };
+
+  const handleCancelAppointment = (appt: AppointmentRow) => {
+    mockStore.updateAppointmentStatus(appt.id, 'cancelled');
+    loadMockAppointments();
+    toast('Appointment cancelled', { type: 'success' });
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-56px)] bg-background">
       {/* ═══════ HEADER ═══════ */}
       <div className="bg-card border-b border-border">
         <div className="px-6 pt-5 pb-4">
-          {/* Row 1: Title + Actions */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3.5">
               <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shadow-sm">
@@ -207,7 +238,6 @@ export default function OPDPage() {
             </div>
           </div>
 
-          {/* Row 2: Tabs */}
           <div className="flex items-center gap-1 border-b border-border -mx-6 px-6">
             {TAB_CONFIG.map(t => {
               const Icon = t.icon;
@@ -231,7 +261,6 @@ export default function OPDPage() {
           </div>
         </div>
 
-        {/* Stats strip (only for queue tab) */}
         {tab === 'queue' && (
           <div className="px-6 pb-4 pt-1">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -247,11 +276,9 @@ export default function OPDPage() {
       {/* ═══════ CONTENT ═══════ */}
       {tab === 'queue' && (
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* ── Filter bar ── */}
           <div className="px-6 py-2.5 border-b border-border bg-card/80 backdrop-blur-sm flex items-center gap-3 flex-wrap">
             <h2 className="text-sm font-semibold text-foreground whitespace-nowrap">Today's Appointments</h2>
 
-            {/* Date navigator */}
             <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
               <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-md" onClick={() => navigateDate(-1)}>
                 <ChevronLeft className="w-3.5 h-3.5" />
@@ -289,7 +316,6 @@ export default function OPDPage() {
 
             <div className="h-5 w-px bg-border" />
 
-            {/* Search */}
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
               <Input
@@ -300,7 +326,6 @@ export default function OPDPage() {
               />
             </div>
 
-            {/* Filters */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="h-7 w-[110px] text-xs bg-muted/30 border-border/60">
                 <SelectValue placeholder="All Status" />
@@ -319,9 +344,8 @@ export default function OPDPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="walk_in">Walk-In</SelectItem>
+                <SelectItem value="opd">OPD</SelectItem>
                 <SelectItem value="follow_up">Follow-Up</SelectItem>
-                <SelectItem value="scheduled">Scheduled</SelectItem>
                 <SelectItem value="emergency">Emergency</SelectItem>
               </SelectContent>
             </Select>
@@ -330,7 +354,7 @@ export default function OPDPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => { loadAppointments(); loadStats(); }}
+                onClick={loadMockAppointments}
                 disabled={loading}
                 className="h-7 w-7 p-0 border-border/60"
               >
@@ -339,7 +363,6 @@ export default function OPDPage() {
             </div>
           </div>
 
-          {/* ── Table ── */}
           <div className="flex-1 overflow-auto">
             {loading ? (
               <div className="p-6 space-y-4">
@@ -365,16 +388,13 @@ export default function OPDPage() {
                   <Button size="sm" className="gap-1.5 text-xs" onClick={() => setTab('register')}>
                     <UserPlus className="w-3.5 h-3.5" /> Register Patient
                   </Button>
-                  <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => navigate('/appointments')}>
-                    <CalendarClock className="w-3.5 h-3.5" /> New Appointment
-                  </Button>
                 </div>
               </div>
             ) : (
               <table className="w-full text-xs">
                 <thead className="bg-muted/40 sticky top-0 z-10">
                   <tr className="border-b border-border">
-                    {['#', 'Patient', 'Doctor', 'Time', 'Type', 'Chief Complaint', 'Status', 'Actions'].map(col => (
+                    {['#', 'Patient', 'UHID', 'Doctor', 'Time', 'Type', 'Chief Complaint', 'Status', 'Actions'].map(col => (
                       <th key={col} className={cn(
                         'py-2.5 px-4 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]',
                         col === 'Actions' ? 'text-center' : 'text-left'
@@ -395,7 +415,7 @@ export default function OPDPage() {
                         className="border-b border-border/40 hover:bg-primary/[0.02] transition-colors group"
                       >
                         <td className="py-3 px-4 text-muted-foreground font-mono text-[11px]">
-                          {(page - 1) * limit + idx + 1}
+                          {idx + 1}
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2.5">
@@ -405,10 +425,13 @@ export default function OPDPage() {
                             <span className="font-semibold text-foreground">{appt.patient_name}</span>
                           </div>
                         </td>
+                        <td className="py-3 px-4">
+                          <span className="font-mono text-[10px] bg-muted/60 px-1.5 py-0.5 rounded text-muted-foreground">{appt.patient_uhid}</span>
+                        </td>
                         <td className="py-3 px-4 text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             <User className="w-3 h-3 opacity-50" />
-                            {appt.doctor_name || <span className="italic opacity-50">Unassigned</span>}
+                            {appt.doctor_name}
                           </div>
                         </td>
                         <td className="py-3 px-4 font-medium text-foreground tabular-nums">
@@ -431,26 +454,54 @@ export default function OPDPage() {
                         <td className="py-3 px-4">
                           <TooltipProvider delayDuration={150}>
                             <div className="flex items-center justify-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                              {[
-                                { icon: Play, tip: 'Start Consultation', cls: 'text-emerald-600 hover:bg-emerald-50' },
-                                { icon: Eye, tip: 'View Details', cls: 'text-primary hover:bg-primary/10' },
-                                { icon: Activity, tip: 'Record Vitals', cls: 'text-amber-600 hover:bg-amber-50' },
-                                { icon: FileText, tip: 'Prescription', cls: 'text-muted-foreground hover:bg-muted' },
-                                { icon: Printer, tip: 'Print', cls: 'text-muted-foreground hover:bg-muted' },
-                                { icon: Ban, tip: 'Cancel', cls: 'text-destructive/70 hover:bg-destructive/5' },
-                              ].map((act, i) => (
-                                <Tooltip key={i}>
-                                  <TooltipTrigger asChild>
-                                    <button className={cn('w-6 h-6 rounded-md flex items-center justify-center transition-colors', act.cls)}>
-                                      <act.icon className="w-3.5 h-3.5" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-[10px] px-2 py-1">{act.tip}</TooltipContent>
-                                </Tooltip>
-                              ))}
-                              <button className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors">
-                                <MoreVertical className="w-3.5 h-3.5" />
-                              </button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button onClick={() => handleStartConsultation(appt)} className="w-6 h-6 rounded-md flex items-center justify-center text-emerald-600 hover:bg-emerald-50 transition-colors">
+                                    <Play className="w-3.5 h-3.5" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-[10px] px-2 py-1">Start Consultation</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button onClick={() => handleRecordVitals(appt)} className="w-6 h-6 rounded-md flex items-center justify-center text-amber-600 hover:bg-amber-50 transition-colors">
+                                    <Activity className="w-3.5 h-3.5" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-[10px] px-2 py-1">Record Vitals</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button onClick={() => handlePrintSticker(appt)} className="w-6 h-6 rounded-md flex items-center justify-center text-primary hover:bg-primary/10 transition-colors">
+                                    <Ticket className="w-3.5 h-3.5" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-[10px] px-2 py-1">Print Sticker</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors">
+                                    <FileText className="w-3.5 h-3.5" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-[10px] px-2 py-1">Prescription</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors">
+                                    <Printer className="w-3.5 h-3.5" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-[10px] px-2 py-1">Print</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button onClick={() => handleCancelAppointment(appt)} className="w-6 h-6 rounded-md flex items-center justify-center text-destructive/70 hover:bg-destructive/5 transition-colors">
+                                    <Ban className="w-3.5 h-3.5" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-[10px] px-2 py-1">Cancel</TooltipContent>
+                              </Tooltip>
                             </div>
                           </TooltipProvider>
                         </td>
@@ -462,23 +513,10 @@ export default function OPDPage() {
             )}
           </div>
 
-          {/* ── Pagination ── */}
           {appointments.length > 0 && (
             <div className="border-t border-border bg-card px-6 py-2 flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Items per page: {limit}</span>
-              <div className="flex items-center gap-3">
-                <span className="text-muted-foreground tabular-nums">
-                  {total > 0 ? `${(page - 1) * limit + 1}–${Math.min(page * limit, total)} of ${total}` : '0 results'}
-                </span>
-                <div className="flex items-center gap-0.5">
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              </div>
+              <span className="text-muted-foreground">Showing {appointments.length} appointments</span>
+              <span className="text-muted-foreground tabular-nums">{format(selectedDate, 'dd MMM yyyy')}</span>
             </div>
           )}
         </div>
@@ -487,7 +525,7 @@ export default function OPDPage() {
       {tab === 'register' && (
         <div className="flex-1 overflow-auto p-6">
           <PatientRegistrationForm
-            onSuccess={() => { setTab('queue'); loadAppointments(); loadStats(); }}
+            onSuccess={() => { setTab('queue'); loadMockAppointments(); }}
             onCancel={() => setTab('queue')}
           />
         </div>
@@ -503,6 +541,15 @@ export default function OPDPage() {
         <div className="flex-1 overflow-auto p-6">
           <ConsultationPage />
         </div>
+      )}
+
+      {stickerPatient && (
+        <PatientStickerPrint
+          patient={stickerPatient}
+          onClose={() => setStickerPatient(null)}
+          stickerSize={stickerSize}
+          onSizeChange={setStickerSize}
+        />
       )}
     </div>
   );

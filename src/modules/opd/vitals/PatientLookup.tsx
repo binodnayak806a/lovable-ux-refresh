@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
 import { Search, User, Loader2, X } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import { mockStore } from '../../../lib/mockStore';
 import { useAppSelector } from '../../../store';
-import { toast } from 'sonner';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
@@ -45,16 +45,41 @@ export default function PatientLookup({ selectedPatient, onSelect, selectedAppoi
     if (!q.trim() || q.length < 2) { setResults([]); return; }
     setLoading(true);
     try {
+      // Try DB first
       const { data } = await supabase
         .from('patients')
         .select('id, uhid, full_name, phone, gender, date_of_birth')
         .eq('hospital_id', hospitalId)
         .or(`full_name.ilike.%${q}%,uhid.ilike.%${q}%,phone.ilike.%${q}%`)
         .limit(8);
-      setResults((data ?? []) as PatientResult[]);
+      
+      const dbResults = (data ?? []) as PatientResult[];
+      
+      if (dbResults.length > 0) {
+        setResults(dbResults);
+      } else {
+        // Fallback to mock store
+        const mockPatients = mockStore.getPatients(hospitalId, q);
+        setResults(mockPatients.map(p => ({
+          id: p.id,
+          uhid: p.uhid,
+          full_name: p.full_name,
+          phone: p.phone,
+          gender: p.gender,
+          date_of_birth: p.date_of_birth,
+        })));
+      }
     } catch {
-      setResults([]);
-      toast.error('Failed to search patients');
+      // Fallback to mock store on error
+      const mockPatients = mockStore.getPatients(hospitalId, q);
+      setResults(mockPatients.map(p => ({
+        id: p.id,
+        uhid: p.uhid,
+        full_name: p.full_name,
+        phone: p.phone,
+        gender: p.gender,
+        date_of_birth: p.date_of_birth,
+      })));
     } finally {
       setLoading(false);
     }
@@ -70,18 +95,32 @@ export default function PatientLookup({ selectedPatient, onSelect, selectedAppoi
     setLoadingAppts(true);
     try {
       const today = new Date().toISOString().split('T')[0];
-      const { data } = await supabase
-        .from('appointments')
-        .select('id, appointment_date, appointment_time, type, chief_complaint')
-        .eq('patient_id', patientId)
-        .gte('appointment_date', today)
-        .neq('status', 'cancelled')
-        .order('appointment_date', { ascending: true })
-        .limit(5);
-      setAppointments((data ?? []) as Appointment[]);
+      // Try mock store first (more reliable for demo)
+      const mockAppts = mockStore.getAppointments(hospitalId, today)
+        .filter(a => a.patient_id === patientId && a.status !== 'cancelled')
+        .map(a => ({
+          id: a.id,
+          appointment_date: a.appointment_date,
+          appointment_time: a.appointment_time,
+          type: a.type,
+          chief_complaint: a.chief_complaint,
+        }));
+      
+      if (mockAppts.length > 0) {
+        setAppointments(mockAppts);
+      } else {
+        const { data } = await supabase
+          .from('appointments')
+          .select('id, appointment_date, appointment_time, type, chief_complaint')
+          .eq('patient_id', patientId)
+          .gte('appointment_date', today)
+          .neq('status', 'cancelled')
+          .order('appointment_date', { ascending: true })
+          .limit(5);
+        setAppointments((data ?? []) as Appointment[]);
+      }
     } catch {
       setAppointments([]);
-      toast.error('Failed to load appointments');
     } finally {
       setLoadingAppts(false);
     }
@@ -133,11 +172,7 @@ export default function PatientLookup({ selectedPatient, onSelect, selectedAppoi
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleClear}
-            className="p-1.5 rounded-lg hover:bg-blue-100 text-blue-400 hover:text-blue-600 transition-colors"
-          >
+          <button type="button" onClick={handleClear} className="p-1.5 rounded-lg hover:bg-blue-100 text-blue-400 hover:text-blue-600 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -152,33 +187,18 @@ export default function PatientLookup({ selectedPatient, onSelect, selectedAppoi
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Select Appointment (Optional)</p>
             <div className="space-y-1.5">
               <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${selectedAppointmentId === null ? 'border-blue-300 bg-blue-50' : 'border-gray-100 hover:border-gray-200 bg-white'}`}>
-                <input
-                  type="radio"
-                  name="appt"
-                  checked={selectedAppointmentId === null}
-                  onChange={() => onSelectAppointment(null)}
-                  className="accent-blue-600"
-                />
-                <span className="text-sm text-gray-600">No appointment — standalone vitals</span>
+                <input type="radio" name="appt" checked={selectedAppointmentId === null} onChange={() => onSelectAppointment(null)} className="accent-blue-600" />
+                <span className="text-sm text-gray-600">No appointment — standalone</span>
               </label>
               {appointments.map((a) => (
                 <label key={a.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${selectedAppointmentId === a.id ? 'border-blue-300 bg-blue-50' : 'border-gray-100 hover:border-gray-200 bg-white'}`}>
-                  <input
-                    type="radio"
-                    name="appt"
-                    checked={selectedAppointmentId === a.id}
-                    onChange={() => onSelectAppointment(a.id)}
-                    className="accent-blue-600"
-                  />
+                  <input type="radio" name="appt" checked={selectedAppointmentId === a.id} onChange={() => onSelectAppointment(a.id)} className="accent-blue-600" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800">
                       {new Date(a.appointment_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                      {' · '}
-                      {fmtApptTime(a.appointment_time)}
+                      {' · '}{fmtApptTime(a.appointment_time)}
                     </p>
-                    {a.chief_complaint && (
-                      <p className="text-xs text-gray-400 truncate">{a.chief_complaint}</p>
-                    )}
+                    {a.chief_complaint && <p className="text-xs text-gray-400 truncate">{a.chief_complaint}</p>}
                   </div>
                   <span className="text-xs text-gray-400 capitalize shrink-0">{a.type.replace('_', '-')}</span>
                 </label>
@@ -201,9 +221,7 @@ export default function PatientLookup({ selectedPatient, onSelect, selectedAppoi
           placeholder="Search by patient name, UHID or phone number…"
           className="w-full h-10 pl-9 pr-4 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-sm outline-none transition-all"
         />
-        {loading && (
-          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400 animate-spin" />
-        )}
+        {loading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400 animate-spin" />}
       </div>
 
       {results.length > 0 && (
