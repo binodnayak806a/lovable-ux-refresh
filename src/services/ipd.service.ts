@@ -177,7 +177,7 @@ const ipdService = {
   },
 
   // ── Daily Notes ──
-  async addDailyNote(admissionId: string, _doctorId: string, noteDate: string, observations: string, plan: string, vitals: Record<string, unknown>): Promise<IpdDailyNote> {
+  async addDailyNote(admissionId: string, _doctorId: string, noteDate: string, observations: string, plan: string, _vitals: Record<string, unknown>): Promise<IpdDailyNote> {
     return mockMasterStore.insert<IpdDailyNote>('doctor_rounds', {
       admission_id: admissionId, round_date: noteDate, clinical_notes: observations,
       treatment_plan: plan, doctor_name: 'Dr. Current User',
