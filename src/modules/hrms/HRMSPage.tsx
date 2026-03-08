@@ -125,7 +125,7 @@ export default function HRMSPage() {
               </TabsTrigger>
               <TabsTrigger
                 value="leaves"
-                className="px-4 py-2 rounded-lg data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 text-slate-600"
+                className="px-4 py-2 rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground"
               >
                 Leave Requests
                 {pendingLeaves > 0 && (
