@@ -165,10 +165,10 @@ export default function CollectPaymentDialog({ open, bill, onClose, onSuccess }:
             </div>
           </div>
 
-          {(paymentMode === 'card' || paymentMode === 'upi' || paymentMode === 'online') && (
+          {(paymentMode === 'card' || paymentMode === 'upi' || paymentMode === 'online' || paymentMode === 'rtgs') && (
             <div>
               <Label className="text-xs text-gray-500 mb-1 block">Transaction Reference</Label>
-              <Input value={paymentRef} onChange={e => setPaymentRef(e.target.value)} placeholder="Txn ID / Ref number" className="h-9" />
+              <Input value={paymentRef} onChange={e => setPaymentRef(e.target.value)} placeholder="Txn ID / Ref number / UTR" className="h-9" />
             </div>
           )}
 
