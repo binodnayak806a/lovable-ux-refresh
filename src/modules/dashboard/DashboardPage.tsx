@@ -121,11 +121,6 @@ export default function DashboardPage() {
     () => { dispatch(incrementTodayAppointments()); },
   );
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadData();
-    setTimeout(() => setRefreshing(false), 500);
-  };
 
   const totalBeds = extendedMetrics?.totalBeds ?? 0;
   const occupiedBeds = extendedMetrics?.occupiedBeds ?? 0;
