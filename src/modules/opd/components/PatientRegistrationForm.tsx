@@ -145,13 +145,11 @@ export default function PatientRegistrationForm({ onSuccess, onCancel, editPatie
     if (!dismissedDuplicates) {
       try {
         const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`.trim();
-        const { data } = await supabase
-          .from('patients')
-          .select('id, full_name, uhid, phone, age, gender')
-          .eq('hospital_id', hospitalId)
-          .or(`phone.eq.${form.phone},full_name.ilike.${fullName}`)
-          .limit(3);
-        const found = (data ?? []) as DuplicatePatient[];
+        const allPatients = mockStore.getPatients(hospitalId);
+        const found = allPatients
+          .filter(p => p.phone === form.phone || p.full_name.toLowerCase() === fullName.toLowerCase())
+          .slice(0, 3)
+          .map(p => ({ id: p.id, full_name: p.full_name, uhid: p.uhid, phone: p.phone, age: p.age, gender: p.gender }));
         if (found.length > 0) {
           setDuplicates(found);
           return;
