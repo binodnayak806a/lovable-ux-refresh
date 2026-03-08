@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   UserPlus, Search, RefreshCw, Filter, Download, Users,
   User, ChevronLeft, ChevronRight, Settings2,
-  Phone, Hash, Calendar, MoreHorizontal,
+  MoreHorizontal,
   Stethoscope, Receipt, BedDouble, History, Printer, CalendarCheck,
   Eye,
 } from 'lucide-react';
