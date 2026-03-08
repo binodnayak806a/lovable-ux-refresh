@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Save, Eye, Printer, Loader2, FileText, LayoutTemplate,
+  Save, Eye, Printer, Loader2, FileText, LayoutTemplate, Sparkles, RotateCcw,
 } from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
@@ -16,6 +16,7 @@ import PageSizeSelector from './PageSizeSelector';
 import TemplateListPanel from './TemplateListPanel';
 import { getSampleData, substituteVariables, printTemplate as doPrint } from './previewUtils';
 import { DOCUMENT_TYPES, PAGE_SIZES } from './types';
+import { STARTER_TEMPLATES } from './starterTemplates';
 import type { PrintTemplate } from './types';
 
 export default function PrintTemplatesPage() {
@@ -35,17 +36,65 @@ export default function PrintTemplatesPage() {
   const [previewUrl, setPreviewUrl] = useState('');
   const [previewLoading, setPreviewLoading] = useState(false);
   const canvasElRef = useRef<HTMLCanvasElement>(null);
-  const initDone = useRef(false);
+  const canvasInitialized = useRef(false);
 
   const docConfig = DOCUMENT_TYPES.find((d) => d.key === docType)!;
 
   const {
     canvasRef, containerRef, initCanvas, addTextField, addRect, addLine,
     addImage, deleteSelected, updateSelected, selectedObj, zoom,
-    setCanvasZoom, toJSON, loadJSON, toDataURL, canvasWidthPx, canvasHeightPx,
-    bringForward, sendBackward, duplicateSelected,
+    setCanvasZoom, toJSON, loadJSON, canvasWidthPx, canvasHeightPx,
+    bringForward, sendBackward, duplicateSelected, clearCanvas, objectCount,
   } = useCanvasDesigner(pageSize, pageWidthMm, pageHeightMm);
 
+  // ─── Initialize canvas ───
+  const doInitCanvas = useCallback(() => {
+    if (canvasElRef.current) {
+      initCanvas(canvasElRef.current);
+      canvasInitialized.current = true;
+    }
+  }, [initCanvas]);
+
+  // Initial mount
+  useEffect(() => {
+    // Small delay to ensure the DOM element is fully rendered
+    const timer = setTimeout(() => {
+      if (!canvasInitialized.current) {
+        doInitCanvas();
+      }
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [doInitCanvas]);
+
+  // Re-init on page size change
+  useEffect(() => {
+    if (canvasInitialized.current) {
+      // Dispose old and re-create
+      if (canvasRef.current) {
+        try { canvasRef.current.dispose(); } catch { /* */ }
+        canvasRef.current = null;
+      }
+      canvasInitialized.current = false;
+      const timer = setTimeout(() => {
+        doInitCanvas();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageSize, pageWidthMm, pageHeightMm]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (canvasRef.current) {
+        try { canvasRef.current.dispose(); } catch { /* */ }
+        canvasRef.current = null;
+        canvasInitialized.current = false;
+      }
+    };
+  }, [canvasRef]);
+
+  // ─── Load templates ───
   const loadTemplates = useCallback(async () => {
     setListLoading(true);
     try {
@@ -64,46 +113,37 @@ export default function PrintTemplatesPage() {
     setTemplateName('');
   }, [docType, loadTemplates]);
 
-  useEffect(() => {
-    if (canvasElRef.current && !initDone.current) {
-      initCanvas(canvasElRef.current);
-      initDone.current = true;
-    }
-  }, [initCanvas]);
-
-  useEffect(() => {
-    if (initDone.current && canvasRef.current) {
-      canvasRef.current.dispose();
-      initDone.current = false;
-      if (canvasElRef.current) {
-        initCanvas(canvasElRef.current);
-        initDone.current = true;
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageSize, pageWidthMm, pageHeightMm]);
-
+  // ─── Handlers ───
   const handleSelectTemplate = async (t: PrintTemplate) => {
     setActiveTemplate(t);
     setTemplateName(t.template_name);
     setPageSize(t.page_size);
     setPageWidthMm(t.page_width_mm);
     setPageHeightMm(t.page_height_mm);
+    // Wait for canvas re-init if page size changed
     setTimeout(async () => {
       if (t.canvas_json && Object.keys(t.canvas_json).length > 0) {
         await loadJSON(t.canvas_json);
       }
-    }, 100);
+    }, 200);
   };
 
   const handleNew = () => {
     setActiveTemplate(null);
     setTemplateName('');
-    if (canvasRef.current) {
-      canvasRef.current.clear();
-      canvasRef.current.backgroundColor = '#ffffff';
-      canvasRef.current.requestRenderAll();
+    clearCanvas();
+  };
+
+  const handleLoadStarter = async () => {
+    const starterFn = STARTER_TEMPLATES[docType];
+    if (!starterFn) {
+      toast('No starter template available for this type', { type: 'error' });
+      return;
     }
+    const starterJson = starterFn();
+    await loadJSON(starterJson as Record<string, unknown>);
+    setTemplateName(`${docConfig.label} - Standard`);
+    toast('Starter template loaded! Customize it as needed.', { type: 'success' });
   };
 
   const handleSave = async () => {
@@ -125,7 +165,7 @@ export default function PrintTemplatesPage() {
         page_height_mm: pageHeightMm,
       });
       setActiveTemplate(saved);
-      toast('Template saved', { type: 'success' });
+      toast('Template saved successfully', { type: 'success' });
       loadTemplates();
     } catch {
       toast('Failed to save template', { type: 'error' });
@@ -160,16 +200,34 @@ export default function PrintTemplatesPage() {
     setPreviewOpen(true);
     try {
       const json = toJSON();
+      if (!json || !Object.keys(json).length) {
+        toast('Canvas is empty — add some elements first', { type: 'error' });
+        setPreviewOpen(false);
+        return;
+      }
       const sampleData = getSampleData(docType);
       const substituted = substituteVariables(json as Record<string, unknown>, sampleData);
-      if (canvasRef.current) {
-        const origJson = toJSON();
-        await loadJSON(substituted as Record<string, unknown>);
-        const url = toDataURL();
-        setPreviewUrl(url);
-        await loadJSON(origJson as Record<string, unknown>);
-      }
-    } catch {
+
+      // Render on offscreen canvas for clean preview
+      const { Canvas: FabricCanvas } = await import('fabric');
+      const offEl = document.createElement('canvas');
+      offEl.width = canvasWidthPx;
+      offEl.height = canvasHeightPx;
+      const offCanvas = new FabricCanvas(offEl, {
+        width: canvasWidthPx,
+        height: canvasHeightPx,
+        backgroundColor: '#ffffff',
+        renderOnAddRemove: true,
+      });
+      await offCanvas.loadFromJSON(substituted);
+      offCanvas.requestRenderAll();
+      await new Promise(r => setTimeout(r, 150));
+      offCanvas.requestRenderAll();
+      const url = offCanvas.toDataURL({ multiplier: 2 });
+      setPreviewUrl(url);
+      offCanvas.dispose();
+    } catch (err) {
+      console.error('Preview failed:', err);
       toast('Preview failed', { type: 'error' });
     } finally {
       setPreviewLoading(false);
@@ -195,6 +253,8 @@ export default function PrintTemplatesPage() {
     }
   };
 
+  const hasStarter = !!STARTER_TEMPLATES[docType];
+
   return (
     <div className="h-full flex flex-col -m-4 lg:-m-6">
       {/* Header */}
@@ -205,7 +265,9 @@ export default function PrintTemplatesPage() {
           </div>
           <div>
             <h1 className="text-lg font-bold text-foreground">Print Template Designer</h1>
-            <p className="text-xs text-muted-foreground">Design custom print layouts for bills, prescriptions, and more</p>
+            <p className="text-xs text-muted-foreground">
+              Design custom print layouts — click data fields to add, drag to arrange
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -228,7 +290,7 @@ export default function PrintTemplatesPage() {
         {/* Left Sidebar */}
         <aside className="w-72 shrink-0 border-r border-border bg-card flex flex-col overflow-hidden">
           {/* Config Section */}
-          <div className="p-4 space-y-4 border-b border-border">
+          <div className="p-4 space-y-3 border-b border-border">
             <div>
               <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
                 Document Type
@@ -260,6 +322,28 @@ export default function PrintTemplatesPage() {
                 placeholder="e.g. Standard A4"
                 className="h-8 text-xs"
               />
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex gap-2">
+              {hasStarter && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleLoadStarter}
+                  className="flex-1 gap-1.5 h-8 text-xs border-primary/30 text-primary hover:bg-primary/5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Load Starter
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleNew}
+                className="gap-1.5 h-8 text-xs"
+              >
+                <RotateCcw className="w-3.5 h-3.5" /> Clear
+              </Button>
             </div>
           </div>
 
@@ -304,7 +388,7 @@ export default function PrintTemplatesPage() {
           />
 
           {/* Page Size Bar */}
-          <div className="px-4 py-2.5 bg-card border-b border-border">
+          <div className="px-4 py-2.5 bg-card border-b border-border flex items-center justify-between">
             <PageSizeSelector
               pageSize={pageSize}
               pageWidthMm={pageWidthMm}
@@ -312,12 +396,15 @@ export default function PrintTemplatesPage() {
               onPageSizeChange={handlePageSizeChange}
               onCustomDimensionsChange={(w, h) => { setPageWidthMm(w); setPageHeightMm(h); }}
             />
+            <span className="text-[10px] text-muted-foreground tabular-nums">
+              {objectCount} element{objectCount !== 1 ? 's' : ''} on canvas
+            </span>
           </div>
 
-          {/* Canvas */}
-          <div ref={containerRef} className="flex-1 overflow-auto p-6 flex justify-center">
+          {/* Canvas Container */}
+          <div ref={containerRef} className="flex-1 overflow-auto p-6 flex justify-center items-start">
             <div
-              className="shadow-lg border border-border rounded-sm"
+              className="shadow-lg border border-border rounded-sm bg-white relative"
               style={{
                 width: canvasWidthPx * zoom,
                 height: canvasHeightPx * zoom,
@@ -325,19 +412,40 @@ export default function PrintTemplatesPage() {
               }}
             >
               <canvas ref={canvasElRef} />
+              {/* Empty state overlay */}
+              {objectCount === 0 && canvasInitialized.current && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                  <FileText className="w-12 h-12 text-muted-foreground/20 mb-3" />
+                  <p className="text-sm text-muted-foreground/40 font-medium">Empty canvas</p>
+                  <p className="text-xs text-muted-foreground/30 mt-1">
+                    Click data fields on the left or use the toolbar to add elements
+                  </p>
+                  {hasStarter && (
+                    <p className="text-xs text-primary/40 mt-2">
+                      Or click "Load Starter" for a pre-built layout
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Status Bar */}
-          {selectedObj && (
-            <div className="px-4 py-2 bg-card border-t border-border text-xs text-muted-foreground flex items-center gap-4">
-              <span>Type: <strong className="text-foreground">{String(selectedObj.type)}</strong></span>
-              <span>X: <strong className="text-foreground">{String(selectedObj.left)}</strong></span>
-              <span>Y: <strong className="text-foreground">{String(selectedObj.top)}</strong></span>
-              <span>W: <strong className="text-foreground">{String(selectedObj.width)}</strong></span>
-              <span>H: <strong className="text-foreground">{String(selectedObj.height)}</strong></span>
-            </div>
-          )}
+          <div className="px-4 py-2 bg-card border-t border-border text-xs text-muted-foreground flex items-center gap-4">
+            {selectedObj ? (
+              <>
+                <span>Type: <strong className="text-foreground">{String(selectedObj.type)}</strong></span>
+                <span>X: <strong className="text-foreground">{String(selectedObj.left)}</strong></span>
+                <span>Y: <strong className="text-foreground">{String(selectedObj.top)}</strong></span>
+                <span>W: <strong className="text-foreground">{String(selectedObj.width)}</strong></span>
+                <span>H: <strong className="text-foreground">{String(selectedObj.height)}</strong></span>
+              </>
+            ) : (
+              <span>No selection — click an element to edit its properties</span>
+            )}
+            <div className="flex-1" />
+            <span className="tabular-nums">{canvasWidthPx} × {canvasHeightPx} px</span>
+          </div>
         </div>
       </div>
 
@@ -351,7 +459,7 @@ export default function PrintTemplatesPage() {
             <div className="flex items-center justify-center h-48">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
-          ) : (
+          ) : previewUrl ? (
             <div className="flex justify-center bg-muted/50 rounded-xl p-6">
               <img
                 src={previewUrl}
@@ -360,10 +468,14 @@ export default function PrintTemplatesPage() {
                 style={{ maxHeight: '70vh' }}
               />
             </div>
+          ) : (
+            <div className="flex items-center justify-center h-48 text-muted-foreground">
+              No preview available — add elements to the canvas first
+            </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setPreviewOpen(false)}>Close</Button>
-            <Button onClick={handlePrint} className="gap-1.5">
+            <Button onClick={handlePrint} disabled={!previewUrl} className="gap-1.5">
               <Printer className="w-4 h-4" /> Print
             </Button>
           </DialogFooter>
