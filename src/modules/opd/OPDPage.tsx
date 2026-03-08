@@ -11,12 +11,10 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
 import { Calendar } from '../../components/ui/calendar';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import SharedStatCard from '../../components/shared/StatCard';
 import { Skeleton } from '../../components/ui/skeleton';
 import { useAppSelector } from '../../store';
 import { useToast } from '../../hooks/useToast';
@@ -32,13 +30,20 @@ const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
 type Tab = 'queue' | 'register' | 'vitals' | 'consultation';
 
-const STATUS_STYLES: Record<string, { label: string; cls: string; icon: React.ElementType }> = {
-  scheduled: { label: 'Scheduled', cls: 'bg-blue-50 text-blue-700 border-blue-100', icon: Clock },
-  confirmed: { label: 'Confirmed', cls: 'bg-emerald-50 text-emerald-700 border-emerald-100', icon: CheckCircle2 },
-  in_progress: { label: 'In Progress', cls: 'bg-amber-50 text-amber-700 border-amber-100', icon: Stethoscope },
-  completed: { label: 'Completed', cls: 'bg-muted text-muted-foreground border-border', icon: CheckCircle2 },
-  cancelled: { label: 'Cancelled', cls: 'bg-red-50 text-red-600 border-red-100', icon: XCircle },
-  no_show: { label: 'No Show', cls: 'bg-orange-50 text-orange-600 border-orange-100', icon: AlertTriangle },
+const TAB_CONFIG: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: 'queue', label: "Today's Queue", icon: List },
+  { id: 'register', label: 'Register Patient', icon: UserPlus },
+  { id: 'vitals', label: 'Record Vitals', icon: Activity },
+  { id: 'consultation', label: 'Consultation', icon: Stethoscope },
+];
+
+const STATUS_STYLES: Record<string, { label: string; bg: string; text: string; icon: React.ElementType }> = {
+  scheduled: { label: 'Scheduled', bg: 'bg-blue-50', text: 'text-blue-700', icon: Clock },
+  confirmed: { label: 'Confirmed', bg: 'bg-emerald-50', text: 'text-emerald-700', icon: CheckCircle2 },
+  in_progress: { label: 'In Progress', bg: 'bg-amber-50', text: 'text-amber-700', icon: Stethoscope },
+  completed: { label: 'Completed', bg: 'bg-muted', text: 'text-muted-foreground', icon: CheckCircle2 },
+  cancelled: { label: 'Cancelled', bg: 'bg-red-50', text: 'text-red-600', icon: XCircle },
+  no_show: { label: 'No Show', bg: 'bg-orange-50', text: 'text-orange-600', icon: AlertTriangle },
 };
 
 interface AppointmentRow {
@@ -60,6 +65,23 @@ function formatTime(t: string) {
   return `${hour % 12 || 12}:${m} ${ampm}`;
 }
 
+/* ── Stat card inline (cleaner than SharedStatCard for this layout) ── */
+function OpdStat({ label, value, icon: Icon, iconBg, iconColor }: {
+  label: string; value: number; icon: React.ElementType; iconBg: string; iconColor: string;
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card px-4 py-3.5 shadow-sm hover:shadow-md transition-shadow">
+      <div>
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">{label}</p>
+        <p className="text-2xl font-bold text-foreground mt-0.5 tabular-nums">{value}</p>
+      </div>
+      <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', iconBg)}>
+        <Icon className={cn('w-4.5 h-4.5', iconColor)} />
+      </div>
+    </div>
+  );
+}
+
 export default function OPDPage() {
   usePageTitle('OPD');
   const navigate = useNavigate();
@@ -77,7 +99,6 @@ export default function OPDPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [doctorFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ scheduled: 0, inProgress: 0, completed: 0, total: 0 });
@@ -129,7 +150,7 @@ export default function OPDPage() {
   }, [hospitalId, dateStr]);
 
   useEffect(() => { if (tab === 'queue') { loadAppointments(); loadStats(); } }, [tab, loadAppointments, loadStats]);
-  useEffect(() => { setPage(1); }, [search, statusFilter, doctorFilter, typeFilter]);
+  useEffect(() => { setPage(1); }, [search, statusFilter, typeFilter]);
 
   useEffect(() => {
     if (registeredUhid) {
@@ -144,87 +165,100 @@ export default function OPDPage() {
     setSelectedDate(d);
   };
 
-  const pending = stats.total - stats.completed - stats.inProgress;
+  const pending = Math.max(0, stats.total - stats.completed - stats.inProgress);
 
   return (
     <div className="flex flex-col h-[calc(100vh-56px)] bg-background">
-      {/* ── Header Bar ── */}
-      <div className="border-b border-border bg-card">
-        {/* Title + Tabs row */}
-        <div className="px-5 pt-4 pb-0 flex flex-col sm:flex-row sm:items-end gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Stethoscope className="w-5 h-5 text-primary" />
+      {/* ═══════ HEADER ═══════ */}
+      <div className="bg-card border-b border-border">
+        <div className="px-6 pt-5 pb-4">
+          {/* Row 1: Title + Actions */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shadow-sm">
+                <Stethoscope className="w-5.5 h-5.5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground tracking-tight">OPD Management</h1>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Outpatient Department — {format(selectedDate, 'EEEE, d MMMM yyyy')}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight">OPD Management</h1>
-              <p className="text-xs text-muted-foreground">
-                Outpatient Department — {format(selectedDate, 'EEEE, d MMMM yyyy')}
-              </p>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                className="h-8 gap-1.5 text-xs shadow-sm"
+                style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
+                onClick={() => setTab('register')}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Add Patient
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 gap-1.5 text-xs border-primary/30 text-primary hover:bg-primary/5"
+                onClick={() => navigate('/appointments')}
+              >
+                <CalendarClock className="w-3.5 h-3.5" />
+                Add Appointment
+              </Button>
             </div>
           </div>
 
-          <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="sm:ml-4">
-            <TabsList className="h-9 p-0.5 bg-muted/50 rounded-lg">
-              <TabsTrigger value="queue" className="gap-1.5 text-xs h-8 rounded-md data-[state=active]:shadow-sm px-3">
-                <List className="w-3.5 h-3.5" />
-                Today's Queue
-              </TabsTrigger>
-              <TabsTrigger value="register" className="gap-1.5 text-xs h-8 rounded-md data-[state=active]:shadow-sm px-3">
-                <UserPlus className="w-3.5 h-3.5" />
-                Register Patient
-              </TabsTrigger>
-              <TabsTrigger value="vitals" className="gap-1.5 text-xs h-8 rounded-md data-[state=active]:shadow-sm px-3">
-                <Activity className="w-3.5 h-3.5" />
-                Record Vitals
-              </TabsTrigger>
-              <TabsTrigger value="consultation" className="gap-1.5 text-xs h-8 rounded-md data-[state=active]:shadow-sm px-3">
-                <Stethoscope className="w-3.5 h-3.5" />
-                Consultation
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <div className="sm:ml-auto flex items-center gap-2">
-            <Button size="sm" className="h-8 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-xs" onClick={() => setTab('register')}>
-              <UserPlus className="w-3.5 h-3.5" />
-              Add Patient
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-primary text-primary hover:bg-primary/5" onClick={() => navigate('/appointments')}>
-              <CalendarClock className="w-3.5 h-3.5" />
-              Add Appointment
-            </Button>
+          {/* Row 2: Tabs */}
+          <div className="flex items-center gap-1 border-b border-border -mx-6 px-6">
+            {TAB_CONFIG.map(t => {
+              const Icon = t.icon;
+              const active = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
+                    active
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  {t.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Stats strip */}
+        {/* Stats strip (only for queue tab) */}
         {tab === 'queue' && (
-          <div className="px-5 py-3">
+          <div className="px-6 pb-4 pt-1">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <SharedStatCard label="TODAY'S TOTAL" value={stats.total} icon={CalendarClock} iconClassName="bg-primary/10 text-primary" accentColor="blue" />
-              <SharedStatCard label="IN PROGRESS" value={stats.inProgress} icon={Stethoscope} iconClassName="bg-amber-50 text-amber-600" accentColor="amber" />
-              <SharedStatCard label="COMPLETED" value={stats.completed} icon={CheckCircle2} iconClassName="bg-emerald-50 text-emerald-600" accentColor="green" />
-              <SharedStatCard label="PENDING" value={pending < 0 ? 0 : pending} icon={Clock} iconClassName="bg-muted text-muted-foreground" />
+              <OpdStat label="Today's Total" value={stats.total} icon={CalendarClock} iconBg="bg-primary/10" iconColor="text-primary" />
+              <OpdStat label="In Progress" value={stats.inProgress} icon={Stethoscope} iconBg="bg-amber-50" iconColor="text-amber-600" />
+              <OpdStat label="Completed" value={stats.completed} icon={CheckCircle2} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
+              <OpdStat label="Pending" value={pending} icon={Clock} iconBg="bg-muted" iconColor="text-muted-foreground" />
             </div>
           </div>
         )}
       </div>
 
-      {/* ── Content ── */}
+      {/* ═══════ CONTENT ═══════ */}
       {tab === 'queue' && (
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Filter bar */}
-          <div className="px-5 py-2.5 border-b border-border bg-card flex items-center gap-2 flex-wrap">
-            <h2 className="text-sm font-semibold text-foreground mr-2">Today's Appointments</h2>
+          {/* ── Filter bar ── */}
+          <div className="px-6 py-2.5 border-b border-border bg-card/80 backdrop-blur-sm flex items-center gap-3 flex-wrap">
+            <h2 className="text-sm font-semibold text-foreground whitespace-nowrap">Today's Appointments</h2>
 
-            {/* Date nav */}
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigateDate(-1)}>
+            {/* Date navigator */}
+            <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-md" onClick={() => navigateDate(-1)}>
                 <ChevronLeft className="w-3.5 h-3.5" />
               </Button>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-7 text-xs gap-1 px-2">
+                  <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5 px-2.5 rounded-md font-medium">
                     <CalendarDays className="w-3.5 h-3.5" />
                     {format(selectedDate, 'dd MMM yyyy')}
                   </Button>
@@ -239,13 +273,19 @@ export default function OPDPage() {
                   />
                 </PopoverContent>
               </Popover>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigateDate(1)}>
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-md" onClick={() => navigateDate(1)}>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 text-xs px-2" onClick={() => setSelectedDate(new Date())}>
-                Today
-              </Button>
             </div>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs px-2.5 font-medium text-primary hover:bg-primary/5"
+              onClick={() => setSelectedDate(new Date())}
+            >
+              Today
+            </Button>
 
             <div className="h-5 w-px bg-border" />
 
@@ -255,14 +295,14 @@ export default function OPDPage() {
               <Input
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search patient, doctor…"
-                className="h-7 pl-8 text-xs w-48"
+                placeholder="Search patient, doctor"
+                className="h-7 pl-8 text-xs w-52 bg-muted/30 border-border/60 focus:bg-card"
               />
             </div>
 
             {/* Filters */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="h-7 w-[120px] text-xs">
+              <SelectTrigger className="h-7 w-[110px] text-xs bg-muted/30 border-border/60">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -274,7 +314,7 @@ export default function OPDPage() {
             </Select>
 
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="h-7 w-[120px] text-xs">
+              <SelectTrigger className="h-7 w-[110px] text-xs bg-muted/30 border-border/60">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -292,35 +332,37 @@ export default function OPDPage() {
                 size="sm"
                 onClick={() => { loadAppointments(); loadStats(); }}
                 disabled={loading}
-                className="h-7 w-7 p-0"
+                className="h-7 w-7 p-0 border-border/60"
               >
                 <RefreshCw className={cn('w-3.5 h-3.5', loading && 'animate-spin')} />
               </Button>
             </div>
           </div>
 
-          {/* Table */}
+          {/* ── Table ── */}
           <div className="flex-1 overflow-auto">
             {loading ? (
-              <div className="p-5 space-y-3">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <Skeleton className="w-8 h-8 rounded-full" />
-                    <div className="flex-1 space-y-1.5">
-                      <Skeleton className="h-3.5 w-40" />
-                      <Skeleton className="h-3 w-24" />
+              <div className="p-6 space-y-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 animate-pulse">
+                    <Skeleton className="w-9 h-9 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-3.5 w-44 rounded" />
+                      <Skeleton className="h-3 w-28 rounded" />
                     </div>
-                    <Skeleton className="h-6 w-20 rounded-full" />
+                    <Skeleton className="h-6 w-24 rounded-full" />
                   </div>
                 ))}
               </div>
             ) : appointments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                <CalendarClock className="w-12 h-12 mb-3 opacity-20" />
-                <p className="text-sm font-medium">No appointments found</p>
-                <p className="text-xs mt-1">Register a patient or create an appointment</p>
-                <div className="flex gap-2 mt-4">
-                  <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => setTab('register')}>
+              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+                <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+                  <CalendarClock className="w-8 h-8 opacity-30" />
+                </div>
+                <p className="text-sm font-semibold text-foreground">No appointments found</p>
+                <p className="text-xs mt-1 text-muted-foreground">Register a patient or create an appointment to get started</p>
+                <div className="flex gap-2 mt-5">
+                  <Button size="sm" className="gap-1.5 text-xs" onClick={() => setTab('register')}>
                     <UserPlus className="w-3.5 h-3.5" /> Register Patient
                   </Button>
                   <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => navigate('/appointments')}>
@@ -330,82 +372,83 @@ export default function OPDPage() {
               </div>
             ) : (
               <table className="w-full text-xs">
-                <thead className="bg-muted/60 sticky top-0 z-10">
+                <thead className="bg-muted/40 sticky top-0 z-10">
                   <tr className="border-b border-border">
-                    <th className="py-2.5 px-4 text-left font-semibold text-muted-foreground uppercase tracking-wider">#</th>
-                    <th className="py-2.5 px-4 text-left font-semibold text-muted-foreground uppercase tracking-wider">Patient</th>
-                    <th className="py-2.5 px-4 text-left font-semibold text-muted-foreground uppercase tracking-wider">Doctor</th>
-                    <th className="py-2.5 px-4 text-left font-semibold text-muted-foreground uppercase tracking-wider">Time</th>
-                    <th className="py-2.5 px-4 text-left font-semibold text-muted-foreground uppercase tracking-wider">Type</th>
-                    <th className="py-2.5 px-4 text-left font-semibold text-muted-foreground uppercase tracking-wider">Chief Complaint</th>
-                    <th className="py-2.5 px-4 text-left font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-                    <th className="py-2.5 px-4 text-center font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
+                    {['#', 'Patient', 'Doctor', 'Time', 'Type', 'Chief Complaint', 'Status', 'Actions'].map(col => (
+                      <th key={col} className={cn(
+                        'py-2.5 px-4 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]',
+                        col === 'Actions' ? 'text-center' : 'text-left'
+                      )}>
+                        {col}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {appointments.map((appt, idx) => {
-                    const initials = appt.patient_name.split(' ').slice(0, 2).map((n) => n[0]).join('');
+                    const initials = appt.patient_name.split(' ').slice(0, 2).map(n => n[0]).join('');
                     const cfg = STATUS_STYLES[appt.status] ?? STATUS_STYLES.scheduled;
                     const StatusIcon = cfg.icon;
                     return (
-                      <tr key={appt.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                        <td className="py-2.5 px-4 text-muted-foreground font-medium">
+                      <tr
+                        key={appt.id}
+                        className="border-b border-border/40 hover:bg-primary/[0.02] transition-colors group"
+                      >
+                        <td className="py-3 px-4 text-muted-foreground font-mono text-[11px]">
                           {(page - 1) * limit + idx + 1}
                         </td>
-                        <td className="py-2.5 px-4">
+                        <td className="py-3 px-4">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px] shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-primary/8 flex items-center justify-center text-primary font-bold text-[10px] shrink-0 ring-1 ring-primary/10">
                               {initials}
                             </div>
-                            <div>
-                              <div className="font-semibold text-foreground">{appt.patient_name}</div>
-                            </div>
+                            <span className="font-semibold text-foreground">{appt.patient_name}</span>
                           </div>
                         </td>
-                        <td className="py-2.5 px-4">
+                        <td className="py-3 px-4 text-muted-foreground">
                           <div className="flex items-center gap-1.5">
-                            <User className="w-3 h-3 text-muted-foreground" />
-                            <span>{appt.doctor_name || 'Unassigned'}</span>
+                            <User className="w-3 h-3 opacity-50" />
+                            {appt.doctor_name || <span className="italic opacity-50">Unassigned</span>}
                           </div>
                         </td>
-                        <td className="py-2.5 px-4 font-medium">
+                        <td className="py-3 px-4 font-medium text-foreground tabular-nums">
                           {formatTime(appt.appointment_time)}
                         </td>
-                        <td className="py-2.5 px-4">
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border capitalize font-normal">
+                        <td className="py-3 px-4">
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border/60 capitalize font-normal">
                             {appt.type?.replace('_', ' ') || '---'}
                           </Badge>
                         </td>
-                        <td className="py-2.5 px-4 max-w-[200px] truncate text-muted-foreground">
-                          {appt.chief_complaint || '---'}
+                        <td className="py-3 px-4 max-w-[180px] truncate text-muted-foreground">
+                          {appt.chief_complaint || <span className="opacity-40">---</span>}
                         </td>
-                        <td className="py-2.5 px-4">
-                          <Badge className={cn('text-[10px] border gap-1 px-2 py-0.5 font-medium', cfg.cls)}>
+                        <td className="py-3 px-4">
+                          <span className={cn('inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full', cfg.bg, cfg.text)}>
                             <StatusIcon className="w-3 h-3" />
                             {cfg.label}
-                          </Badge>
+                          </span>
                         </td>
-                        <td className="py-2.5 px-4">
-                          <TooltipProvider delayDuration={200}>
-                            <div className="flex items-center justify-center gap-0.5">
+                        <td className="py-3 px-4">
+                          <TooltipProvider delayDuration={150}>
+                            <div className="flex items-center justify-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
                               {[
-                                { icon: Play, tip: 'Start Consultation', color: 'text-emerald-600 hover:bg-emerald-50' },
-                                { icon: Eye, tip: 'View Details', color: 'text-primary hover:bg-primary/10' },
-                                { icon: Activity, tip: 'Record Vitals', color: 'text-amber-600 hover:bg-amber-50' },
-                                { icon: FileText, tip: 'Prescription', color: 'text-muted-foreground hover:bg-muted' },
-                                { icon: Printer, tip: 'Print', color: 'text-muted-foreground hover:bg-muted' },
-                                { icon: Ban, tip: 'Cancel', color: 'text-red-500 hover:bg-red-50' },
+                                { icon: Play, tip: 'Start Consultation', cls: 'text-emerald-600 hover:bg-emerald-50' },
+                                { icon: Eye, tip: 'View Details', cls: 'text-primary hover:bg-primary/10' },
+                                { icon: Activity, tip: 'Record Vitals', cls: 'text-amber-600 hover:bg-amber-50' },
+                                { icon: FileText, tip: 'Prescription', cls: 'text-muted-foreground hover:bg-muted' },
+                                { icon: Printer, tip: 'Print', cls: 'text-muted-foreground hover:bg-muted' },
+                                { icon: Ban, tip: 'Cancel', cls: 'text-destructive/70 hover:bg-destructive/5' },
                               ].map((act, i) => (
                                 <Tooltip key={i}>
                                   <TooltipTrigger asChild>
-                                    <button className={cn('w-6 h-6 rounded flex items-center justify-center transition-colors', act.color)}>
+                                    <button className={cn('w-6 h-6 rounded-md flex items-center justify-center transition-colors', act.cls)}>
                                       <act.icon className="w-3.5 h-3.5" />
                                     </button>
                                   </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-[10px]">{act.tip}</TooltipContent>
+                                  <TooltipContent side="top" className="text-[10px] px-2 py-1">{act.tip}</TooltipContent>
                                 </Tooltip>
                               ))}
-                              <button className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors">
+                              <button className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors">
                                 <MoreVertical className="w-3.5 h-3.5" />
                               </button>
                             </div>
@@ -419,19 +462,15 @@ export default function OPDPage() {
             )}
           </div>
 
-          {/* Pagination */}
-          {totalPages >= 1 && appointments.length > 0 && (
-            <div className="border-t border-border bg-card px-5 py-2 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">
-                  Items per page: {limit}
-                </span>
-              </div>
+          {/* ── Pagination ── */}
+          {appointments.length > 0 && (
+            <div className="border-t border-border bg-card px-6 py-2 flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Items per page: {limit}</span>
               <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">
-                  {total > 0 ? `${(page - 1) * limit + 1} – ${Math.min(page * limit, total)} of ${total}` : '0 results'}
+                <span className="text-muted-foreground tabular-nums">
+                  {total > 0 ? `${(page - 1) * limit + 1}–${Math.min(page * limit, total)} of ${total}` : '0 results'}
                 </span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5">
                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
                     <ChevronLeft className="w-3.5 h-3.5" />
                   </Button>
@@ -446,7 +485,7 @@ export default function OPDPage() {
       )}
 
       {tab === 'register' && (
-        <div className="flex-1 overflow-auto p-5">
+        <div className="flex-1 overflow-auto p-6">
           <PatientRegistrationForm
             onSuccess={() => { setTab('queue'); loadAppointments(); loadStats(); }}
             onCancel={() => setTab('queue')}
@@ -455,13 +494,13 @@ export default function OPDPage() {
       )}
 
       {tab === 'vitals' && (
-        <div className="flex-1 overflow-auto p-5">
+        <div className="flex-1 overflow-auto p-6">
           <VitalsPage />
         </div>
       )}
 
       {tab === 'consultation' && (
-        <div className="flex-1 overflow-auto p-5">
+        <div className="flex-1 overflow-auto p-6">
           <ConsultationPage />
         </div>
       )}
