@@ -9,6 +9,8 @@ import { Skeleton } from '../../components/ui/skeleton';
 import { useHospitalId } from '../../hooks/useHospitalId';
 import { useAppSelector } from '../../store';
 import { useRealtime } from '../../hooks/useRealtime';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import doctorQueueService, { type QueueAppointment } from '../../services/doctor-queue.service';
 import QueueList from './components/QueueList';
 import ConsultationDrawer from './components/ConsultationDrawer';
