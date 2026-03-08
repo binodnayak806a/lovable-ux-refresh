@@ -2,16 +2,19 @@ import { useState, useCallback, useMemo } from 'react';
 import {
   Plus, Receipt, Banknote, CreditCard, Smartphone,
   Globe, Shield, Printer, Save, Loader2, CheckCircle2, Percent,
+  Building2, Split,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent } from '../../../components/ui/card';
+import { Switch } from '../../../components/ui/switch';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import { billingService } from '../../../services/billing.service';
 import BillItemRow from './BillItemRow';
 import ReceiptPrintPreview from './ReceiptPrintPreview';
+import SplitPaymentPanel from './SplitPaymentPanel';
 import type { BillItem, BillFormData, BillRecord, PaymentMode } from './types';
-import { createEmptyBillItem, EMPTY_BILL_FORM, PAYMENT_MODES, COMMON_SERVICES } from './types';
+import { createEmptyBillItem, createEmptySplitEntry, EMPTY_BILL_FORM, PAYMENT_MODES, COMMON_SERVICES } from './types';
 
 interface PatientInfo {
   id: string;
