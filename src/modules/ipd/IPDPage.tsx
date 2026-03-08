@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   BedDouble, Search, RefreshCw, Filter, FileText,
-  Download, MoreVertical, CheckCircle, Info, Phone, CreditCard,
-  ShoppingCart, ClipboardList, ChevronLeft, ChevronRight,
+  MoreVertical, Info, Phone, CreditCard,
+  ShoppingCart, ClipboardList, ChevronLeft, ChevronRight, Plus,
+  LogOut, Printer, Tag,
 } from 'lucide-react';
 import { useAppSelector } from '../../store';
 import { usePageTitle } from '../../hooks/usePageTitle';
@@ -11,12 +12,23 @@ import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '../../components/ui/dropdown-menu';
 import ipdService from '../../services/ipd.service';
 import PatientDetailPanel from './components/PatientDetailPanel';
 import BedAvailability from './components/BedAvailability';
+import DischargeDialog from './components/DischargeDialog';
+import DischargeSummaryView from './components/DischargeSummaryView';
+import IpdLabelPrint from './components/IpdLabelPrint';
 import type { Admission, Ward } from './types';
 import { format, differenceInDays, differenceInMonths } from 'date-fns';
 import { cn } from '../../lib/utils';
+import { toast } from 'sonner';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
@@ -29,16 +41,6 @@ const STATUS_TABS: { id: StatusTab; label: string }[] = [
   { id: 'transferred', label: 'TRANSFERRED' },
   { id: 'absconded', label: 'CANCELLED' },
 ];
-
-function calculateAge(dob: string | null): string {
-  if (!dob) return '-';
-  const birth = new Date(dob);
-  const today = new Date();
-  let years = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) years--;
-  return `${years} YEARS`;
-}
 
 function formatStayDuration(admDate: string): string {
   const start = new Date(admDate);
@@ -78,8 +80,11 @@ export default function IPDPage() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(25);
 
-  // Selection
+  // Selection & dialogs
   const [selectedAdmission, setSelectedAdmission] = useState<Admission | null>(null);
+  const [dischargeAdmission, setDischargeAdmission] = useState<Admission | null>(null);
+  const [summaryAdmission, setSummaryAdmission] = useState<Admission | null>(null);
+  const [labelAdmission, setLabelAdmission] = useState<Admission | null>(null);
 
   // Doctors for filter
   const [doctors, setDoctors] = useState<{ id: string; full_name: string; department: string | null }[]>([]);
@@ -139,7 +144,6 @@ export default function IPDPage() {
   const toItem = Math.min(page * perPage, total);
 
   const getBillingBadge = (adm: Admission) => {
-    // Simple billing status based on billing_category
     return adm.billing_category === 'Cash'
       ? { label: 'CASH (SELF)', color: 'text-foreground' }
       : { label: adm.billing_category?.toUpperCase() || '---', color: 'text-foreground' };
@@ -150,6 +154,56 @@ export default function IPDPage() {
     if (adm.admission_type === 'planned') return { label: 'PLANNED', color: 'text-blue-600' };
     if (adm.admission_type === 'transfer') return { label: 'TRANSFER', color: 'text-amber-600' };
     return { label: '---', color: 'text-muted-foreground' };
+  };
+
+  // Action handlers
+  const handleViewDetails = (adm: Admission) => {
+    setSelectedAdmission(adm);
+  };
+
+  const handleDischarge = (adm: Admission) => {
+    if (adm.status !== 'active') {
+      toast.info('Patient is already discharged');
+      return;
+    }
+    setDischargeAdmission(adm);
+  };
+
+  const handleViewBilling = (adm: Admission) => {
+    setSelectedAdmission(adm);
+    // The detail panel will auto-show, user can click Billing tab
+    // We set a small timeout so the panel opens first
+    setTimeout(() => {
+      const billingTab = document.querySelector('[data-tab="billing"]') as HTMLButtonElement;
+      billingTab?.click();
+    }, 100);
+  };
+
+  const handleViewSummary = (adm: Admission) => {
+    setSummaryAdmission(adm);
+  };
+
+  const handlePrintLabel = (adm: Admission) => {
+    setLabelAdmission(adm);
+  };
+
+  const handleGenerateBedCharge = async (adm: Admission) => {
+    try {
+      const result = await ipdService.generateDailyBedCharge(adm.id, 'system');
+      if (result) {
+        toast.success('Bed charge generated for today');
+      } else {
+        toast.info('Bed charge already exists for today');
+      }
+    } catch {
+      toast.error('Failed to generate bed charge');
+    }
+  };
+
+  const handleDischargeSuccess = () => {
+    setDischargeAdmission(null);
+    setSelectedAdmission(null);
+    loadData();
   };
 
   return (
@@ -238,6 +292,15 @@ export default function IPDPage() {
             <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={loadData}>
               <RefreshCw className={cn('w-3.5 h-3.5', loading && 'animate-spin')} />
             </Button>
+            <Button
+              size="sm"
+              className="h-7 text-xs gap-1"
+              onClick={() => setViewMode('beds')}
+              title="Admit from Bed View"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Admit
+            </Button>
           </div>
         </div>
 
@@ -321,7 +384,6 @@ export default function IPDPage() {
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">UHID</th>
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Patient</th>
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Mobile No</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Age/Gender</th>
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Doctor</th>
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Ward/Bed</th>
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">DOA</th>
@@ -335,14 +397,20 @@ export default function IPDPage() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={12} className="py-16 text-center">
+                      <td colSpan={11} className="py-16 text-center">
                         <RefreshCw className="w-5 h-5 animate-spin mx-auto text-muted-foreground" />
                       </td>
                     </tr>
                   ) : filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={12} className="py-16 text-center text-muted-foreground">
-                        No admissions found
+                      <td colSpan={11} className="py-16 text-center text-muted-foreground">
+                        <div className="flex flex-col items-center gap-2">
+                          <BedDouble className="w-8 h-8 text-muted-foreground/40" />
+                          <p>No admissions found</p>
+                          <Button size="sm" variant="outline" className="text-xs mt-1" onClick={() => setViewMode('beds')}>
+                            <Plus className="w-3 h-3 mr-1" /> Admit from Bed View
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -353,7 +421,7 @@ export default function IPDPage() {
                       return (
                         <tr
                           key={adm.id}
-                          onClick={() => setSelectedAdmission(adm)}
+                          onClick={() => handleViewDetails(adm)}
                           className={cn(
                             'border-b border-border/50 cursor-pointer transition-colors',
                             isSelected ? 'bg-primary/5' : 'hover:bg-muted/40'
@@ -368,9 +436,6 @@ export default function IPDPage() {
                               <Phone className="w-3 h-3 text-emerald-500" />
                               <span>{adm.patient?.phone || '---'}</span>
                             </div>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            {calculateAge(adm.patient?.date_of_birth ?? null)}/ {adm.patient?.gender?.charAt(0).toUpperCase()}
                           </td>
                           <td className="py-2.5 px-3 truncate max-w-[140px]">
                             DR. {adm.doctor?.full_name?.toUpperCase() || '---'}
@@ -415,34 +480,112 @@ export default function IPDPage() {
                             </Badge>
                           </td>
                           <td className="py-2.5 px-3">
-                            <TooltipProvider delayDuration={200}>
-                              <div className="flex items-center justify-center gap-0.5" onClick={e => e.stopPropagation()}>
-                                {[
-                                  { icon: ClipboardList, tip: 'View Details', action: () => setSelectedAdmission(adm) },
-                                  { icon: Info, tip: 'Patient Info' },
-                                  { icon: Download, tip: 'Download' },
-                                  { icon: CheckCircle, tip: 'Discharge' },
-                                  { icon: CreditCard, tip: 'Billing' },
-                                  { icon: FileText, tip: 'Summary' },
-                                  { icon: ShoppingCart, tip: 'Services' },
-                                ].map((act, i) => (
-                                  <Tooltip key={i}>
-                                    <TooltipTrigger asChild>
-                                      <button
-                                        className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                                        onClick={act.action}
+                            <div className="flex items-center justify-center gap-0.5" onClick={e => e.stopPropagation()}>
+                              <TooltipProvider delayDuration={150}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                                      onClick={() => handleViewDetails(adm)}
+                                    >
+                                      <ClipboardList className="w-3.5 h-3.5" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-[10px]">View Details</TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      className={cn('w-6 h-6 rounded flex items-center justify-center transition-colors',
+                                        adm.status === 'active'
+                                          ? 'text-emerald-600 hover:bg-emerald-50'
+                                          : 'text-muted-foreground/40 cursor-not-allowed'
+                                      )}
+                                      onClick={() => handleDischarge(adm)}
+                                      disabled={adm.status !== 'active'}
+                                    >
+                                      <LogOut className="w-3.5 h-3.5" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-[10px]">Discharge</TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                                      onClick={() => handleViewBilling(adm)}
+                                    >
+                                      <CreditCard className="w-3.5 h-3.5" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-[10px]">Billing</TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                                      onClick={() => handleViewSummary(adm)}
+                                    >
+                                      <FileText className="w-3.5 h-3.5" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-[10px]">Discharge Summary</TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                                      onClick={() => handlePrintLabel(adm)}
+                                    >
+                                      <Tag className="w-3.5 h-3.5" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-[10px]">Print Label</TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+
+                              {/* More actions dropdown */}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                                    <MoreVertical className="w-3.5 h-3.5" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={() => handleViewDetails(adm)}>
+                                    <Info className="w-3.5 h-3.5 mr-2" /> Patient Info
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleViewBilling(adm)}>
+                                    <CreditCard className="w-3.5 h-3.5 mr-2" /> View Billing
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleGenerateBedCharge(adm)}>
+                                    <ShoppingCart className="w-3.5 h-3.5 mr-2" /> Generate Bed Charge
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem onClick={() => handleViewSummary(adm)}>
+                                    <FileText className="w-3.5 h-3.5 mr-2" /> Discharge Summary
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handlePrintLabel(adm)}>
+                                    <Printer className="w-3.5 h-3.5 mr-2" /> Print Label
+                                  </DropdownMenuItem>
+                                  {adm.status === 'active' && (
+                                    <>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        onClick={() => handleDischarge(adm)}
+                                        className="text-red-600 focus:text-red-600"
                                       >
-                                        <act.icon className="w-3.5 h-3.5" />
-                                      </button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top" className="text-[10px]">{act.tip}</TooltipContent>
-                                  </Tooltip>
-                                ))}
-                                <button className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-                                  <MoreVertical className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </TooltipProvider>
+                                        <LogOut className="w-3.5 h-3.5 mr-2" /> Discharge Patient
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -506,6 +649,31 @@ export default function IPDPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Discharge Dialog */}
+      {dischargeAdmission && (
+        <DischargeDialog
+          admission={dischargeAdmission}
+          onClose={() => setDischargeAdmission(null)}
+          onSuccess={handleDischargeSuccess}
+        />
+      )}
+
+      {/* Discharge Summary View */}
+      {summaryAdmission && (
+        <DischargeSummaryView
+          admission={summaryAdmission}
+          onClose={() => setSummaryAdmission(null)}
+        />
+      )}
+
+      {/* Label Print */}
+      {labelAdmission && (
+        <IpdLabelPrint
+          admission={labelAdmission}
+          onClose={() => setLabelAdmission(null)}
+        />
       )}
     </div>
   );
