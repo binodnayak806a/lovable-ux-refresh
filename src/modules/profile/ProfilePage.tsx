@@ -227,10 +227,11 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage your account settings and preferences</p>
-      </div>
+      <PageHeader
+        title="Profile Settings"
+        subtitle="Manage your account settings and preferences"
+        icon={User}
+      />
 
       <Card>
         <CardContent className="pt-6">
