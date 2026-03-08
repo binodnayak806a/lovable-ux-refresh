@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import {
   X, Clock, Stethoscope, BedDouble, CreditCard,
   Activity, Pill, Calendar, User, FileText,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, Download,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Skeleton } from '../../../components/ui/skeleton';
