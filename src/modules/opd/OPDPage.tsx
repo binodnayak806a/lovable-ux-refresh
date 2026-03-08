@@ -97,6 +97,7 @@ export default function OPDPage() {
   const [tab, setTab] = useState<Tab>('queue');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [appointments, setAppointments] = useState<AppointmentRow[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
