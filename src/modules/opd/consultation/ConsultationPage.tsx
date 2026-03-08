@@ -45,7 +45,12 @@ const TABS: Array<{ id: ConsultationTab; label: string; icon: React.ElementType 
   { id: 'billing', label: 'Billing', icon: Receipt },
 ];
 
-export default function ConsultationPage() {
+interface ConsultationPageProps {
+  initialPatientId?: string | null;
+  initialAppointmentId?: string | null;
+}
+
+export default function ConsultationPage({ initialPatientId, initialAppointmentId }: ConsultationPageProps) {
   const { user } = useAppSelector((s) => s.auth);
   const { toast } = useToast();
 
