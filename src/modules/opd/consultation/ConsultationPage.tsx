@@ -88,7 +88,6 @@ export default function ConsultationPage({ initialPatientId, initialAppointmentI
   // Auto-select patient from queue context
   useEffect(() => {
     if (initialPatientId && !patient) {
-      const { mockStore } = require('../../../lib/mockStore');
       const p = mockStore.getPatientById(initialPatientId);
       if (p) {
         setPatient({
