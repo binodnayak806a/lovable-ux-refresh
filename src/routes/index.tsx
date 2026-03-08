@@ -80,6 +80,7 @@ const NABHPage = stub('NABHPage');
 const NotificationsPage = lazy(() => import('../modules/notifications/NotificationsPage'));
 const StaffPortalPage = stub('StaffPortalPage');
 const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'));
+const CashBankPage = lazy(() => import('../modules/cash-bank/CashBankPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 const S = ({ children }: { children: React.ReactNode }) => (
@@ -122,6 +123,7 @@ export const router = createBrowserRouter([
           { path: '/pathology', element: <S><PathologyPage /></S> },
           { path: '/blood-bank', element: <S><BloodBankPage /></S> },
           { path: '/billing', element: <S><BillingPage /></S> },
+          { path: '/cash-bank', element: <S><CashBankPage /></S> },
           { path: '/insurance', element: <S><InsurancePage /></S> },
           { path: '/tpa', element: <S><TPAPage /></S> },
           { path: '/accounts', element: <S><AccountsPage /></S> },

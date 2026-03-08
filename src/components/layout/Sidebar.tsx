@@ -15,6 +15,7 @@ import {
   Database,
   Shield,
   LogOut,
+  Landmark,
   ChevronsUpDown,
   ClipboardList,
   Heart,
@@ -93,8 +94,9 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'Analytics',
+    label: 'Finance',
     items: [
+      { id: 'cash-bank', label: 'Cash & Bank', icon: Landmark, path: '/cash-bank', module: 'cash_bank' },
       { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/analytics', module: 'analytics' },
       { id: 'reports', label: 'Reports', icon: FileText, path: '/reports', module: 'reports' },
     ],
