@@ -17,7 +17,7 @@ interface PendingOrder {
 const PRIORITY_STYLES: Record<string, string> = {
   urgent: 'bg-red-100 text-red-700',
   stat: 'bg-orange-100 text-orange-700',
-  routine: 'bg-gray-100 text-gray-600',
+  routine: 'bg-muted text-muted-foreground',
 };
 
 export default function PendingLabOrders() {
@@ -65,11 +65,11 @@ export default function PendingLabOrders() {
   }
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl overflow-hidden h-full">
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+    <section className="bg-card border border-border rounded-xl overflow-hidden h-full">
+      <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <TestTube className="w-4 h-4 text-orange-500" />
-          <h2 className="text-sm font-semibold text-gray-900">Pending Lab Orders</h2>
+          <h2 className="text-sm font-semibold text-foreground">Pending Lab Orders</h2>
           {!loading && totalPending > 0 && (
             <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
               {totalPending}
@@ -78,7 +78,7 @@ export default function PendingLabOrders() {
         </div>
         <button
           onClick={() => navigate('/lab')}
-          className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-0.5"
+          className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-0.5"
         >
           View All <ChevronRight className="w-3.5 h-3.5" />
         </button>
@@ -99,8 +99,8 @@ export default function PendingLabOrders() {
           </div>
         ) : orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <TestTube className="w-8 h-8 text-gray-300 mb-2" />
-            <p className="text-sm text-gray-500">No pending lab orders</p>
+            <TestTube className="w-8 h-8 text-muted-foreground/50 mb-2" />
+            <p className="text-sm text-muted-foreground">No pending lab orders</p>
           </div>
         ) : (
           <div className="space-y-2.5">
@@ -110,8 +110,8 @@ export default function PendingLabOrders() {
                   <TestTube className="w-4 h-4 text-orange-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{order.patient_name || 'Unknown'}</p>
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <p className="text-sm font-medium text-foreground truncate">{order.patient_name || 'Unknown'}</p>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
                     {timeAgo(order.created_at)}
                   </div>

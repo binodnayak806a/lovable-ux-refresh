@@ -38,19 +38,19 @@ export default function AppointmentTrendChart({ stats, loading }: Props) {
   return (
     <section
       aria-labelledby="weekly-appointments-heading"
-      className="bg-white border border-gray-200 rounded-xl p-5 h-full"
+      className="bg-card border border-border rounded-xl p-5 h-full"
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <CalendarCheck aria-hidden="true" className="w-4 h-4 text-gray-400" />
-          <h2 id="weekly-appointments-heading" className="text-sm font-semibold text-gray-900">
+          <CalendarCheck aria-hidden="true" className="w-4 h-4 text-muted-foreground" />
+          <h2 id="weekly-appointments-heading" className="text-sm font-semibold text-foreground">
             Weekly Appointments
           </h2>
         </div>
         <button
           aria-label="Select time period"
           aria-haspopup="listbox"
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 active:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-muted-foreground bg-muted/50 border border-border rounded-lg hover:bg-muted hover:border-border/80 active:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           This week
           <ChevronDown aria-hidden="true" className="w-3.5 h-3.5" />
@@ -60,7 +60,7 @@ export default function AppointmentTrendChart({ stats, loading }: Props) {
       <div className="mb-5">
         <div className="flex items-baseline gap-3">
           <span
-            className="text-4xl font-bold text-gray-900"
+            className="text-4xl font-bold text-foreground"
             aria-label={`${totalWeek.toLocaleString()} total appointments this week`}
           >
             {totalWeek.toLocaleString()}
@@ -69,9 +69,9 @@ export default function AppointmentTrendChart({ stats, loading }: Props) {
             <TrendingUp aria-hidden="true" className="w-4 h-4" />
             +8%
           </span>
-          <span className="text-sm text-gray-500">vs last week</span>
+          <span className="text-sm text-muted-foreground">vs last week</span>
         </div>
-        <p className="text-sm text-gray-500 mt-1">Total appointments this week</p>
+        <p className="text-sm text-muted-foreground mt-1">Total appointments this week</p>
       </div>
 
       {loading ? (
@@ -115,13 +115,13 @@ export default function AppointmentTrendChart({ stats, loading }: Props) {
         </div>
       )}
 
-      <div className="mt-4 pt-4 border-t border-gray-100">
+      <div className="mt-4 pt-4 border-t border-border">
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 text-xs text-gray-600">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span aria-hidden="true" className="w-3 h-3 rounded bg-sky-500" />
             <span>Peak day</span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-600">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span aria-hidden="true" className="w-3 h-3 rounded bg-sky-100" />
             <span>Regular</span>
           </div>
