@@ -27,6 +27,7 @@ interface PatientCardProps {
   onConsult: () => void;
   onAdmit: () => void;
   onBill: () => void;
+  onBookAppointment?: () => void;
 }
 
 const GENDER_COLORS: Record<string, string> = {
