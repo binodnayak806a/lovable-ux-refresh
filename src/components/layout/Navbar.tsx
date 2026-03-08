@@ -18,6 +18,7 @@ import {
 const PATH_LABELS: Record<string, string> = {
   dashboard: 'Dashboard',
   patients: 'Patients',
+  'add-patient': 'Add Patient',
   appointments: 'Appointments',
   opd: 'OPD',
   ipd: 'IPD',
