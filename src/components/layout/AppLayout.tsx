@@ -19,8 +19,22 @@ const fullBleedRoutes = new Set(['/appointments', '/patients', '/add-patient', '
 export default function AppLayout() {
   const location = useLocation();
   const mainRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector((s) => s.auth);
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
+
+  const handleBarcodeScan = (value: string) => {
+    dispatch(setSearchOpen(true));
+    // Small delay so the search modal opens first
+    setTimeout(() => {
+      const input = document.querySelector<HTMLInputElement>('[data-search-input]');
+      if (input) {
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+        nativeInputValueSetter?.call(input, value);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }, 100);
+  };
 
   useEffect(() => {
     if (mainRef.current) {
