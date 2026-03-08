@@ -4,8 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';
 import { Button } from '../../components/ui/button';
-import { Switch } from '../../components/ui/switch';
 import { Badge } from '../../components/ui/badge';
+import { Checkbox } from '../../components/ui/checkbox';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
+import { ScrollArea } from '../../components/ui/scroll-area';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
@@ -14,30 +16,123 @@ import AuditLogsTab from './components/AuditLogsTab';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
+export interface ModuleCrud {
+  create: boolean;
+  read: boolean;
+  update: boolean;
+  delete: boolean;
+}
+
+export type ModulePermissions = Record<string, ModuleCrud>;
+
 const ALL_MODULES = [
-  'Dashboard', 'Patients', 'OPD', 'IPD', 'Billing',
-  'Appointments', 'Consultation', 'Prescription', 'Vitals',
-  'Laboratory', 'Pharmacy', 'Ambulance', 'Emergency',
-  'Reports', 'Analytics', 'Master Data', 'HRMS',
-  'Admin', 'Settings', 'Notifications', 'User Management',
-  'System Settings', 'Audit Logs',
+  { key: 'dashboard', label: 'Dashboard' },
+  { key: 'patients', label: 'Patients' },
+  { key: 'opd', label: 'OPD' },
+  { key: 'ipd', label: 'IPD' },
+  { key: 'billing', label: 'Billing' },
+  { key: 'appointments', label: 'Appointments' },
+  { key: 'consultation', label: 'Consultation' },
+  { key: 'prescription', label: 'Prescription' },
+  { key: 'vitals', label: 'Vitals' },
+  { key: 'lab', label: 'Laboratory' },
+  { key: 'pharmacy', label: 'Pharmacy' },
+  { key: 'ambulance', label: 'Ambulance' },
+  { key: 'emergency', label: 'Emergency' },
+  { key: 'reports', label: 'Reports' },
+  { key: 'analytics', label: 'Analytics' },
+  { key: 'master_data', label: 'Master Data' },
+  { key: 'hrms', label: 'HRMS' },
+  { key: 'admin', label: 'Admin' },
+  { key: 'settings', label: 'Settings' },
+  { key: 'notifications', label: 'Notifications' },
+  { key: 'cash_bank', label: 'Cash & Bank' },
+  { key: 'doctor_queue', label: 'Doctor Queue' },
 ];
+
+const CRUD_KEYS: (keyof ModuleCrud)[] = ['create', 'read', 'update', 'delete'];
+const CRUD_LABELS: Record<keyof ModuleCrud, string> = { create: 'C', read: 'R', update: 'U', delete: 'D' };
+const CRUD_FULL_LABELS: Record<keyof ModuleCrud, string> = { create: 'Create', read: 'Read', update: 'Update', delete: 'Delete' };
+const CRUD_COLORS: Record<keyof ModuleCrud, string> = {
+  create: 'text-emerald-600',
+  read: 'text-blue-600',
+  update: 'text-amber-600',
+  delete: 'text-rose-600',
+};
 
 const ROLES = [
-  'Super Admin', 'Admin', 'Doctor', 'Nurse',
-  'Billing Staff', 'Pharmacist', 'Lab Technician', 'Receptionist',
+  { key: 'superadmin', label: 'Super Admin' },
+  { key: 'admin', label: 'Admin' },
+  { key: 'doctor', label: 'Doctor' },
+  { key: 'nurse', label: 'Nurse' },
+  { key: 'billing', label: 'Billing Staff' },
+  { key: 'pharmacist', label: 'Pharmacist' },
+  { key: 'lab_technician', label: 'Lab Technician' },
+  { key: 'receptionist', label: 'Receptionist' },
 ];
 
-const DEFAULT_PERMISSIONS: Record<string, string[]> = {
-  'Super Admin': ALL_MODULES,
-  'Admin': ALL_MODULES.filter(m => m !== 'System Settings'),
-  'Doctor': ['Dashboard', 'Patients', 'OPD', 'IPD', 'Prescription', 'Consultation', 'Vitals', 'Laboratory', 'Pharmacy', 'Appointments', 'Notifications'],
-  'Nurse': ['Dashboard', 'Patients', 'IPD', 'Vitals', 'Emergency', 'Notifications'],
-  'Billing Staff': ['Dashboard', 'Billing', 'Patients', 'Reports', 'Analytics', 'Notifications'],
-  'Pharmacist': ['Dashboard', 'Pharmacy', 'Prescription', 'Notifications'],
-  'Lab Technician': ['Dashboard', 'Laboratory', 'Reports', 'Notifications'],
-  'Receptionist': ['Dashboard', 'Patients', 'Appointments', 'OPD', 'Notifications'],
+function allTrue(): ModuleCrud {
+  return { create: true, read: true, update: true, delete: true };
+}
+
+function allFalse(): ModuleCrud {
+  return { create: false, read: false, update: false, delete: false };
+}
+
+function readOnly(): ModuleCrud {
+  return { create: false, read: true, update: false, delete: false };
+}
+
+function createRead(): ModuleCrud {
+  return { create: true, read: true, update: false, delete: false };
+}
+
+function crudExceptDelete(): ModuleCrud {
+  return { create: true, read: true, update: true, delete: false };
+}
+
+export const DEFAULT_ROLE_PERMISSIONS: Record<string, ModulePermissions> = {
+  superadmin: Object.fromEntries(ALL_MODULES.map(m => [m.key, allTrue()])),
+  admin: Object.fromEntries(ALL_MODULES.map(m => [m.key, allTrue()])),
+  doctor: Object.fromEntries(ALL_MODULES.map(m => {
+    if (['dashboard', 'notifications'].includes(m.key)) return [m.key, readOnly()];
+    if (['patients', 'opd', 'ipd', 'consultation', 'prescription', 'vitals', 'appointments', 'doctor_queue'].includes(m.key)) return [m.key, crudExceptDelete()];
+    if (['lab', 'emergency'].includes(m.key)) return [m.key, createRead()];
+    return [m.key, allFalse()];
+  })),
+  nurse: Object.fromEntries(ALL_MODULES.map(m => {
+    if (['dashboard', 'notifications'].includes(m.key)) return [m.key, readOnly()];
+    if (['patients', 'ipd', 'vitals', 'emergency'].includes(m.key)) return [m.key, crudExceptDelete()];
+    if (['opd', 'appointments'].includes(m.key)) return [m.key, readOnly()];
+    return [m.key, allFalse()];
+  })),
+  billing: Object.fromEntries(ALL_MODULES.map(m => {
+    if (['dashboard', 'notifications'].includes(m.key)) return [m.key, readOnly()];
+    if (['billing', 'cash_bank'].includes(m.key)) return [m.key, allTrue()];
+    if (['patients', 'appointments', 'reports', 'analytics'].includes(m.key)) return [m.key, readOnly()];
+    if (['pharmacy'].includes(m.key)) return [m.key, createRead()];
+    return [m.key, allFalse()];
+  })),
+  pharmacist: Object.fromEntries(ALL_MODULES.map(m => {
+    if (['dashboard', 'notifications'].includes(m.key)) return [m.key, readOnly()];
+    if (['pharmacy'].includes(m.key)) return [m.key, allTrue()];
+    if (['prescription'].includes(m.key)) return [m.key, readOnly()];
+    return [m.key, allFalse()];
+  })),
+  lab_technician: Object.fromEntries(ALL_MODULES.map(m => {
+    if (['dashboard', 'notifications'].includes(m.key)) return [m.key, readOnly()];
+    if (['lab'].includes(m.key)) return [m.key, crudExceptDelete()];
+    return [m.key, allFalse()];
+  })),
+  receptionist: Object.fromEntries(ALL_MODULES.map(m => {
+    if (['dashboard', 'notifications'].includes(m.key)) return [m.key, readOnly()];
+    if (['patients', 'appointments', 'opd'].includes(m.key)) return [m.key, crudExceptDelete()];
+    if (['billing'].includes(m.key)) return [m.key, createRead()];
+    return [m.key, allFalse()];
+  })),
 };
+
+export { ALL_MODULES as ADMIN_ALL_MODULES };
 
 export default function AdminPage() {
   usePageTitle('Administration');
@@ -98,10 +193,10 @@ export default function AdminPage() {
 }
 
 function RBACPanel({ hospitalId }: { hospitalId: string }) {
-  const [permissions, setPermissions] = useState<Record<string, string[]>>(DEFAULT_PERMISSIONS);
+  const [permissions, setPermissions] = useState<Record<string, ModulePermissions>>(DEFAULT_ROLE_PERMISSIONS);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [selectedRole, setSelectedRole] = useState(ROLES[0]);
+  const [selectedRole, setSelectedRole] = useState(ROLES[0].key);
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
@@ -115,7 +210,7 @@ function RBACPanel({ hospitalId }: { hospitalId: string }) {
         .from('system_settings')
         .select('setting_value')
         .eq('hospital_id', hospitalId)
-        .eq('setting_key', 'role_permissions')
+        .eq('setting_key', 'role_crud_permissions')
         .maybeSingle();
 
       const row = data as { setting_value: unknown } | null;
@@ -123,22 +218,47 @@ function RBACPanel({ hospitalId }: { hospitalId: string }) {
         const parsed = typeof row.setting_value === 'string'
           ? JSON.parse(row.setting_value)
           : row.setting_value;
-        setPermissions({ ...DEFAULT_PERMISSIONS, ...parsed });
+        setPermissions({ ...DEFAULT_ROLE_PERMISSIONS, ...parsed });
       }
     } catch {
-      toast.error('Failed to load permissions');
+      // fall back to defaults silently
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggle = (mod: string) => {
+  const handleToggle = (moduleKey: string, action: keyof ModuleCrud) => {
     setPermissions(prev => {
-      const current = prev[selectedRole] || [];
-      const updated = current.includes(mod)
-        ? current.filter(m => m !== mod)
-        : [...current, mod];
-      return { ...prev, [selectedRole]: updated };
+      const rolePerm = { ...prev[selectedRole] };
+      const modulePerm = { ...(rolePerm[moduleKey] || allFalse()) };
+      modulePerm[action] = !modulePerm[action];
+      rolePerm[moduleKey] = modulePerm;
+      return { ...prev, [selectedRole]: rolePerm };
+    });
+    setHasChanges(true);
+  };
+
+  const toggleAllForModule = (moduleKey: string) => {
+    setPermissions(prev => {
+      const rolePerm = { ...prev[selectedRole] };
+      const current = rolePerm[moduleKey] || allFalse();
+      const allChecked = CRUD_KEYS.every(k => current[k]);
+      rolePerm[moduleKey] = allChecked ? allFalse() : allTrue();
+      return { ...prev, [selectedRole]: rolePerm };
+    });
+    setHasChanges(true);
+  };
+
+  const toggleAllForAction = (action: keyof ModuleCrud) => {
+    setPermissions(prev => {
+      const rolePerm = { ...prev[selectedRole] };
+      const allChecked = ALL_MODULES.every(m => (rolePerm[m.key] || allFalse())[action]);
+      ALL_MODULES.forEach(m => {
+        const mod = { ...(rolePerm[m.key] || allFalse()) };
+        mod[action] = !allChecked;
+        rolePerm[m.key] = mod;
+      });
+      return { ...prev, [selectedRole]: rolePerm };
     });
     setHasChanges(true);
   };
@@ -150,14 +270,14 @@ function RBACPanel({ hospitalId }: { hospitalId: string }) {
         .from('system_settings')
         .upsert({
           hospital_id: hospitalId,
-          setting_key: 'role_permissions',
+          setting_key: 'role_crud_permissions',
           setting_value: JSON.stringify(permissions),
           updated_at: new Date().toISOString(),
         } as never, { onConflict: 'hospital_id,setting_key' });
 
       if (error) throw error;
       setHasChanges(false);
-      toast.success('Permissions saved successfully');
+      toast.success('CRUD permissions saved successfully');
     } catch {
       toast.error('Failed to save permissions');
     } finally {
@@ -166,120 +286,196 @@ function RBACPanel({ hospitalId }: { hospitalId: string }) {
   };
 
   const handleReset = () => {
-    setPermissions(DEFAULT_PERMISSIONS);
+    setPermissions(DEFAULT_ROLE_PERMISSIONS);
     setHasChanges(true);
   };
 
-  const roleModules = permissions[selectedRole] || [];
+  const rolePerm = permissions[selectedRole] || {};
+
+  // Count enabled permissions for badge
+  const countEnabled = (roleKey: string) => {
+    const rp = permissions[roleKey] || {};
+    let count = 0;
+    ALL_MODULES.forEach(m => {
+      const mp = rp[m.key];
+      if (mp) CRUD_KEYS.forEach(k => { if (mp[k]) count++; });
+    });
+    return count;
+  };
+
+  const totalPossible = ALL_MODULES.length * 4;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Configure module access for each role. Changes are saved to the database.
-        </p>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5">
-            <RotateCcw className="w-3.5 h-3.5" />
-            Reset to Defaults
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={saving || !hasChanges}
-            className="gap-1.5 bg-blue-600 hover:bg-blue-700"
-          >
-            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {ROLES.map(role => (
-          <Button
-            key={role}
-            variant={selectedRole === role ? 'default' : 'secondary'}
-            size="sm"
-            onClick={() => setSelectedRole(role)}
-            className="gap-2"
-          >
-            {role}
-            <Badge variant="outline" className="text-[10px] px-1.5 bg-white/20 border-current">
-              {(permissions[role] || []).length}
-            </Badge>
-          </Button>
-        ))}
-      </div>
-
-      <div className="border border-slate-200 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-slate-700">
-              {selectedRole} - Module Access ({roleModules.length}/{ALL_MODULES.length})
-            </span>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="link"
-                size="sm"
-                className="h-auto p-0 text-xs"
-                onClick={() => {
-                  setPermissions(prev => ({ ...prev, [selectedRole]: [...ALL_MODULES] }));
-                  setHasChanges(true);
-                }}
-              >
-                Select All
-              </Button>
-              <span className="text-gray-300">|</span>
-              <Button
-                variant="link"
-                size="sm"
-                className="h-auto p-0 text-xs text-red-600 hover:text-red-700"
-                onClick={() => {
-                  setPermissions(prev => ({ ...prev, [selectedRole]: [] }));
-                  setHasChanges(true);
-                }}
-              >
-                Clear All
-              </Button>
-            </div>
+    <TooltipProvider>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Configure <strong>Create / Read / Update / Delete</strong> access per module for each role.
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5">
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset Defaults
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={saving || !hasChanges}
+              className="gap-1.5"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0">
-          {ALL_MODULES.map(mod => {
-            const isEnabled = roleModules.includes(mod);
+
+        {/* Role pills */}
+        <div className="flex flex-wrap gap-2">
+          {ROLES.map(role => {
+            const count = countEnabled(role.key);
             return (
-              <div
-                key={mod}
-                className="flex items-center justify-between px-4 py-3 border-b border-r border-slate-100 hover:bg-slate-50 transition-colors"
+              <Button
+                key={role.key}
+                variant={selectedRole === role.key ? 'default' : 'secondary'}
+                size="sm"
+                onClick={() => setSelectedRole(role.key)}
+                className="gap-2"
               >
-                <span className={`text-sm ${isEnabled ? 'text-slate-900 font-medium' : 'text-slate-400'}`}>
-                  {mod}
-                </span>
-                <Switch
-                  checked={isEnabled}
-                  onCheckedChange={() => handleToggle(mod)}
-                />
-              </div>
+                {role.label}
+                <Badge variant="outline" className="text-[10px] px-1.5 bg-background/20 border-current">
+                  {count}/{totalPossible}
+                </Badge>
+              </Button>
             );
           })}
         </div>
-      </div>
 
-      {hasChanges && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-          <span className="text-sm text-amber-700">You have unsaved changes</span>
+        {/* CRUD Matrix */}
+        <div className="border border-border rounded-xl overflow-hidden">
+          <ScrollArea className="max-h-[600px]">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-muted/50 border-b border-border">
+                  <th className="text-left px-4 py-3 font-semibold text-foreground w-52">
+                    Module
+                  </th>
+                  <th className="px-2 py-3 w-10 text-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            // toggle all modules all actions
+                            setPermissions(prev => {
+                              const rp = { ...prev[selectedRole] };
+                              const allChecked = ALL_MODULES.every(m => CRUD_KEYS.every(k => (rp[m.key] || allFalse())[k]));
+                              ALL_MODULES.forEach(m => { rp[m.key] = allChecked ? allFalse() : allTrue(); });
+                              return { ...prev, [selectedRole]: rp };
+                            });
+                            setHasChanges(true);
+                          }}
+                          className="text-xs font-bold text-muted-foreground hover:text-foreground"
+                        >
+                          All
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Toggle all permissions</TooltipContent>
+                    </Tooltip>
+                  </th>
+                  {CRUD_KEYS.map(key => (
+                    <th key={key} className="px-2 py-3 w-16 text-center">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => toggleAllForAction(key)}
+                            className={`text-xs font-bold ${CRUD_COLORS[key]} hover:opacity-80 transition-opacity`}
+                          >
+                            {CRUD_FULL_LABELS[key]}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>Toggle {CRUD_FULL_LABELS[key]} for all modules</TooltipContent>
+                      </Tooltip>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {ALL_MODULES.map((mod, i) => {
+                  const mp = rolePerm[mod.key] || allFalse();
+                  const enabledCount = CRUD_KEYS.filter(k => mp[k]).length;
+                  const isAllChecked = enabledCount === 4;
+                  const isPartial = enabledCount > 0 && enabledCount < 4;
+
+                  return (
+                    <tr
+                      key={mod.key}
+                      className={`border-b border-border/50 hover:bg-muted/30 transition-colors ${i % 2 === 0 ? '' : 'bg-muted/10'}`}
+                    >
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">{mod.label}</span>
+                          {enabledCount > 0 && (
+                            <Badge
+                              variant="outline"
+                              className={`text-[9px] px-1 py-0 h-4 ${
+                                isAllChecked
+                                  ? 'border-emerald-300 bg-emerald-50 text-emerald-600'
+                                  : 'border-amber-300 bg-amber-50 text-amber-600'
+                              }`}
+                            >
+                              {enabledCount}/4
+                            </Badge>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-2 py-2.5 text-center">
+                        <Checkbox
+                          checked={isAllChecked ? true : isPartial ? 'indeterminate' : false}
+                          onCheckedChange={() => toggleAllForModule(mod.key)}
+                          className="mx-auto"
+                        />
+                      </td>
+                      {CRUD_KEYS.map(key => (
+                        <td key={key} className="px-2 py-2.5 text-center">
+                          <Checkbox
+                            checked={mp[key]}
+                            onCheckedChange={() => handleToggle(mod.key, key)}
+                            className="mx-auto"
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </ScrollArea>
         </div>
-      )}
-    </div>
+
+        {/* Legend */}
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <span className="font-semibold">Legend:</span>
+          {CRUD_KEYS.map(k => (
+            <span key={k} className={`flex items-center gap-1 ${CRUD_COLORS[k]}`}>
+              <span className="font-bold">{CRUD_LABELS[k]}</span> = {CRUD_FULL_LABELS[k]}
+            </span>
+          ))}
+        </div>
+
+        {hasChanges && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-sm text-amber-700">You have unsaved changes</span>
+          </div>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }

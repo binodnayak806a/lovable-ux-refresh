@@ -2,228 +2,103 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppSelector } from '../store';
 import { roleService } from '../services/role.service';
 import type { UserRole } from '../types/user.types';
-
-interface RolePermissions {
-  modules: Record<string, boolean>;
-  actions: Record<string, boolean>;
-}
+import type { ModuleCrud, ModulePermissions } from '../modules/admin/AdminPage';
+import { DEFAULT_ROLE_PERMISSIONS } from '../modules/admin/AdminPage';
 
 const ADMIN_ROLES: UserRole[] = ['superadmin', 'admin'];
 
-const FALLBACK_PERMISSIONS: Record<UserRole, RolePermissions> = {
-  superadmin: {
-    modules: {
-      dashboard: true, patients: true, opd: true, ipd: true, doctor_queue: true,
-      appointments: true, pharmacy: true, lab: true, billing: true, reports: true,
-      analytics: true, emergency: true, ambulance: true, hrms: true, masters: true,
-      master_data: true, admin: true, settings: true, notifications: true,
-      cash_bank: true,
-    },
-    actions: {
-      edit_bill_amount: true, delete_master_records: true, export_data: true,
-      manage_users: true, view_revenue: true, manage_settings: true,
-      backup_database: true, manage_roles: true, access_audit_logs: true,
-      create_appointment: true, create_patient: true, create_bill: true,
-      collect_payment: true, admit_patient: true, discharge_patient: true,
-      enter_lab_results: true, manage_pharmacy_stock: true,
-      pharmacy_sales: true, pharmacy_purchase: true,
-    },
-  },
-  admin: {
-    modules: {
-      dashboard: true, patients: true, opd: true, ipd: true, doctor_queue: true,
-      appointments: true, pharmacy: true, lab: true, billing: true, reports: true,
-      analytics: true, emergency: true, ambulance: true, hrms: true, masters: true,
-      master_data: true, admin: true, settings: true, notifications: true,
-      cash_bank: true,
-    },
-    actions: {
-      edit_bill_amount: true, delete_master_records: true, export_data: true,
-      manage_users: true, view_revenue: true, manage_settings: true,
-      backup_database: true, manage_roles: false, access_audit_logs: true,
-      create_appointment: true, create_patient: true, create_bill: true,
-      collect_payment: true, admit_patient: true, discharge_patient: true,
-      enter_lab_results: true, manage_pharmacy_stock: true,
-      pharmacy_sales: true, pharmacy_purchase: true,
-    },
-  },
-  doctor: {
-    modules: {
-      dashboard: true, patients: true, opd: true, ipd: true, doctor_queue: true,
-      appointments: true, pharmacy: false, lab: true, billing: false, reports: true,
-      analytics: false, emergency: true, ambulance: false, hrms: false, masters: false,
-      master_data: false, admin: false, settings: false, notifications: true,
-    },
-    actions: {
-      edit_bill_amount: false, delete_master_records: false, export_data: true,
-      manage_users: false, view_revenue: false, manage_settings: false,
-      backup_database: false, manage_roles: false, access_audit_logs: false,
-      create_appointment: true, create_patient: true, create_bill: false,
-      collect_payment: false, admit_patient: true, discharge_patient: true,
-      enter_lab_results: false, manage_pharmacy_stock: false,
-      pharmacy_sales: false, pharmacy_purchase: false,
-    },
-  },
-  receptionist: {
-    modules: {
-      dashboard: true, patients: true, opd: true, ipd: false, doctor_queue: false,
-      appointments: true, pharmacy: false, lab: false, billing: true, reports: false,
-      analytics: false, emergency: false, ambulance: false, hrms: false, masters: false,
-      master_data: false, admin: false, settings: false, notifications: true,
-    },
-    actions: {
-      edit_bill_amount: false, delete_master_records: false, export_data: false,
-      manage_users: false, view_revenue: false, manage_settings: false,
-      backup_database: false, manage_roles: false, access_audit_logs: false,
-      create_appointment: true, create_patient: true, create_bill: true,
-      collect_payment: true, admit_patient: false, discharge_patient: false,
-      enter_lab_results: false, manage_pharmacy_stock: false,
-      pharmacy_sales: false, pharmacy_purchase: false,
-    },
-  },
-  nurse: {
-    modules: {
-      dashboard: true, patients: true, opd: true, ipd: true, doctor_queue: false,
-      appointments: true, pharmacy: false, lab: true, billing: false, reports: false,
-      analytics: false, emergency: true, ambulance: false, hrms: false, masters: false,
-      master_data: false, admin: false, settings: false, notifications: true,
-    },
-    actions: {
-      edit_bill_amount: false, delete_master_records: false, export_data: false,
-      manage_users: false, view_revenue: false, manage_settings: false,
-      backup_database: false, manage_roles: false, access_audit_logs: false,
-      create_appointment: false, create_patient: false, create_bill: false,
-      collect_payment: false, admit_patient: false, discharge_patient: false,
-      enter_lab_results: false, manage_pharmacy_stock: false,
-      pharmacy_sales: false, pharmacy_purchase: false,
-    },
-  },
-  billing: {
-    modules: {
-      dashboard: true, patients: true, opd: false, ipd: false, doctor_queue: false,
-      appointments: true, pharmacy: true, lab: false, billing: true, reports: true,
-      analytics: false, emergency: false, ambulance: false, hrms: false, masters: false,
-      master_data: false, admin: false, settings: false, notifications: true,
-    },
-    actions: {
-      edit_bill_amount: true, delete_master_records: false, export_data: true,
-      manage_users: false, view_revenue: true, manage_settings: false,
-      backup_database: false, manage_roles: false, access_audit_logs: false,
-      create_appointment: false, create_patient: false, create_bill: true,
-      collect_payment: true, admit_patient: false, discharge_patient: false,
-      enter_lab_results: false, manage_pharmacy_stock: false,
-      pharmacy_sales: true, pharmacy_purchase: false,
-    },
-  },
-  pharmacist: {
-    modules: {
-      dashboard: true, patients: false, opd: false, ipd: false, doctor_queue: false,
-      appointments: false, pharmacy: true, lab: true, billing: false, reports: false,
-      analytics: false, emergency: false, ambulance: false, hrms: false, masters: false,
-      master_data: false, admin: false, settings: false, notifications: true,
-    },
-    actions: {
-      edit_bill_amount: false, delete_master_records: false, export_data: false,
-      manage_users: false, view_revenue: false, manage_settings: false,
-      backup_database: false, manage_roles: false, access_audit_logs: false,
-      create_appointment: false, create_patient: false, create_bill: false,
-      collect_payment: false, admit_patient: false, discharge_patient: false,
-      enter_lab_results: false, manage_pharmacy_stock: true,
-      pharmacy_sales: true, pharmacy_purchase: true,
-    },
-  },
-  lab_technician: {
-    modules: {
-      dashboard: true, patients: false, opd: false, ipd: false, doctor_queue: false,
-      appointments: false, pharmacy: false, lab: true, billing: false, reports: false,
-      analytics: false, emergency: false, ambulance: false, hrms: false, masters: false,
-      master_data: false, admin: false, settings: false, notifications: true,
-    },
-    actions: {
-      edit_bill_amount: false, delete_master_records: false, export_data: false,
-      manage_users: false, view_revenue: false, manage_settings: false,
-      backup_database: false, manage_roles: false, access_audit_logs: false,
-      create_appointment: false, create_patient: false, create_bill: false,
-      collect_payment: false, admit_patient: false, discharge_patient: false,
-      enter_lab_results: true, manage_pharmacy_stock: false,
-      pharmacy_sales: false, pharmacy_purchase: false,
-    },
-  },
-};
-
 /**
- * usePermissions hook — fetches role from `user_roles` table (server-side source of truth)
- * instead of trusting `profiles.role` which is client-editable.
- * 
- * For demo sessions (no real auth), falls back to the role stored in Redux state.
+ * usePermissions hook — supports module-wise CRUD granularity.
+ *
+ * Priority:
+ * 1. User-specific permission override (if set on profile)
+ * 2. Role-level CRUD defaults from DEFAULT_ROLE_PERMISSIONS
  */
 export function usePermissions() {
   const { user } = useAppSelector((s) => s.auth);
   const profileRole = (user?.role as UserRole) ?? 'receptionist';
   const isDemoSession = user?.id?.startsWith('demo-') ?? false;
 
-  // Server-verified role from user_roles table
   const [verifiedRole, setVerifiedRole] = useState<UserRole | null>(null);
-  const [dbPermissions, setDbPermissions] = useState<RolePermissions | null>(null);
 
-  // The actual role: use server-verified role if available, else profile role
   const role: UserRole = verifiedRole ?? profileRole;
 
   useEffect(() => {
     if (!user?.id || isDemoSession) {
-      // Demo sessions use client-side role directly
       setVerifiedRole(null);
       return;
     }
-
-    // Fetch verified role from user_roles table
     (async () => {
       try {
         const serverRole = await roleService.ensureUserRole(user.id, profileRole);
         setVerifiedRole(serverRole);
       } catch {
-        // If user_roles table doesn't have proper columns, fall back gracefully
         setVerifiedRole(null);
       }
     })();
   }, [user?.id, profileRole, isDemoSession]);
 
-  // Fetch role-level permissions (entries where user_id IS NULL)
-  useEffect(() => {
-    if (!role) return;
-    (async () => {
-      try {
-        const perms = await roleService.getRolePermissions(role);
-        if (perms) {
-          setDbPermissions(perms as unknown as RolePermissions);
-        }
-      } catch {
-        // silently fall back
-      }
-    })();
+  const modulePermissions: ModulePermissions = useMemo(() => {
+    return DEFAULT_ROLE_PERMISSIONS[role] ?? DEFAULT_ROLE_PERMISSIONS.receptionist ?? {};
   }, [role]);
 
-  const permissions = useMemo(
-    () => dbPermissions ?? FALLBACK_PERMISSIONS[role] ?? FALLBACK_PERMISSIONS.receptionist,
-    [dbPermissions, role],
+  const canModule = useCallback(
+    (module: string, action?: keyof ModuleCrud): boolean => {
+      if (ADMIN_ROLES.includes(role) && role === 'superadmin') return true;
+      const mp = modulePermissions[module];
+      if (!mp) return false;
+      if (action) return mp[action] === true;
+      // If no action specified, check if any access exists
+      return mp.create || mp.read || mp.update || mp.delete;
+    },
+    [modulePermissions, role],
   );
 
+  // Legacy compat
   const can = useCallback(
     (action: string, module?: string) => {
       if (ADMIN_ROLES.includes(role) && role === 'superadmin') return true;
-      if (module) return permissions.modules[module] === true;
-      return permissions.actions[action] === true;
+      if (module) return canModule(module, 'read');
+      // Map legacy action names to module CRUD
+      const legacyMap: Record<string, { module: string; action: keyof ModuleCrud }> = {
+        create_patient: { module: 'patients', action: 'create' },
+        create_appointment: { module: 'appointments', action: 'create' },
+        create_bill: { module: 'billing', action: 'create' },
+        collect_payment: { module: 'billing', action: 'update' },
+        admit_patient: { module: 'ipd', action: 'create' },
+        discharge_patient: { module: 'ipd', action: 'update' },
+        enter_lab_results: { module: 'lab', action: 'update' },
+        manage_pharmacy_stock: { module: 'pharmacy', action: 'update' },
+        pharmacy_sales: { module: 'pharmacy', action: 'create' },
+        pharmacy_purchase: { module: 'pharmacy', action: 'create' },
+        edit_bill_amount: { module: 'billing', action: 'update' },
+        delete_master_records: { module: 'master_data', action: 'delete' },
+        export_data: { module: 'reports', action: 'read' },
+        manage_users: { module: 'admin', action: 'update' },
+        view_revenue: { module: 'analytics', action: 'read' },
+        manage_settings: { module: 'settings', action: 'update' },
+        manage_roles: { module: 'admin', action: 'update' },
+        access_audit_logs: { module: 'admin', action: 'read' },
+      };
+      const mapped = legacyMap[action];
+      if (mapped) return canModule(mapped.module, mapped.action);
+      return false;
     },
-    [permissions, role],
+    [canModule, role],
   );
 
   const canAccessModule = useCallback(
     (module: string) => {
       if (ADMIN_ROLES.includes(role)) return true;
-      return permissions.modules[module] === true;
+      return canModule(module);
     },
-    [permissions, role],
+    [canModule, role],
   );
+
+  const canCreate = useCallback((module: string) => canModule(module, 'create'), [canModule]);
+  const canRead = useCallback((module: string) => canModule(module, 'read'), [canModule]);
+  const canUpdate = useCallback((module: string) => canModule(module, 'update'), [canModule]);
+  const canDelete = useCallback((module: string) => canModule(module, 'delete'), [canModule]);
 
   const isRole = useCallback(
     (...roles: UserRole[]) => roles.includes(role),
@@ -234,9 +109,13 @@ export function usePermissions() {
 
   return {
     role,
-    permissions,
+    permissions: modulePermissions,
     can,
     canAccessModule,
+    canCreate,
+    canRead,
+    canUpdate,
+    canDelete,
     isRole,
     isAdmin,
   };
