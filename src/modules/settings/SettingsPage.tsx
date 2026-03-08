@@ -332,7 +332,7 @@ export default function SettingsPage() {
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="border-b border-slate-200">
+          <div className="border-b border-border">
             <TabsList className="bg-transparent p-0 h-auto w-full justify-start rounded-none overflow-x-auto">
               {TABS.map(tab => (
                 <TabsTrigger
