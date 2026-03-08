@@ -88,7 +88,7 @@ export default function DashboardPage() {
     dateRange,
   } = useAppSelector((state) => state.dashboard);
 
-  const { canAccessModule, isAdmin, isRole } = usePermissions();
+  const { isAdmin, isRole } = usePermissions();
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
   const prevDateRange = useRef(dateRange);
   const loading = status === 'loading';
