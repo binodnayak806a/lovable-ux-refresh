@@ -286,7 +286,7 @@ export default function AppSidebar() {
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-bold tracking-tight text-foreground">Zendenta</span>
                   <span className="truncate text-[11px] text-muted-foreground">
-                    {user?.hospital_name || 'Healthcare Clinic'}
+                    Healthcare Clinic
                   </span>
                 </div>
               </NavLink>
