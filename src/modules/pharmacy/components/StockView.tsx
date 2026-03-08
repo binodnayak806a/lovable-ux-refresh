@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
-  Search, Download, AlertTriangle, Package, Loader2,
+  Search, Download, AlertTriangle, Package,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
@@ -9,8 +9,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '../../../components/ui/table';
 import { useAppSelector } from '../../../store';
-import { useToast } from '../../../hooks/useToast';
-import { supabase } from '../../../lib/supabase';
+import { mockMasterStore } from '../../../lib/mockMasterStore';
 
 interface StockItem {
   id: string;
@@ -31,32 +30,12 @@ const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 export default function StockView() {
   const { hospitalId: rawHospitalId } = useAppSelector((s) => s.auth);
   const hospitalId = rawHospitalId ?? SAMPLE_HOSPITAL_ID;
-  const { toast } = useToast();
 
-  const [loading, setLoading] = useState(true);
-  const [stock, setStock] = useState<StockItem[]>([]);
   const [search, setSearch] = useState('');
 
-  const loadStock = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('pharmacy_inventory')
-        .select('id, medication_name, batch_number, expiry_date, quantity_in_stock, reorder_level, purchase_price, mrp, selling_price, gst_percent, supplier_name')
-        .eq('hospital_id', hospitalId)
-        .order('medication_name');
-
-      if (error) throw error;
-      setStock((data ?? []) as StockItem[]);
-    } catch {
-      toast('Error', { description: 'Failed to load stock data', type: 'error' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadStock();
+  const stock = useMemo(() => {
+    return mockMasterStore.getAll<StockItem>('pharmacy_inventory', hospitalId)
+      .sort((a, b) => (a.medication_name || '').localeCompare(b.medication_name || ''));
   }, [hospitalId]);
 
   const filtered = useMemo(() => {
@@ -80,15 +59,9 @@ export default function StockView() {
   const exportCsv = () => {
     const headers = ['Medicine', 'Batch', 'Expiry', 'Stock Qty', 'Reorder Level', 'Purchase Rate', 'MRP', 'GST%', 'Supplier'];
     const rows = filtered.map(s => [
-      s.medication_name,
-      s.batch_number,
-      s.expiry_date,
-      String(s.quantity_in_stock),
-      String(s.reorder_level),
-      String(s.purchase_price),
-      String(s.mrp || s.selling_price),
-      String(s.gst_percent),
-      s.supplier_name || '',
+      s.medication_name, s.batch_number, s.expiry_date,
+      String(s.quantity_in_stock), String(s.reorder_level), String(s.purchase_price),
+      String(s.mrp || s.selling_price), String(s.gst_percent), s.supplier_name || '',
     ]);
     const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -101,22 +74,12 @@ export default function StockView() {
     URL.revokeObjectURL(link.href);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-4">
         <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-white">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-100">
-              <Package className="w-5 h-5 text-blue-600" />
-            </div>
+            <div className="p-2.5 rounded-xl bg-blue-100"><Package className="w-5 h-5 text-blue-600" /></div>
             <div>
               <p className="text-xs text-gray-500">Total Items</p>
               <p className="text-xl font-bold text-gray-800">{totalItems}</p>
@@ -125,9 +88,7 @@ export default function StockView() {
         </Card>
         <Card className="border-0 shadow-sm bg-gradient-to-br from-orange-50 to-white">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-orange-100">
-              <AlertTriangle className="w-5 h-5 text-orange-600" />
-            </div>
+            <div className="p-2.5 rounded-xl bg-orange-100"><AlertTriangle className="w-5 h-5 text-orange-600" /></div>
             <div>
               <p className="text-xs text-gray-500">Low Stock</p>
               <p className="text-xl font-bold text-orange-600">{lowStockCount}</p>
@@ -136,9 +97,7 @@ export default function StockView() {
         </Card>
         <Card className="border-0 shadow-sm bg-gradient-to-br from-emerald-50 to-white">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-100">
-              <Package className="w-5 h-5 text-emerald-600" />
-            </div>
+            <div className="p-2.5 rounded-xl bg-emerald-100"><Package className="w-5 h-5 text-emerald-600" /></div>
             <div>
               <p className="text-xs text-gray-500">Total Value</p>
               <p className="text-xl font-bold text-gray-800">Rs. {totalValue.toLocaleString('en-IN')}</p>
@@ -192,9 +151,7 @@ export default function StockView() {
                   const isOut = item.quantity_in_stock === 0;
                   return (
                     <TableRow key={item.id} className={isLow || isOut ? 'bg-red-50/50' : ''}>
-                      <TableCell>
-                        <span className="font-medium text-gray-800">{item.medication_name}</span>
-                      </TableCell>
+                      <TableCell><span className="font-medium text-gray-800">{item.medication_name}</span></TableCell>
                       <TableCell className="font-mono text-xs text-gray-600">{item.batch_number}</TableCell>
                       <TableCell className="text-sm text-gray-600">{item.expiry_date}</TableCell>
                       <TableCell className={`text-right font-semibold ${isLow || isOut ? 'text-red-600' : 'text-gray-800'}`}>

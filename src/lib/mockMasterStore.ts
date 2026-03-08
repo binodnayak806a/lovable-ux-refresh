@@ -38,6 +38,12 @@ interface MasterStore {
   ipd_bill_items: Record<string, unknown>[];
   ipd_payments: Record<string, unknown>[];
   discharge_summaries: Record<string, unknown>[];
+  lab_orders: Record<string, unknown>[];
+  lab_order_items: Record<string, unknown>[];
+  pharmacy_inventory: Record<string, unknown>[];
+  pharmacy_transactions: Record<string, unknown>[];
+  pharmacy_purchases: Record<string, unknown>[];
+  pharmacy_sales: Record<string, unknown>[];
   hospital_config: Record<string, unknown>;
   _seeded: boolean;
 }
@@ -220,6 +226,25 @@ function seedMasterData(): MasterStore {
     };
   });
 
+  // Pharmacy inventory seed — one batch per medication
+  const pharmacy_inventory: Record<string, unknown>[] = medications.map((med, i) => ({
+    id: uuid(),
+    hospital_id: H,
+    medication_id: med.id as string,
+    medication_name: `${med.generic_name} ${med.brand_name ? `(${med.brand_name})` : ''} ${med.strength || ''}`.trim(),
+    batch_number: `BN${2026}${String(i + 1).padStart(3, '0')}`,
+    expiry_date: `2027-${String((i % 12) + 1).padStart(2, '0')}-28`,
+    quantity_in_stock: 100 + i * 20,
+    reorder_level: 20,
+    purchase_price: 10 + i * 5,
+    mrp: 20 + i * 8,
+    selling_price: 20 + i * 8,
+    gst_percent: i % 3 === 0 ? 12 : i % 3 === 1 ? 5 : 0,
+    supplier_name: ['MedSupply India', 'PharmaCo', 'HealthDist'][i % 3],
+    last_updated: now(),
+    created_at: now(),
+  }));
+
   return {
     doctors,
     departments,
@@ -243,6 +268,12 @@ function seedMasterData(): MasterStore {
     ipd_bill_items: [],
     ipd_payments: [],
     discharge_summaries: [],
+    lab_orders: [],
+    lab_order_items: [],
+    pharmacy_inventory,
+    pharmacy_transactions: [],
+    pharmacy_purchases: [],
+    pharmacy_sales: [],
     hospital_config: { gst_number: '27AABCU9603R1ZM', state_code: '27', gst_mode: 'cgst_sgst' },
     _seeded: true,
   };

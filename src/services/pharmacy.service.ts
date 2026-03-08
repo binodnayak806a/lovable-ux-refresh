@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { mockMasterStore } from '../lib/mockMasterStore';
 import type {
   PharmacyInventory,
   PharmacyTransaction,
@@ -9,396 +9,179 @@ import type {
 } from '../modules/pharmacy/types';
 import { addMonths } from 'date-fns';
 
-interface InventoryRow {
-  id: string;
-  hospital_id: string;
-  medication_id: string;
-  batch_number: string;
-  expiry_date: string;
-  quantity_in_stock: number;
-  reorder_level: number;
-  supplier_name: string | null;
-  purchase_price: number;
-  selling_price: number;
-  last_updated: string;
-  created_at: string;
-  medication: Medication | null;
-}
-
-
 const pharmacyService = {
   async getInventory(hospitalId: string, search?: string): Promise<PharmacyInventory[]> {
-    const query = supabase
-      .from('pharmacy_inventory')
-      .select(`
-        *,
-        medication:medications(id, generic_name, brand_name, form, strength, manufacturer)
-      `)
-      .eq('hospital_id', hospitalId)
-      .order('last_updated', { ascending: false });
-
-    const { data, error } = await query;
-    if (error) throw error;
-
-    let results = (data ?? []) as InventoryRow[];
-
+    let items = mockMasterStore.getAll<Record<string, unknown>>('pharmacy_inventory', hospitalId);
     if (search) {
-      const lowerSearch = search.toLowerCase();
-      results = results.filter((item) =>
-        item.medication?.generic_name?.toLowerCase().includes(lowerSearch) ||
-        item.medication?.brand_name?.toLowerCase().includes(lowerSearch) ||
-        item.batch_number?.toLowerCase().includes(lowerSearch)
+      const q = search.toLowerCase();
+      items = items.filter(i =>
+        ((i.medication_name as string) || '').toLowerCase().includes(q) ||
+        ((i.batch_number as string) || '').toLowerCase().includes(q)
       );
     }
-
-    return results as PharmacyInventory[];
+    // Attach medication info
+    return items.map(i => {
+      const med = i.medication_id
+        ? mockMasterStore.getById('medications', i.medication_id as string)
+        : null;
+      return { ...i, medication: med } as unknown as PharmacyInventory;
+    });
   },
 
   async getLowStockItems(hospitalId: string): Promise<PharmacyInventory[]> {
-    const { data, error } = await supabase
-      .from('pharmacy_inventory')
-      .select(`
-        *,
-        medication:medications(id, generic_name, brand_name, form, strength, manufacturer)
-      `)
-      .eq('hospital_id', hospitalId)
-      .gt('quantity_in_stock', 0);
-
-    if (error) throw error;
-
-    const items = (data ?? []) as InventoryRow[];
-    return items.filter((item) => item.quantity_in_stock <= item.reorder_level) as PharmacyInventory[];
+    const items = mockMasterStore.getAll<Record<string, unknown>>('pharmacy_inventory', hospitalId);
+    return items.filter(i =>
+      (i.quantity_in_stock as number) > 0 && (i.quantity_in_stock as number) <= (i.reorder_level as number)
+    ) as unknown as PharmacyInventory[];
   },
 
   async getExpiringItems(hospitalId: string, monthsAhead = 3): Promise<PharmacyInventory[]> {
-    const futureDate = addMonths(new Date(), monthsAhead);
-
-    const { data, error } = await supabase
-      .from('pharmacy_inventory')
-      .select(`
-        *,
-        medication:medications(id, generic_name, brand_name, form, strength, manufacturer)
-      `)
-      .eq('hospital_id', hospitalId)
-      .gt('quantity_in_stock', 0)
-      .lte('expiry_date', futureDate.toISOString().split('T')[0])
-      .order('expiry_date', { ascending: true });
-
-    if (error) throw error;
-    return (data ?? []) as PharmacyInventory[];
+    const futureDate = addMonths(new Date(), monthsAhead).toISOString().split('T')[0];
+    const items = mockMasterStore.getAll<Record<string, unknown>>('pharmacy_inventory', hospitalId);
+    return items.filter(i =>
+      (i.quantity_in_stock as number) > 0 && (i.expiry_date as string) <= futureDate
+    ) as unknown as PharmacyInventory[];
   },
 
   async getStats(hospitalId: string): Promise<PharmacyStats> {
-    const { data: inventory, error } = await supabase
-      .from('pharmacy_inventory')
-      .select('quantity_in_stock, reorder_level, selling_price, expiry_date')
-      .eq('hospital_id', hospitalId);
-
-    if (error) throw error;
-
-    const items = inventory ?? [];
-    const futureDate = addMonths(new Date(), 3);
+    const items = mockMasterStore.getAll<Record<string, unknown>>('pharmacy_inventory', hospitalId);
+    const futureDate = addMonths(new Date(), 3).toISOString().split('T')[0];
     const today = new Date().toISOString().split('T')[0];
 
     const totalItems = items.length;
-    const lowStockCount = items.filter(
-      (i: Record<string, unknown>) => (i as { quantity_in_stock: number; reorder_level: number }).quantity_in_stock <=
-        (i as { quantity_in_stock: number; reorder_level: number }).reorder_level &&
-        (i as { quantity_in_stock: number }).quantity_in_stock > 0
+    const lowStockCount = items.filter(i =>
+      (i.quantity_in_stock as number) <= (i.reorder_level as number) && (i.quantity_in_stock as number) > 0
     ).length;
-    const expiringCount = items.filter(
-      (i: Record<string, unknown>) => (i as { expiry_date: string }).expiry_date <= futureDate.toISOString().split('T')[0] &&
-        (i as { expiry_date: string }).expiry_date >= today &&
-        (i as { quantity_in_stock: number }).quantity_in_stock > 0
+    const expiringCount = items.filter(i =>
+      (i.expiry_date as string) <= futureDate && (i.expiry_date as string) >= today && (i.quantity_in_stock as number) > 0
     ).length;
-    const totalValue = items.reduce(
-      (sum: number, i: Record<string, unknown>) => sum + (i as { quantity_in_stock: number; selling_price: number }).quantity_in_stock *
-        (i as { quantity_in_stock: number; selling_price: number }).selling_price,
-      0
+    const totalValue = items.reduce((sum, i) =>
+      sum + (i.quantity_in_stock as number) * ((i.mrp as number) || (i.selling_price as number) || 0), 0
     );
 
     return { totalItems, lowStockCount, expiringCount, totalValue };
   },
 
-  async addInventory(
-    hospitalId: string,
-    form: InventoryFormData,
-    userId: string
-  ): Promise<PharmacyInventory> {
-    const { data: existing } = await supabase
-      .from('pharmacy_inventory')
-      .select('id, quantity_in_stock')
-      .eq('hospital_id', hospitalId)
-      .eq('medication_id', form.medication_id)
-      .eq('batch_number', form.batch_number)
-      .maybeSingle();
+  async addInventory(hospitalId: string, form: InventoryFormData, _userId: string): Promise<PharmacyInventory> {
+    const existing = mockMasterStore.getAll<Record<string, unknown>>('pharmacy_inventory', hospitalId)
+      .find(i => i.medication_id === form.medication_id && i.batch_number === form.batch_number);
 
     if (existing) {
-      const existingRow = existing as { id: string; quantity_in_stock: number };
-      const { data, error } = await supabase
-        .from('pharmacy_inventory')
-        .update({
-          quantity_in_stock: existingRow.quantity_in_stock + form.quantity_in_stock,
-          expiry_date: form.expiry_date,
-          reorder_level: form.reorder_level,
-          supplier_name: form.supplier_name || null,
-          purchase_price: form.purchase_price,
-          selling_price: form.selling_price,
-          last_updated: new Date().toISOString(),
-        } as never)
-        .eq('id', existingRow.id)
-        .select(`
-          *,
-          medication:medications(id, generic_name, brand_name, form, strength, manufacturer)
-        `)
-        .single();
-
-      if (error) throw error;
-
-      await this.recordTransaction(hospitalId, {
-        transaction_type: 'purchase',
-        medication_id: form.medication_id,
-        batch_number: form.batch_number,
-        quantity: form.quantity_in_stock,
-        unit_price: form.purchase_price,
-        notes: `Stock added to existing batch`,
-      }, userId);
-
-      return data as PharmacyInventory;
-    }
-
-    const { data, error } = await supabase
-      .from('pharmacy_inventory')
-      .insert({
-        hospital_id: hospitalId,
-        medication_id: form.medication_id,
-        batch_number: form.batch_number,
+      const updated = mockMasterStore.update('pharmacy_inventory', existing.id as string, {
+        quantity_in_stock: (existing.quantity_in_stock as number) + form.quantity_in_stock,
         expiry_date: form.expiry_date,
-        quantity_in_stock: form.quantity_in_stock,
         reorder_level: form.reorder_level,
         supplier_name: form.supplier_name || null,
         purchase_price: form.purchase_price,
         selling_price: form.selling_price,
-      } as never)
-      .select(`
-        *,
-        medication:medications(id, generic_name, brand_name, form, strength, manufacturer)
-      `)
-      .single();
+        mrp: form.selling_price,
+      });
+      return updated as unknown as PharmacyInventory;
+    }
 
-    if (error) throw error;
+    const med = mockMasterStore.getById<Record<string, unknown>>('medications', form.medication_id);
+    const medName = med ? `${med.generic_name} ${med.brand_name ? `(${med.brand_name})` : ''} ${med.strength || ''}`.trim() : '';
 
-    await this.recordTransaction(hospitalId, {
-      transaction_type: 'purchase',
+    const item = mockMasterStore.insert('pharmacy_inventory', {
+      hospital_id: hospitalId,
       medication_id: form.medication_id,
+      medication_name: medName,
       batch_number: form.batch_number,
-      quantity: form.quantity_in_stock,
-      unit_price: form.purchase_price,
-      notes: `New stock added`,
-    }, userId);
-
-    return data as PharmacyInventory;
+      expiry_date: form.expiry_date,
+      quantity_in_stock: form.quantity_in_stock,
+      reorder_level: form.reorder_level,
+      supplier_name: form.supplier_name || null,
+      purchase_price: form.purchase_price,
+      selling_price: form.selling_price,
+      mrp: form.selling_price,
+      gst_percent: 0,
+    });
+    return item as unknown as PharmacyInventory;
   },
 
-  async updateInventory(
-    itemId: string,
-    updates: Partial<InventoryFormData>
-  ): Promise<void> {
-    const { error } = await supabase
-      .from('pharmacy_inventory')
-      .update({
-        ...updates,
-        last_updated: new Date().toISOString(),
-      } as never)
-      .eq('id', itemId);
-
-    if (error) throw error;
+  async updateInventory(itemId: string, updates: Partial<InventoryFormData>): Promise<void> {
+    mockMasterStore.update('pharmacy_inventory', itemId, updates);
   },
 
-  async adjustStock(
-    itemId: string,
-    adjustment: number,
-    reason: string,
-    userId: string
-  ): Promise<void> {
-    const { data: item, error: fetchError } = await supabase
-      .from('pharmacy_inventory')
-      .select('hospital_id, medication_id, batch_number, quantity_in_stock, selling_price')
-      .eq('id', itemId)
-      .single();
-
-    if (fetchError) throw fetchError;
-
-    const itemData = item as {
-      hospital_id: string;
-      medication_id: string;
-      batch_number: string;
-      quantity_in_stock: number;
-      selling_price: number;
-    };
-
-    const newQty = itemData.quantity_in_stock + adjustment;
+  async adjustStock(itemId: string, adjustment: number, _reason: string, _userId: string): Promise<void> {
+    const item = mockMasterStore.getById<Record<string, unknown>>('pharmacy_inventory', itemId);
+    if (!item) throw new Error('Not found');
+    const newQty = (item.quantity_in_stock as number) + adjustment;
     if (newQty < 0) throw new Error('Stock cannot be negative');
-
-    const { error } = await supabase
-      .from('pharmacy_inventory')
-      .update({
-        quantity_in_stock: newQty,
-        last_updated: new Date().toISOString(),
-      } as never)
-      .eq('id', itemId);
-
-    if (error) throw error;
-
-    const transactionType = adjustment > 0 ? 'adjustment' : (reason.toLowerCase().includes('wastage') ? 'wastage' : 'adjustment');
-
-    await this.recordTransaction(itemData.hospital_id, {
-      transaction_type: transactionType,
-      medication_id: itemData.medication_id,
-      batch_number: itemData.batch_number,
-      quantity: adjustment,
-      unit_price: itemData.selling_price,
-      notes: reason,
-    }, userId);
+    mockMasterStore.update('pharmacy_inventory', itemId, { quantity_in_stock: newQty });
   },
 
-  async recordTransaction(
-    hospitalId: string,
-    form: TransactionFormData,
-    userId: string
-  ): Promise<PharmacyTransaction> {
+  async recordTransaction(hospitalId: string, form: TransactionFormData, userId: string): Promise<PharmacyTransaction> {
     const totalAmount = Math.abs(form.quantity) * form.unit_price;
-
-    const { data, error } = await supabase
-      .from('pharmacy_transactions')
-      .insert({
-        hospital_id: hospitalId,
-        transaction_type: form.transaction_type,
-        medication_id: form.medication_id,
-        batch_number: form.batch_number || null,
-        quantity: form.quantity,
-        unit_price: form.unit_price,
-        total_amount: totalAmount,
-        patient_id: form.patient_id || null,
-        prescription_id: form.prescription_id || null,
-        notes: form.notes || null,
-        performed_by: userId,
-      } as never)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as PharmacyTransaction;
+    return mockMasterStore.insert('pharmacy_transactions', {
+      hospital_id: hospitalId,
+      transaction_type: form.transaction_type,
+      medication_id: form.medication_id,
+      batch_number: form.batch_number || null,
+      quantity: form.quantity,
+      unit_price: form.unit_price,
+      total_amount: totalAmount,
+      patient_id: form.patient_id || null,
+      prescription_id: form.prescription_id || null,
+      notes: form.notes || null,
+      performed_by: userId,
+      transaction_date: new Date().toISOString(),
+    }) as unknown as PharmacyTransaction;
   },
 
   async getTransactions(
     hospitalId: string,
-    options?: {
-      type?: string;
-      startDate?: string;
-      endDate?: string;
-      limit?: number;
-    }
+    options?: { type?: string; startDate?: string; endDate?: string; limit?: number }
   ): Promise<PharmacyTransaction[]> {
-    let query = supabase
-      .from('pharmacy_transactions')
-      .select(`
-        *,
-        medication:medications(id, generic_name, brand_name, form, strength),
-        patient:patients(full_name, uhid)
-      `)
-      .eq('hospital_id', hospitalId)
-      .order('transaction_date', { ascending: false });
-
-    if (options?.type) {
-      query = query.eq('transaction_type', options.type);
-    }
-    if (options?.startDate) {
-      query = query.gte('transaction_date', options.startDate);
-    }
-    if (options?.endDate) {
-      query = query.lte('transaction_date', options.endDate);
-    }
-    if (options?.limit) {
-      query = query.limit(options.limit);
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data ?? []) as PharmacyTransaction[];
+    let txns = mockMasterStore.getAll<Record<string, unknown>>('pharmacy_transactions', hospitalId);
+    if (options?.type) txns = txns.filter(t => t.transaction_type === options.type);
+    if (options?.startDate) txns = txns.filter(t => (t.transaction_date as string) >= options.startDate!);
+    if (options?.endDate) txns = txns.filter(t => (t.transaction_date as string) <= options.endDate!);
+    txns.sort((a, b) => ((b.transaction_date as string) || '').localeCompare((a.transaction_date as string) || ''));
+    if (options?.limit) txns = txns.slice(0, options.limit);
+    return txns as unknown as PharmacyTransaction[];
   },
 
   async getMedications(hospitalId: string): Promise<Medication[]> {
-    const { data, error } = await supabase
-      .from('medications')
-      .select('id, generic_name, brand_name, form, strength, manufacturer')
-      .eq('hospital_id', hospitalId)
-      .eq('is_active', true)
-      .order('generic_name');
-
-    if (error) throw error;
-    return (data ?? []) as Medication[];
+    return mockMasterStore.getAll<Record<string, unknown>>('medications', hospitalId)
+      .filter(m => m.is_active !== false)
+      .map(m => ({
+        id: m.id as string,
+        generic_name: m.generic_name as string,
+        brand_name: (m.brand_name as string) || null,
+        form: (m.form || m.dosage_form) as string,
+        strength: m.strength as string,
+        manufacturer: (m.manufacturer as string) || null,
+      })) as Medication[];
   },
 
   async dispenseMedication(
     hospitalId: string,
     medicationId: string,
     quantity: number,
-    patientId: string,
-    prescriptionId: string | null,
-    userId: string
+    _patientId: string,
+    _prescriptionId: string | null,
+    _userId: string
   ): Promise<void> {
-    const { data: batches, error: fetchError } = await supabase
-      .from('pharmacy_inventory')
-      .select('id, batch_number, quantity_in_stock, selling_price, expiry_date')
-      .eq('hospital_id', hospitalId)
-      .eq('medication_id', medicationId)
-      .gt('quantity_in_stock', 0)
-      .gte('expiry_date', new Date().toISOString().split('T')[0])
-      .order('expiry_date', { ascending: true });
-
-    if (fetchError) throw fetchError;
-
-    const batchList = (batches ?? []) as Array<{
-      id: string;
-      batch_number: string;
-      quantity_in_stock: number;
-      selling_price: number;
-      expiry_date: string;
-    }>;
+    const today = new Date().toISOString().split('T')[0];
+    const batches = mockMasterStore.getAll<Record<string, unknown>>('pharmacy_inventory', hospitalId)
+      .filter(i =>
+        i.medication_id === medicationId &&
+        (i.quantity_in_stock as number) > 0 &&
+        (i.expiry_date as string) >= today
+      )
+      .sort((a, b) => ((a.expiry_date as string) || '').localeCompare((b.expiry_date as string) || ''));
 
     let remaining = quantity;
-    for (const batch of batchList) {
+    for (const batch of batches) {
       if (remaining <= 0) break;
-
-      const toDeduct = Math.min(remaining, batch.quantity_in_stock);
+      const toDeduct = Math.min(remaining, batch.quantity_in_stock as number);
       remaining -= toDeduct;
-
-      const { error: updateError } = await supabase
-        .from('pharmacy_inventory')
-        .update({
-          quantity_in_stock: batch.quantity_in_stock - toDeduct,
-          last_updated: new Date().toISOString(),
-        } as never)
-        .eq('id', batch.id);
-
-      if (updateError) throw updateError;
-
-      await this.recordTransaction(hospitalId, {
-        transaction_type: 'sale',
-        medication_id: medicationId,
-        batch_number: batch.batch_number,
-        quantity: -toDeduct,
-        unit_price: batch.selling_price,
-        patient_id: patientId,
-        prescription_id: prescriptionId || undefined,
-        notes: `Dispensed to patient`,
-      }, userId);
+      mockMasterStore.update('pharmacy_inventory', batch.id as string, {
+        quantity_in_stock: (batch.quantity_in_stock as number) - toDeduct,
+      });
     }
-
-    if (remaining > 0) {
-      throw new Error(`Insufficient stock. Short by ${remaining} units.`);
-    }
+    if (remaining > 0) throw new Error(`Insufficient stock. Short by ${remaining} units.`);
   },
 };
 

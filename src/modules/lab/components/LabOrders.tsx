@@ -19,7 +19,8 @@ import { Checkbox } from '../../../components/ui/checkbox';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import labService from '../../../services/lab.service';
-import { supabase } from '../../../lib/supabase';
+import { mockStore } from '../../../lib/mockStore';
+import { mockMasterStore } from '../../../lib/mockMasterStore';
 import { format, parseISO } from 'date-fns';
 import type {
   LabOrder, LabTest, LabStats, OrderStatus, OrderPriority,
@@ -132,15 +133,18 @@ export default function LabOrders({ onViewResults }: LabOrdersProps) {
     }
   };
 
-  const searchPatients = async (query: string) => {
-    if (query.length < 2) return;
-    const { data } = await supabase
-      .from('patients')
-      .select('id, full_name, uhid')
-      .or(`full_name.ilike.%${query}%,uhid.ilike.%${query}%`)
-      .limit(10);
-    setPatients((data ?? []) as Array<{ id: string; full_name: string; uhid: string }>);
+  const searchPatients = (query: string) => {
+    if (query.length < 2) { setPatients([]); return; }
+    const results = mockStore.getPatients(hospitalId, query).slice(0, 10);
+    setPatients(results.map(p => ({ id: p.id, full_name: p.full_name, uhid: p.uhid })));
   };
+
+  // Also load doctors for the form
+  const doctors = useMemo(() => {
+    return mockMasterStore.getAll<Record<string, unknown>>('doctors', hospitalId)
+      .filter(d => d.is_active !== false)
+      .map(d => ({ id: d.id as string, full_name: `Dr. ${d.first_name} ${d.last_name}` }));
+  }, [hospitalId]);
 
   const selectedTestsTotal = useMemo(() => {
     return tests
@@ -348,6 +352,17 @@ export default function LabOrders({ onViewResults }: LabOrdersProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Doctor</label>
+                <Select value={orderForm.doctor_id || ''} onValueChange={(v) => setOrderForm({ ...orderForm, doctor_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                  <SelectContent>
+                    {doctors.map(d => (
+                      <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Priority</label>
                 <Select value={orderForm.priority} onValueChange={(v) => setOrderForm({ ...orderForm, priority: v as OrderPriority })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -358,16 +373,16 @@ export default function LabOrders({ onViewResults }: LabOrdersProps) {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Clinical Notes</label>
-                <input
-                  type="text"
-                  value={orderForm.clinical_notes}
-                  onChange={(e) => setOrderForm({ ...orderForm, clinical_notes: e.target.value })}
-                  placeholder="Optional"
-                  className="w-full h-9 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-blue-400"
-                />
-              </div>
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Clinical Notes</label>
+              <input
+                type="text"
+                value={orderForm.clinical_notes}
+                onChange={(e) => setOrderForm({ ...orderForm, clinical_notes: e.target.value })}
+                placeholder="Optional"
+                className="w-full h-9 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-blue-400"
+              />
             </div>
             <div>
               <label className="text-xs text-gray-500 uppercase tracking-wide block mb-2">Select Tests *</label>
