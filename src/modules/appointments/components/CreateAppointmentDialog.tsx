@@ -333,8 +333,8 @@ export default function CreateAppointmentDialog({
                     placeholder="Search by name, UHID, or phone..."
                     className="pl-10"
                   />
-                  {patients.length > 0 && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                  {(patients.length > 0 || (debouncedSearch.length >= 2 && !searchLoading)) && (
+                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-56 overflow-y-auto">
                       {patients.map(p => (
                         <button
                           key={p.id}
@@ -348,6 +348,22 @@ export default function CreateAppointmentDialog({
                           </div>
                         </button>
                       ))}
+                      {debouncedSearch.length >= 2 && !searchLoading && (
+                        <button
+                          onClick={() => {
+                            setPatientSearch('');
+                            setPatients([]);
+                            window.open('/opd', '_blank');
+                          }}
+                          className="w-full text-left px-4 py-3 hover:bg-blue-50 flex items-center gap-3 border-t border-gray-100 text-blue-600"
+                        >
+                          <UserPlus className="w-4 h-4 shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium">+ Add New Patient</p>
+                            <p className="text-xs text-blue-500">Register a new patient first</p>
+                          </div>
+                        </button>
+                      )}
                     </div>
                   )}
                   {searchLoading && (
