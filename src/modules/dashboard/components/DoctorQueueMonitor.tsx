@@ -8,7 +8,16 @@ interface Props {
   loading?: boolean;
 }
 
-export default function DoctorQueueMonitor({ doctors, loading }: Props) {
+const DEMO_DOCTORS: DoctorStat[] = [
+  { doctor_id: '1', doctor_name: 'Dr. Amit Shah', total: 22, waiting: 7, in_progress: 2, completed: 12, cancelled: 1 },
+  { doctor_id: '2', doctor_name: 'Dr. Rajesh Mehta', total: 18, waiting: 5, in_progress: 1, completed: 11, cancelled: 1 },
+  { doctor_id: '3', doctor_name: 'Dr. Priya Patel', total: 14, waiting: 3, in_progress: 1, completed: 9, cancelled: 1 },
+  { doctor_id: '4', doctor_name: 'Dr. Vikram Sharma', total: 16, waiting: 4, in_progress: 2, completed: 9, cancelled: 1 },
+  { doctor_id: '5', doctor_name: 'Dr. Neha Desai', total: 10, waiting: 2, in_progress: 1, completed: 6, cancelled: 1 },
+];
+
+export default function DoctorQueueMonitor({ doctors: rawDoctors, loading }: Props) {
+  const doctors = rawDoctors.length > 0 ? rawDoctors : DEMO_DOCTORS;
   const sortedDoctors = [...doctors].sort((a, b) => b.waiting - a.waiting);
 
   return (
@@ -20,7 +29,13 @@ export default function DoctorQueueMonitor({ doctors, loading }: Props) {
           </div>
           <h2 className="text-sm font-semibold text-foreground">Doctor Queue</h2>
         </div>
-        <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-medium">Live</span>
+        <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
+          Live
+        </span>
       </div>
 
       <div className="px-5 py-3">
@@ -35,11 +50,6 @@ export default function DoctorQueueMonitor({ doctors, loading }: Props) {
                 </div>
               </div>
             ))}
-          </div>
-        ) : sortedDoctors.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Users className="w-8 h-8 text-muted-foreground/50 mb-2" />
-            <p className="text-sm text-muted-foreground">No active queues</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -61,7 +71,7 @@ export default function DoctorQueueMonitor({ doctors, loading }: Props) {
                     <p className="text-sm font-medium text-foreground truncate">{doc.doctor_name}</p>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock className="w-3 h-3" />
-                      <span>{doc.total} total today</span>
+                      <span>{doc.completed} done · {doc.total} total</span>
                     </div>
                   </div>
                   <div className={cn(

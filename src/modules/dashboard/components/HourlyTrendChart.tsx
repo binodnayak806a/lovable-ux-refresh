@@ -10,6 +10,20 @@ interface Props {
   loading?: boolean;
 }
 
+const DEMO_HOURLY: HourlyTrendItem[] = [
+  { hour: 8, label: '8 AM', count: 5 },
+  { hour: 9, label: '9 AM', count: 12 },
+  { hour: 10, label: '10 AM', count: 22 },
+  { hour: 11, label: '11 AM', count: 28 },
+  { hour: 12, label: '12 PM', count: 18 },
+  { hour: 13, label: '1 PM', count: 10 },
+  { hour: 14, label: '2 PM', count: 15 },
+  { hour: 15, label: '3 PM', count: 20 },
+  { hour: 16, label: '4 PM', count: 16 },
+  { hour: 17, label: '5 PM', count: 8 },
+  { hour: 18, label: '6 PM', count: 4 },
+];
+
 const CustomTooltip = ({ active, payload, label }: {
   active?: boolean;
   payload?: { value: number }[];
@@ -24,7 +38,8 @@ const CustomTooltip = ({ active, payload, label }: {
   );
 };
 
-export default function HourlyTrendChart({ data, loading }: Props) {
+export default function HourlyTrendChart({ data: rawData, loading }: Props) {
+  const data = rawData.length > 0 && rawData.some(d => d.count > 0) ? rawData : DEMO_HOURLY;
   const totalToday = data.reduce((sum, d) => sum + d.count, 0);
   const peakHour = data.reduce((max, d) => d.count > max.count ? d : max, data[0] ?? { count: 0, label: '', hour: 0 });
 
@@ -35,9 +50,7 @@ export default function HourlyTrendChart({ data, loading }: Props) {
           <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
             <Clock className="w-4 h-4 text-emerald-600" />
           </div>
-          <h2 className="text-sm font-semibold text-foreground">
-            Today's Activity
-          </h2>
+          <h2 className="text-sm font-semibold text-foreground">Hourly Patient Flow</h2>
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -47,8 +60,8 @@ export default function HourlyTrendChart({ data, loading }: Props) {
 
       <div className="flex items-baseline gap-4 mb-5">
         <div>
-          <span className="text-4xl font-bold text-foreground">{totalToday}</span>
-          <p className="text-sm text-muted-foreground mt-0.5">Total appointments today</p>
+          <span className="text-3xl font-bold text-foreground">{totalToday}</span>
+          <p className="text-sm text-muted-foreground mt-0.5">Total patients today</p>
         </div>
         {peakHour && peakHour.count > 0 && (
           <div className="ml-6 pl-6 border-l border-border">

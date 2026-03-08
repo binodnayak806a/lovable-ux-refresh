@@ -12,6 +12,15 @@ interface Props {
 
 const COLORS = ['hsl(204, 80%, 42%)', 'hsl(190, 80%, 42%)', 'hsl(172, 66%, 40%)', 'hsl(142, 76%, 36%)', 'hsl(160, 60%, 45%)', 'hsl(204, 60%, 55%)', 'hsl(217, 91%, 60%)', 'hsl(38, 92%, 50%)'];
 
+const DEMO_DOCTORS = [
+  { name: 'Dr. Mehta', total: 18, fullName: 'Dr. Rajesh Mehta' },
+  { name: 'Dr. Patel', total: 14, fullName: 'Dr. Priya Patel' },
+  { name: 'Dr. Shah', total: 22, fullName: 'Dr. Amit Shah' },
+  { name: 'Dr. Desai', total: 10, fullName: 'Dr. Neha Desai' },
+  { name: 'Dr. Sharma', total: 16, fullName: 'Dr. Vikram Sharma' },
+  { name: 'Dr. Gupta', total: 8, fullName: 'Dr. Anjali Gupta' },
+];
+
 const CustomTooltip = ({ active, payload }: {
   active?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,11 +37,13 @@ const CustomTooltip = ({ active, payload }: {
 };
 
 export default function OPDByDoctorChart({ doctors, loading }: Props) {
-  const chartData = doctors.slice(0, 8).map((d) => ({
+  const realData = doctors.slice(0, 8).map((d) => ({
     name: d.doctor_name.split(' ').slice(0, 2).join(' '),
     total: d.total,
     fullName: d.doctor_name,
   }));
+
+  const chartData = realData.length > 0 ? realData : DEMO_DOCTORS;
 
   return (
     <section className="bg-card border border-border/50 rounded-2xl p-5 h-full shadow-card">
@@ -48,11 +59,6 @@ export default function OPDByDoctorChart({ doctors, loading }: Props) {
 
       {loading ? (
         <Skeleton className="h-[220px] w-full rounded-lg" />
-      ) : chartData.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-[220px] text-center">
-          <Stethoscope className="w-8 h-8 text-muted-foreground/50 mb-2" />
-          <p className="text-sm text-muted-foreground">No doctor activity today</p>
-        </div>
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>

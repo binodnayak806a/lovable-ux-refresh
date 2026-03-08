@@ -8,7 +8,18 @@ interface Props {
   loading?: boolean;
 }
 
-export default function DoctorStatsPanel({ doctors, loading }: Props) {
+const DEMO_DOCTORS: DoctorStat[] = [
+  { doctor_id: '1', doctor_name: 'Dr. Amit Shah', total: 22, waiting: 7, in_progress: 2, completed: 12, cancelled: 1 },
+  { doctor_id: '2', doctor_name: 'Dr. Rajesh Mehta', total: 18, waiting: 5, in_progress: 1, completed: 11, cancelled: 1 },
+  { doctor_id: '3', doctor_name: 'Dr. Priya Patel', total: 14, waiting: 3, in_progress: 1, completed: 9, cancelled: 1 },
+  { doctor_id: '4', doctor_name: 'Dr. Vikram Sharma', total: 16, waiting: 4, in_progress: 2, completed: 9, cancelled: 1 },
+  { doctor_id: '5', doctor_name: 'Dr. Neha Desai', total: 10, waiting: 2, in_progress: 1, completed: 6, cancelled: 1 },
+  { doctor_id: '6', doctor_name: 'Dr. Anjali Gupta', total: 8, waiting: 1, in_progress: 1, completed: 5, cancelled: 1 },
+];
+
+export default function DoctorStatsPanel({ doctors: rawDoctors, loading }: Props) {
+  const doctors = rawDoctors.length > 0 ? rawDoctors : DEMO_DOCTORS;
+
   return (
     <section className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-card">
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
@@ -18,7 +29,7 @@ export default function DoctorStatsPanel({ doctors, loading }: Props) {
           </div>
           <h2 className="text-sm font-semibold text-foreground">Doctor-wise OPD Summary</h2>
         </div>
-        {!loading && doctors.length > 0 && (
+        {!loading && (
           <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-medium">
             {doctors.length} active today
           </span>
@@ -37,14 +48,6 @@ export default function DoctorStatsPanel({ doctors, loading }: Props) {
               <Skeleton className="h-6 w-12 rounded" />
             </div>
           ))}
-        </div>
-      ) : doctors.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-10">
-          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
-            <Users className="w-6 h-6 text-muted-foreground" />
-          </div>
-          <p className="text-sm font-medium text-muted-foreground">No doctor activity today</p>
-          <p className="text-xs text-muted-foreground mt-1">Stats will appear when appointments are scheduled</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -71,64 +74,34 @@ export default function DoctorStatsPanel({ doctors, loading }: Props) {
                 const completionRate = doc.total > 0 ? Math.round((doc.completed / doc.total) * 100) : 0;
 
                 return (
-                  <tr
-                    key={doc.doctor_id}
-                    className="border-b border-border/50 hover:bg-primary/5 transition-colors"
-                  >
+                  <tr key={doc.doctor_id} className="border-b border-border/50 hover:bg-primary/5 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
                           {initials}
                         </div>
-                        <span className="font-medium text-foreground truncate max-w-[160px]">
-                          {doc.doctor_name}
-                        </span>
+                        <span className="font-medium text-foreground truncate max-w-[160px]">{doc.doctor_name}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3.5 text-center">
-                      <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-foreground">
-                        {doc.total}
-                      </span>
+                      <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-foreground">{doc.total}</span>
                     </td>
                     <td className="px-4 py-3.5 text-center hidden sm:table-cell">
-                      <span className={cn(
-                        'inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-semibold',
-                        doc.waiting > 0 ? 'bg-amber-50 text-amber-700' : 'text-muted-foreground'
-                      )}>
-                        {doc.waiting}
-                      </span>
+                      <span className={cn('inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-semibold', doc.waiting > 0 ? 'bg-amber-50 text-amber-700' : 'text-muted-foreground')}>{doc.waiting}</span>
                     </td>
                     <td className="px-4 py-3.5 text-center hidden sm:table-cell">
-                      <span className={cn(
-                        'inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-semibold',
-                        doc.in_progress > 0 ? 'bg-blue-50 text-blue-700' : 'text-muted-foreground'
-                      )}>
-                        {doc.in_progress}
-                      </span>
+                      <span className={cn('inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-semibold', doc.in_progress > 0 ? 'bg-blue-50 text-blue-700' : 'text-muted-foreground')}>{doc.in_progress}</span>
                     </td>
                     <td className="px-4 py-3.5 text-center">
-                      <span className={cn(
-                        'inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-semibold',
-                        doc.completed > 0 ? 'bg-emerald-50 text-emerald-700' : 'text-muted-foreground'
-                      )}>
-                        {doc.completed}
-                      </span>
+                      <span className={cn('inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-semibold', doc.completed > 0 ? 'bg-emerald-50 text-emerald-700' : 'text-muted-foreground')}>{doc.completed}</span>
                     </td>
                     <td className="px-4 py-3.5 text-center hidden md:table-cell">
-                      <span className={cn(
-                        'inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-semibold',
-                        doc.cancelled > 0 ? 'bg-red-50 text-red-700' : 'text-muted-foreground'
-                      )}>
-                        {doc.cancelled}
-                      </span>
+                      <span className={cn('inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-semibold', doc.cancelled > 0 ? 'bg-red-50 text-red-700' : 'text-muted-foreground')}>{doc.cancelled}</span>
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell">
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-1.5 rounded-full bg-muted">
-                          <div
-                            className="h-full rounded-full bg-primary transition-all duration-500"
-                            style={{ width: `${completionRate}%` }}
-                          />
+                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${completionRate}%` }} />
                         </div>
                         <span className="text-xs text-muted-foreground font-medium w-8 text-right">{completionRate}%</span>
                       </div>

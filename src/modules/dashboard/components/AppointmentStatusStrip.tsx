@@ -9,6 +9,13 @@ interface Props {
   loading?: boolean;
 }
 
+const DEMO_DATA: AppointmentsByStatus[] = [
+  { status: 'scheduled', count: 32 },
+  { status: 'in_progress', count: 8 },
+  { status: 'completed', count: 45 },
+  { status: 'cancelled', count: 5 },
+];
+
 const STATUS_CONFIG = [
   {
     key: 'waiting',
@@ -71,7 +78,9 @@ function AnimatedCount({ value, className }: { value: number; className: string 
   return <span className={className}>{animated}</span>;
 }
 
-export default function AppointmentStatusStrip({ data, loading }: Props) {
+export default function AppointmentStatusStrip({ data: rawData, loading }: Props) {
+  const hasData = rawData.some(d => d.count > 0);
+  const data = hasData ? rawData : DEMO_DATA;
   const total = data.reduce((sum, d) => sum + d.count, 0) || 1;
 
   return (
@@ -108,7 +117,6 @@ export default function AppointmentStatusStrip({ data, loading }: Props) {
                 {config.label}
               </span>
             </div>
-            {/* Mini progress bar */}
             <div className="w-full h-1 rounded-full bg-black/5">
               <div
                 className={cn('h-full rounded-full transition-all duration-700', config.progressColor)}

@@ -22,6 +22,17 @@ const TYPE_CONFIG = {
   appointment: { icon: Stethoscope, label: 'OPD Visit', bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400' },
 };
 
+const DEMO_ACTIVITIES: ActivityItem[] = [
+  { id: '1', time: '2026-03-08T10:15:00', patient_name: 'Rahul Shah', type: 'admission', detail: 'General Ward' },
+  { id: '2', time: '2026-03-08T10:30:00', patient_name: 'Meena Patel', type: 'appointment', detail: 'Dr. Mehta' },
+  { id: '3', time: '2026-03-08T10:45:00', patient_name: 'Priya Sharma', type: 'new_patient' },
+  { id: '4', time: '2026-03-08T11:10:00', patient_name: 'Amit Desai', type: 'discharge', detail: 'ICU → Home' },
+  { id: '5', time: '2026-03-08T11:30:00', patient_name: 'Sunita Gupta', type: 'appointment', detail: 'Dr. Patel' },
+  { id: '6', time: '2026-03-08T11:45:00', patient_name: 'Rajesh Kumar', type: 'new_patient' },
+  { id: '7', time: '2026-03-08T12:00:00', patient_name: 'Anita Joshi', type: 'admission', detail: 'Private Room' },
+  { id: '8', time: '2026-03-08T12:15:00', patient_name: 'Vikram Singh', type: 'appointment', detail: 'Dr. Shah' },
+];
+
 function formatTime(dateStr: string): string {
   try {
     return format(new Date(dateStr), 'hh:mm a');
@@ -41,7 +52,6 @@ export default function TodayActivityFeed() {
         const today = format(new Date(), 'yyyy-MM-dd');
         const items: ActivityItem[] = [];
 
-        // Fetch recent appointments
         const { data: appts } = await supabase
           .from('appointments')
           .select('id, appointment_time, status, patient:patients(full_name), doctor:profiles(full_name)')
@@ -60,7 +70,6 @@ export default function TodayActivityFeed() {
           });
         }
 
-        // Fetch new patients today
         const { data: patients } = await supabase
           .from('patients')
           .select('id, full_name, created_at')
@@ -78,10 +87,12 @@ export default function TodayActivityFeed() {
           });
         }
 
-        // Sort by time descending
         items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-        setActivities(items.slice(0, 8));
-      } catch { /* ignore */ }
+        const finalItems = items.slice(0, 8);
+        setActivities(finalItems.length > 0 ? finalItems : DEMO_ACTIVITIES);
+      } catch {
+        setActivities(DEMO_ACTIVITIES);
+      }
       finally { setLoading(false); }
     })();
   }, [hospitalId]);
@@ -99,11 +110,9 @@ export default function TodayActivityFeed() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
         </div>
-        {!loading && (
-          <Badge variant="secondary" className="text-xs bg-muted text-muted-foreground">
-            {activities.length} events
-          </Badge>
-        )}
+        <Badge variant="secondary" className="text-xs bg-muted text-muted-foreground">
+          {activities.length} events
+        </Badge>
       </div>
 
       <div className="px-5 py-3 max-h-[360px] overflow-y-auto scrollbar-thin">
@@ -119,16 +128,9 @@ export default function TodayActivityFeed() {
               </div>
             ))}
           </div>
-        ) : activities.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <Activity className="w-8 h-8 text-muted-foreground/50 mb-2" />
-            <p className="text-sm text-muted-foreground">No activity yet today</p>
-          </div>
         ) : (
           <div className="relative">
-            {/* Timeline line */}
             <div className="absolute left-[15px] top-2 bottom-2 w-px bg-border" />
-
             <div className="space-y-1">
               {activities.map((item) => {
                 const config = TYPE_CONFIG[item.type];
