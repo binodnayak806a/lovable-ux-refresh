@@ -139,6 +139,21 @@ export default function PatientCard({
 
       {isSelected && (
         <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/20 flex-wrap">
+          {onBookAppointment && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs gap-1 text-blue-700 hover:bg-blue-50"
+                  onClick={(e) => { e.stopPropagation(); onBookAppointment(); }}
+                >
+                  <CalendarCheck className="w-3 h-3" />Book Appt
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Book Appointment</TooltipContent>
+            </Tooltip>
+          )}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
