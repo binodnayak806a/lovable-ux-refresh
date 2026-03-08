@@ -11,6 +11,7 @@ interface MetricCardProps {
   icon: React.ElementType;
   loading?: boolean;
   gradient?: string;
+  compact?: boolean;
 }
 
 const GRADIENT_MAP: Record<string, string> = {
@@ -70,6 +71,7 @@ export default function MetricCard({
   icon: Icon,
   loading,
   gradient = 'blue',
+  compact = false,
 }: MetricCardProps) {
   const trendPositive = trend !== undefined && trend > 0;
   const trendNegative = trend !== undefined && trend < 0;
@@ -87,10 +89,10 @@ export default function MetricCard({
 
   if (loading) {
     return (
-      <div className={cn('rounded-2xl p-6 shadow-card border border-border/50', GRADIENT_MAP[gradient])} role="status" aria-label={`Loading ${title}`}>
+      <div className={cn('rounded-2xl shadow-card border border-border/50', compact ? 'p-4' : 'p-6', GRADIENT_MAP[gradient])} role="status" aria-label={`Loading ${title}`}>
         <div className="space-y-3">
           <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-9 w-20" />
+          <Skeleton className={compact ? 'h-7 w-16' : 'h-9 w-20'} />
           <Skeleton className="h-3 w-28" />
         </div>
       </div>
@@ -100,7 +102,8 @@ export default function MetricCard({
   return (
     <article
       className={cn(
-        'rounded-2xl p-6 shadow-card border border-border/50',
+        'rounded-2xl shadow-card border border-border/50',
+        compact ? 'p-4' : 'p-6',
         'hover:shadow-hover transition-all duration-300 group overflow-hidden relative',
         GRADIENT_MAP[gradient],
         ACCENT_MAP[gradient],
@@ -109,17 +112,18 @@ export default function MetricCard({
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2.5 mb-3">
+          <div className={cn('flex items-center gap-2', compact ? 'mb-2' : 'mb-3')}>
             <div className={cn(
-              'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
+              'rounded-xl flex items-center justify-center shrink-0',
               'transition-all duration-300 group-hover:scale-110 group-hover:shadow-sm',
+              compact ? 'w-8 h-8' : 'w-10 h-10',
               ICON_BG_MAP[gradient] || ICON_BG_MAP.blue,
             )}>
-              <Icon className="w-5 h-5" />
+              <Icon className={compact ? 'w-4 h-4' : 'w-5 h-5'} />
             </div>
-            <p className="text-sm text-muted-foreground font-medium">{title}</p>
+            <p className={cn('text-muted-foreground font-medium', compact ? 'text-xs' : 'text-sm')}>{title}</p>
           </div>
-          <p className="text-3xl font-bold tracking-tight text-foreground mb-1">{displayValue}</p>
+          <p className={cn('font-bold tracking-tight text-foreground mb-1', compact ? 'text-2xl' : 'text-3xl')}>{displayValue}</p>
           {trend !== undefined && (
             <div className="flex items-center gap-2 mt-2">
               <span

@@ -1,8 +1,8 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import {
   CalendarCheck, BedDouble, TrendingUp, Clock,
-  ChevronRight, AlertTriangle, Stethoscope, UserPlus, RefreshCw,
-  IndianRupee, FileText, Activity, Sparkles,
+  ChevronRight, Stethoscope, UserPlus, RefreshCw,
+  IndianRupee, FileText, Activity, Users, LogIn, LogOut,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -16,6 +16,7 @@ import { usePermissions } from '../../hooks/usePermissions';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
+
 import MetricCard from './components/MetricCard';
 import HourlyTrendChart from './components/HourlyTrendChart';
 import AppointmentStatusStrip from './components/AppointmentStatusStrip';
@@ -29,6 +30,11 @@ import LowStockAlert from './components/LowStockAlert';
 import PendingLabOrders from './components/PendingLabOrders';
 import UpcomingAppointments from './components/UpcomingAppointments';
 import PharmacySalesToday from './components/PharmacySalesToday';
+import RevenueKPIStrip from './components/RevenueKPIStrip';
+import PaymentModePieChart from './components/PaymentModePieChart';
+import TodayActivityFeed from './components/TodayActivityFeed';
+import DoctorQueueMonitor from './components/DoctorQueueMonitor';
+import QuickActionButtons from './components/QuickActionButtons';
 import { cn } from '../../lib/utils';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
@@ -156,6 +162,7 @@ export default function DashboardPage() {
           hourlyTrend={hourlyTrend}
           doctorStats={doctorStats}
           recentAppointments={recentAppointments}
+          revenueSummary={revenueSummary}
           navigate={navigate}
           isAdmin={isAdmin}
           isReceptionist={isRole('receptionist')}
@@ -200,7 +207,7 @@ export default function DashboardPage() {
 /* ─── Hero Banner ─── */
 function DashboardHeader({
   userName, refreshing, loading, onRefresh, onNewPatient, showNewPatient,
-  lastUpdated, todayOPD, newPatients,
+  lastUpdated,
 }: {
   userName: string; refreshing: boolean; loading: boolean;
   onRefresh: () => void; onNewPatient: () => void; showNewPatient: boolean;
@@ -218,33 +225,14 @@ function DashboardHeader({
     <div className="hero-banner flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
       <div className="space-y-2 relative z-10">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 backdrop-blur-sm flex items-center justify-center border border-primary/10">
-            <Sparkles className="w-6 h-6 text-primary" />
-          </div>
           <div>
             <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">
               Good {getTimeOfDay().toLowerCase()}, {userName}!
             </h1>
             <p className="text-sm text-muted-foreground">
-              {formatDate()}
+              {formatDate()} · <span className="font-medium text-foreground/70">{clock}</span>
             </p>
           </div>
-        </div>
-
-        {/* Quick stat pills */}
-        <div className="flex items-center gap-2 flex-wrap mt-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-card/60 backdrop-blur-sm border border-border/40 text-foreground">
-            <CalendarCheck className="w-3 h-3 text-primary" />
-            {todayOPD} appointments
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-card/60 backdrop-blur-sm border border-border/40 text-foreground">
-            <UserPlus className="w-3 h-3 text-primary" />
-            {newPatients} new patients
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-card/60 backdrop-blur-sm border border-border/40 text-muted-foreground">
-            <Clock className="w-3 h-3" />
-            {clock}
-          </span>
         </div>
       </div>
 
@@ -273,82 +261,98 @@ function DashboardHeader({
   );
 }
 
-/* ─── Admin Dashboard ─── */
+/* ─── Admin Dashboard — Industry Standard HMS Layout ─── */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, recentAppointments, navigate, isAdmin, isReceptionist }: any) {
+function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, recentAppointments, revenueSummary, navigate, isAdmin, isReceptionist }: any) {
   return (
     <>
-      {/* Metric cards row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 stagger-children">
-        <div className="cursor-pointer" onClick={() => navigate('/reports?tab=daily-opd')}>
-          <MetricCard title="Today's OPD" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={CalendarCheck} trend={extendedMetrics?.appointmentsTrend ?? 0} gradient="blue" loading={loading} />
+      {/* Quick Action Buttons */}
+      {isAdmin && <QuickActionButtons />}
+
+      {/* ── Section 1: KPI Cards (6 cards) ── */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 stagger-children">
+        <div className="cursor-pointer" onClick={() => navigate('/patients')}>
+          <MetricCard title="Total Patients Today" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={Users} trend={extendedMetrics?.appointmentsTrend ?? 0} gradient="blue" loading={loading} compact />
         </div>
-        <div className="cursor-pointer" onClick={() => navigate('/reports?tab=revenue')}>
-          <MetricCard title="Today's Revenue" value={loading ? '0' : `${formatCurrency(todayRevenue)}`} subtitle="Collections today" icon={IndianRupee} trend={extendedMetrics?.revenueTrend ?? 0} gradient="amber" loading={loading} />
+        <div className="cursor-pointer" onClick={() => navigate('/patients')}>
+          <MetricCard title="New Patients" value={extendedMetrics?.newPatients?.toString() ?? '0'} icon={UserPlus} trend={extendedMetrics?.patientsTrend ?? 0} gradient="green" loading={loading} compact />
         </div>
-        <div className="cursor-pointer" onClick={() => navigate('/reports?tab=ipd-census')}>
-          <MetricCard title="Current IPD" value={occupiedBeds.toString()} subtitle={`${totalBeds - occupiedBeds} beds free`} icon={BedDouble} gradient="teal" loading={loading} />
+        <div className="cursor-pointer" onClick={() => navigate('/appointments')}>
+          <MetricCard title="Appointments" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={CalendarCheck} gradient="amber" loading={loading} compact />
         </div>
-        <div className="cursor-pointer" onClick={() => navigate('/reports?tab=bed-occupancy')}>
-          <MetricCard title="Available Beds" value={(totalBeds - occupiedBeds).toString()} subtitle={`of ${totalBeds} total`} icon={Activity} gradient="rose" loading={loading} />
+        <div className="cursor-pointer" onClick={() => navigate('/ipd')}>
+          <MetricCard title="IPD Admissions" value={occupiedBeds.toString()} icon={LogIn} gradient="teal" loading={loading} compact />
+        </div>
+        <div className="cursor-pointer" onClick={() => navigate('/ipd')}>
+          <MetricCard title="IPD Discharges" value="0" icon={LogOut} gradient="rose" loading={loading} compact />
+        </div>
+        <div className="cursor-pointer" onClick={() => navigate('/ipd/beds')}>
+          <MetricCard title="Beds Occupied" value={`${occupiedBeds} / ${totalBeds}`} icon={BedDouble} gradient="blue" loading={loading} compact />
         </div>
       </div>
 
-      {/* Status strip */}
-      {isAdmin && <AppointmentStatusStrip data={todayAppointmentsByStatus} loading={loading} />}
+      {/* ── Section 2: Revenue Overview (4 cards) ── */}
+      {isAdmin && (
+        <RevenueKPIStrip
+          opdRevenue={revenueSummary?.today ?? 0}
+          ipdRevenue={0}
+          pharmacyRevenue={0}
+          totalRevenue={todayRevenue}
+          loading={loading}
+        />
+      )}
+
+      {/* ── Section 3: Status Strip ── */}
+      <AppointmentStatusStrip data={todayAppointmentsByStatus} loading={loading} />
 
       {isReceptionist && !isAdmin && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <UpcomingAppointments showQuickAdd />
-          <AppointmentStatusStrip data={todayAppointmentsByStatus} loading={loading} />
-        </div>
+        <UpcomingAppointments showQuickAdd />
       )}
 
       {isAdmin && (
         <>
-          {/* Row: Revenue chart + Upcoming appointments */}
+          {/* ── Section 4: Charts Row — Revenue Trend + Payment Mode ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <RevenueTrendChart />
             </div>
-            <UpcomingAppointments />
+            <PaymentModePieChart />
           </div>
 
-          {/* Row: Hourly + Bed donut */}
+          {/* ── Section 5: Hourly Activity + Today's Activity Feed ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <HourlyTrendChart data={hourlyTrend} loading={loading} />
             </div>
+            <TodayActivityFeed />
+          </div>
+
+          {/* ── Section 6: Bed Occupancy Table + Donut ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BedOccupancyPanel wards={bedSummary} loading={loading} />
             <BedOccupancyDonut wards={bedSummary} loading={loading} />
           </div>
 
-          {/* Row: OPD by doctor + Bed panel */}
+          {/* ── Section 7: OPD by Doctor + Doctor Queue Monitor ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <OPDByDoctorChart doctors={doctorStats} loading={loading} />
             </div>
-            <BedOccupancyPanel wards={bedSummary} loading={loading} />
+            <DoctorQueueMonitor doctors={doctorStats} loading={loading} />
           </div>
 
-          {/* Doctor stats full width */}
+          {/* ── Section 8: Doctor Stats full width ── */}
           <DoctorStatsPanel doctors={doctorStats} loading={loading} />
 
-          {/* Alerts row */}
+          {/* ── Section 9: Alerts Row ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <LowStockAlert />
             <PendingLabOrders />
             <PharmacySalesToday />
           </div>
 
-          {/* Recent appointments */}
+          {/* ── Section 10: Recent Appointments ── */}
           <RecentAppointmentsPanel appointments={recentAppointments} loading={loading} />
-
-          {/* Quick nav cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-children">
-            <NavCard icon={AlertTriangle} color="red" title="Emergency" subtitle="Quick access to emergency care" onClick={() => navigate('/emergency')} />
-            <NavCard icon={BedDouble} color="amber" title="IPD Admissions" subtitle="Manage inpatient care" onClick={() => navigate('/ipd')} />
-            <NavCard icon={IndianRupee} color="emerald" title="Billing" subtitle="Payments and invoices" onClick={() => navigate('/billing')} />
-          </div>
         </>
       )}
     </>
