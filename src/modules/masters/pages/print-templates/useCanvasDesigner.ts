@@ -77,7 +77,8 @@ export function useCanvasDesigner(pageSize: string, pageWidthMm: number, pageHei
         evented: false,
         excludeFromExport: true,
       });
-      (line as Record<string, unknown>)._isGrid = true;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (line as any)._isGrid = true;
       c.add(line);
       c.sendObjectToBack(line);
     }
