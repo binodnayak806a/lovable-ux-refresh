@@ -34,7 +34,7 @@ import RevenueKPIStrip from './components/RevenueKPIStrip';
 import PaymentModePieChart from './components/PaymentModePieChart';
 import TodayActivityFeed from './components/TodayActivityFeed';
 import DoctorQueueMonitor from './components/DoctorQueueMonitor';
-import QuickActionButtons from './components/QuickActionButtons';
+
 import { cn } from '../../lib/utils';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
