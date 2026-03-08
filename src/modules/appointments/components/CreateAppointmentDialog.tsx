@@ -317,7 +317,7 @@ export default function CreateAppointmentDialog({
             </button>
           </div>
 
-          <div className="p-6 space-y-5">
+          <form onSubmit={(e) => { e.preventDefault(); if (selectedPatient && doctorId && !submitting) handleSubmit(); }} className="p-6 space-y-5">
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-2 block">Patient *</Label>
               {selectedPatient ? (
