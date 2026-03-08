@@ -5,7 +5,7 @@ import {
   User, ChevronLeft, ChevronRight, Settings2,
   MoreHorizontal,
   Stethoscope, Receipt, BedDouble, History, Printer, CalendarCheck,
-  Eye,
+  Eye, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';

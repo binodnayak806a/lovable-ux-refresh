@@ -109,6 +109,7 @@ export const router = createBrowserRouter([
           { path: '/dashboard', element: <S><DashboardPage /></S> },
           { path: '/patients', element: <S><PatientsPage /></S> },
           { path: '/add-patient', element: <S><AddPatientPage /></S> },
+          { path: '/edit-patient', element: <S><EditPatientPage /></S> },
           { path: '/appointments', element: <S><AppointmentsPage /></S> },
           { path: '/doctor/queue', element: <S><DoctorQueuePage /></S> },
           { path: '/opd', element: <S><OPDPage /></S> },
