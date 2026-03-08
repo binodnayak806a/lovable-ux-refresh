@@ -128,6 +128,7 @@ function SettingRow({ label, description, children }: { label: string; descripti
 }
 
 export default function SettingsPage() {
+  usePageTitle('Settings');
   const { hospitalId } = useAuth();
   const { can } = usePermissions();
   const effectiveHospitalId = hospitalId ?? SAMPLE_HOSPITAL_ID;
