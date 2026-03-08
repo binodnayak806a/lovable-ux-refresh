@@ -104,8 +104,8 @@ export default function MetricCard({
             <span
               className={cn(
                 'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold',
-                trendPositive && 'bg-emerald-100 text-emerald-700',
-                trendNegative && 'bg-red-100 text-red-700',
+                trendPositive && 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400',
+                trendNegative && 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400',
                 !trendPositive && !trendNegative && 'bg-muted text-muted-foreground',
               )}
             >

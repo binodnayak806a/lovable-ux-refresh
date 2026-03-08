@@ -117,7 +117,7 @@ export default function AppointmentStatusStrip({ data: rawData, loading }: Props
                 {config.label}
               </span>
             </div>
-            <div className="w-full h-1 rounded-full bg-black/5">
+            <div className="w-full h-1 rounded-full bg-black/5 dark:bg-white/10">
               <div
                 className={cn('h-full rounded-full transition-all duration-700', config.progressColor)}
                 style={{ width: `${pct}%` }}

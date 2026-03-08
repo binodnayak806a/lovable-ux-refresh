@@ -13,10 +13,10 @@ interface QuickStats {
 }
 
 const COLOR_MAP: Record<string, { bg: string; bgHover: string; text: string }> = {
-  blue: { bg: 'bg-blue-50', bgHover: 'group-hover:bg-blue-100', text: 'text-blue-600' },
-  emerald: { bg: 'bg-emerald-50', bgHover: 'group-hover:bg-emerald-100', text: 'text-emerald-600' },
-  amber: { bg: 'bg-amber-50', bgHover: 'group-hover:bg-amber-100', text: 'text-amber-600' },
-  teal: { bg: 'bg-teal-50', bgHover: 'group-hover:bg-teal-100', text: 'text-teal-600' },
+  blue: { bg: 'bg-blue-50 dark:bg-blue-900/30', bgHover: 'group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50', text: 'text-blue-600 dark:text-blue-400' },
+  emerald: { bg: 'bg-emerald-50 dark:bg-emerald-900/30', bgHover: 'group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50', text: 'text-emerald-600 dark:text-emerald-400' },
+  amber: { bg: 'bg-amber-50 dark:bg-amber-900/30', bgHover: 'group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50', text: 'text-amber-600 dark:text-amber-400' },
+  teal: { bg: 'bg-teal-50 dark:bg-teal-900/30', bgHover: 'group-hover:bg-teal-100 dark:group-hover:bg-teal-900/50', text: 'text-teal-600 dark:text-teal-400' },
 };
 
 function formatCurrency(v: number): string {
