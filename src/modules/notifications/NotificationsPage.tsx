@@ -3,6 +3,7 @@ import { Bell, Check, CheckCheck, Filter, AlertCircle, Calendar, FileText, Pill,
 import { useAppSelector, useAppDispatch } from '../../store';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';
+import SharedStatCard from '../../components/shared/StatCard';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../store/slices/notificationsSlice';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
