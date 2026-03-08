@@ -174,7 +174,8 @@ export function useCanvasDesigner(pageSize: string, pageWidthMm: number, pageHei
   const getNextPosition = useCallback(() => {
     const c = canvasRef.current;
     if (!c) return { left: 40, top: 40 };
-    const objects = c.getObjects().filter((o) => !(o as Record<string, unknown>)._isGrid);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const objects = c.getObjects().filter((o) => !(o as any)._isGrid);
     if (objects.length === 0) return { left: 40, top: 40 };
     const last = objects[objects.length - 1];
     const nextTop = (last.top || 0) + (last.height || 30) * (last.scaleY || 1) + 15;

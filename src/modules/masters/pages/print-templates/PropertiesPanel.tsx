@@ -40,7 +40,7 @@ export default function PropertiesPanel({ selectedObj, onUpdateSelected }: Props
           <Badge variant="outline" className="text-[9px] uppercase font-semibold tracking-wider">
             {String(selectedObj.type)}
           </Badge>
-          {selectedObj.locked && (
+          {selectedObj.locked === true && (
             <Badge variant="secondary" className="text-[9px]">Locked</Badge>
           )}
         </div>
