@@ -34,6 +34,7 @@ import RevenueKPIStrip from './components/RevenueKPIStrip';
 import PaymentModePieChart from './components/PaymentModePieChart';
 import TodayActivityFeed from './components/TodayActivityFeed';
 import DoctorQueueMonitor from './components/DoctorQueueMonitor';
+import DateFilterBar from './components/DateFilterBar';
 
 import { cn } from '../../lib/utils';
 
