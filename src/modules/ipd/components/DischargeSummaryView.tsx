@@ -57,8 +57,8 @@ export default function DischargeSummaryView({ admission, onClose }: Props) {
             {summary && (
               <Button
                 size="sm"
-                onClick={() => handlePrint()}
-                className="gap-1.5 h-8 text-xs bg-blue-600 hover:bg-blue-700"
+                onClick={handlePrint}
+                className="gap-1.5 h-8 text-xs bg-primary hover:bg-primary/90"
               >
                 <Printer className="w-3.5 h-3.5" />
                 Print
