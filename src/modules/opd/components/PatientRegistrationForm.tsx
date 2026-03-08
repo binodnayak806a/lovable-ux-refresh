@@ -400,6 +400,29 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
           {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Registering…</> : 'Register Patient'}
         </Button>
       </div>
+
+      {registeredPatient && (
+        <QuickBookAppointment
+          open={!!registeredPatient}
+          onClose={() => {
+            const pid = registeredPatient.id;
+            setRegisteredPatient(null);
+            if (onSuccess) onSuccess(pid);
+            else navigate(`/opd?registered=${registeredPatient.uhid}`);
+          }}
+          hospitalId={hospitalId}
+          userId={user?.id ?? ''}
+          patientId={registeredPatient.id}
+          patientName={registeredPatient.name}
+          patientUhid={registeredPatient.uhid}
+          onSuccess={() => {
+            const pid = registeredPatient.id;
+            setRegisteredPatient(null);
+            if (onSuccess) onSuccess(pid);
+            else navigate(`/opd?registered=${registeredPatient.uhid}`);
+          }}
+        />
+      )}
     </div>
   );
 }
