@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { setSearchOpen } from '../../store/slices/globalSlice';
 import NotificationDropdown from '../common/NotificationDropdown';
+import ThemeToggle from '../common/ThemeToggle';
 import { SidebarTrigger } from '../ui/sidebar';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
