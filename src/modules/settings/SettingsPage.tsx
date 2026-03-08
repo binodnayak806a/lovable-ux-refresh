@@ -19,6 +19,8 @@ import {
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import { toast } from 'sonner';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
