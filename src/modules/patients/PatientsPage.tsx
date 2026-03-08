@@ -86,6 +86,7 @@ export default function PatientsPage() {
   const [stickerPatient, setStickerPatient] = useState<Patient | null>(null);
   const [stickerSize, setStickerSize] = useState<'thermal' | 'a4'>('thermal');
   const [showCustomFields, setShowCustomFields] = useState(false);
+  const [bookingPatient, setBookingPatient] = useState<Patient | null>(null);
 
   const search = useDebounce(searchInput, 280);
   const limit = 15;
