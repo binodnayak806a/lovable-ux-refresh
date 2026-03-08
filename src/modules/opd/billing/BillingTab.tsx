@@ -32,18 +32,13 @@ interface Props {
 
 const PaymentModeIcon = ({ mode }: { mode: PaymentMode }) => {
   switch (mode) {
-    case 'cash':
-      return <Banknote className="w-4 h-4" />;
-    case 'card':
-      return <CreditCard className="w-4 h-4" />;
-    case 'upi':
-      return <Smartphone className="w-4 h-4" />;
-    case 'online':
-      return <Globe className="w-4 h-4" />;
-    case 'insurance':
-      return <Shield className="w-4 h-4" />;
-    default:
-      return null;
+    case 'cash': return <Banknote className="w-4 h-4" />;
+    case 'card': return <CreditCard className="w-4 h-4" />;
+    case 'upi': return <Smartphone className="w-4 h-4" />;
+    case 'online': return <Globe className="w-4 h-4" />;
+    case 'rtgs': return <Building2 className="w-4 h-4" />;
+    case 'insurance': return <Shield className="w-4 h-4" />;
+    default: return null;
   }
 };
 
