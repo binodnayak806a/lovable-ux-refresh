@@ -62,11 +62,11 @@ export default function MetricCard({
 
   if (loading) {
     return (
-      <div className={cn('rounded-2xl shadow-card border border-border/50 p-5', GRADIENT_MAP[gradient])} role="status" aria-label={`Loading ${title}`}>
+      <div className={cn('rounded-2xl shadow-card border border-border/50 p-4 h-[130px]', GRADIENT_MAP[gradient])} role="status" aria-label={`Loading ${title}`}>
         <div className="space-y-3">
-          <Skeleton className="h-5 w-28" />
-          <Skeleton className="h-10 w-20" />
-          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-8 w-16" />
+          <Skeleton className="h-3 w-24" />
         </div>
       </div>
     );
@@ -75,49 +75,51 @@ export default function MetricCard({
   return (
     <article
       className={cn(
-        'rounded-2xl shadow-card border border-border/50 p-5',
-        'hover:shadow-hover transition-all duration-300 group',
+        'rounded-2xl shadow-card border border-border/50 p-4 h-[130px]',
+        'hover:shadow-hover transition-all duration-300 group flex flex-col',
         GRADIENT_MAP[gradient],
         ACCENT_MAP[gradient],
       )}
       aria-label={`${title}: ${value}`}
     >
       {/* Title row with icon */}
-      <div className="flex items-center gap-2.5 mb-3">
+      <div className="flex items-center gap-2 mb-2">
         <div className={cn(
-          'w-9 h-9 rounded-xl flex items-center justify-center shrink-0',
+          'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
           'transition-transform duration-300 group-hover:scale-110',
           ICON_BG_MAP[gradient] || ICON_BG_MAP.blue,
         )}>
-          <Icon className="w-4.5 h-4.5" />
+          <Icon className="w-4 h-4" />
         </div>
-        <p className="text-sm font-semibold text-foreground/80">{title}</p>
+        <p className="text-xs font-medium text-muted-foreground leading-tight">{title}</p>
       </div>
 
       {/* Value */}
-      <p className="text-3xl font-bold tracking-tight text-foreground mb-3">{displayValue}</p>
+      <p className="text-2xl font-bold tracking-tight text-foreground">{displayValue}</p>
 
-      {/* Trend or subtitle */}
-      <div className="flex items-center gap-2 min-h-[24px]">
+      {/* Trend or subtitle - always same height */}
+      <div className="flex items-center gap-2 mt-auto h-5">
         {trend !== undefined ? (
           <>
             <span
               className={cn(
-                'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold',
+                'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold',
                 trendPositive && 'bg-emerald-100 text-emerald-700',
                 trendNegative && 'bg-red-100 text-red-700',
                 !trendPositive && !trendNegative && 'bg-muted text-muted-foreground',
               )}
             >
-              {trendPositive && <TrendingUp className="w-3 h-3" />}
-              {trendNegative && <TrendingDown className="w-3 h-3" />}
+              {trendPositive && <TrendingUp className="w-2.5 h-2.5" />}
+              {trendNegative && <TrendingDown className="w-2.5 h-2.5" />}
               {trend > 0 ? '+' : ''}{trend}%
             </span>
-            <span className="text-xs text-muted-foreground">vs last week</span>
+            <span className="text-[10px] text-muted-foreground">vs last week</span>
           </>
         ) : subtitle ? (
-          <p className="text-xs text-muted-foreground">{subtitle}</p>
-        ) : null}
+          <p className="text-[10px] text-muted-foreground">{subtitle}</p>
+        ) : (
+          <span className="text-[10px] text-muted-foreground invisible">—</span>
+        )}
       </div>
     </article>
   );
