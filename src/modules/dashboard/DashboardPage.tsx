@@ -207,7 +207,7 @@ export default function DashboardPage() {
 /* ─── Hero Banner ─── */
 function DashboardHeader({
   userName, refreshing, loading, onRefresh, onNewPatient, showNewPatient,
-  lastUpdated, todayOPD, newPatients,
+  lastUpdated,
 }: {
   userName: string; refreshing: boolean; loading: boolean;
   onRefresh: () => void; onNewPatient: () => void; showNewPatient: boolean;
