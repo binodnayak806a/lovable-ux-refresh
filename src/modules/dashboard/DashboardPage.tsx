@@ -267,24 +267,24 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
   return (
     <>
       {/* ── Section 1: KPI Cards (6 cards) ── */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 stagger-children">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 stagger-children">
         <div className="cursor-pointer" onClick={() => navigate('/patients')}>
-          <MetricCard title="Total Patients Today" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={Users} trend={extendedMetrics?.appointmentsTrend ?? 0} gradient="blue" loading={loading} compact />
+          <MetricCard title="Total Patients Today" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={Users} trend={extendedMetrics?.appointmentsTrend ?? 0} gradient="blue" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/patients')}>
-          <MetricCard title="New Patients" value={extendedMetrics?.newPatients?.toString() ?? '0'} icon={UserPlus} trend={extendedMetrics?.patientsTrend ?? 0} gradient="green" loading={loading} compact />
+          <MetricCard title="New Patients" value={extendedMetrics?.newPatients?.toString() ?? '0'} icon={UserPlus} trend={extendedMetrics?.patientsTrend ?? 0} gradient="green" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/appointments')}>
-          <MetricCard title="Appointments" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={CalendarCheck} gradient="amber" loading={loading} compact />
+          <MetricCard title="Appointments" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={CalendarCheck} gradient="amber" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/ipd')}>
-          <MetricCard title="IPD Admissions" value={occupiedBeds.toString()} icon={LogIn} gradient="teal" loading={loading} compact />
+          <MetricCard title="IPD Admissions" value={occupiedBeds.toString()} icon={LogIn} gradient="teal" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/ipd')}>
-          <MetricCard title="IPD Discharges" value="0" icon={LogOut} gradient="rose" loading={loading} compact />
+          <MetricCard title="IPD Discharges" value="0" icon={LogOut} gradient="rose" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/ipd/beds')}>
-          <MetricCard title="Beds Occupied" value={`${occupiedBeds} / ${totalBeds}`} icon={BedDouble} gradient="blue" loading={loading} compact />
+          <MetricCard title="Beds Occupied" value={`${occupiedBeds} / ${totalBeds}`} icon={BedDouble} gradient="blue" loading={loading} />
         </div>
       </div>
 

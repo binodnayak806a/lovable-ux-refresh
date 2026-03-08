@@ -45,7 +45,6 @@ export default function MetricCard({
   icon: Icon,
   loading,
   gradient = 'blue',
-  compact = false,
 }: MetricCardProps) {
   const trendPositive = trend !== undefined && trend > 0;
   const trendNegative = trend !== undefined && trend < 0;
