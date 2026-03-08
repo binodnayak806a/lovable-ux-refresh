@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import { Users, CalendarCheck, Clock, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
