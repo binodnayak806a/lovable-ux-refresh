@@ -191,11 +191,11 @@ export default function PatientsPage() {
           }
         />
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <SharedStatCard label="Total Patients" value={total} icon={Users} iconClassName="bg-blue-50 text-blue-600" subtitle="All registered" />
-          <SharedStatCard label="Male Patients" value={maleCount} icon={User} iconClassName="bg-sky-50 text-sky-600" subtitle="Current page" />
-          <SharedStatCard label="Female Patients" value={femaleCount} icon={Heart} iconClassName="bg-rose-50 text-rose-500" subtitle="Current page" />
-          <SharedStatCard label="Emergency Cases" value={emergencyCount} icon={Activity} iconClassName="bg-red-50 text-red-500" subtitle="Current page" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 stagger-children">
+          <SharedStatCard label="Total Patients" value={total} icon={Users} iconClassName="bg-primary/10 text-primary" accentColor="blue" subtitle="All registered" />
+          <SharedStatCard label="Male Patients" value={maleCount} icon={User} iconClassName="bg-primary/10 text-primary" accentColor="teal" subtitle="Current page" />
+          <SharedStatCard label="Female Patients" value={femaleCount} icon={Heart} iconClassName="bg-rose-50 text-rose-500" accentColor="rose" subtitle="Current page" />
+          <SharedStatCard label="Emergency Cases" value={emergencyCount} icon={Activity} iconClassName="bg-red-50 text-red-500" accentColor="amber" subtitle="Current page" />
         </div>
 
         <Card>
