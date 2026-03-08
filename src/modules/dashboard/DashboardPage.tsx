@@ -16,7 +16,7 @@ import { usePermissions } from '../../hooks/usePermissions';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { useCountUp } from '../../hooks/useCountUp';
+
 import MetricCard from './components/MetricCard';
 import HourlyTrendChart from './components/HourlyTrendChart';
 import AppointmentStatusStrip from './components/AppointmentStatusStrip';
