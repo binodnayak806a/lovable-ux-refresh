@@ -8,6 +8,7 @@ import { Card, CardContent } from '../../../components/ui/card';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import consultationService from '../../../services/consultation.service';
+import { mockStore } from '../../../lib/mockStore';
 import SymptomsTab from './SymptomsTab';
 import HistoryTab from './HistoryTab';
 import ExaminationTab from './ExaminationTab';
@@ -45,7 +46,12 @@ const TABS: Array<{ id: ConsultationTab; label: string; icon: React.ElementType 
   { id: 'billing', label: 'Billing', icon: Receipt },
 ];
 
-export default function ConsultationPage() {
+interface ConsultationPageProps {
+  initialPatientId?: string | null;
+  initialAppointmentId?: string | null;
+}
+
+export default function ConsultationPage({ initialPatientId, initialAppointmentId }: ConsultationPageProps) {
   const { user } = useAppSelector((s) => s.auth);
   const { toast } = useToast();
 
@@ -78,6 +84,26 @@ export default function ConsultationPage() {
     };
     loadSymptoms();
   }, []);
+
+  // Auto-select patient from queue context
+  useEffect(() => {
+    if (initialPatientId && !patient) {
+      const p = mockStore.getPatientById(initialPatientId);
+      if (p) {
+        setPatient({
+          id: p.id,
+          uhid: p.uhid,
+          full_name: p.full_name,
+          phone: p.phone,
+          gender: p.gender,
+          date_of_birth: p.date_of_birth,
+        });
+        if (initialAppointmentId) {
+          setAppointmentId(initialAppointmentId);
+        }
+      }
+    }
+  }, [initialPatientId, initialAppointmentId]);
 
   const handlePatientSelect = (p: PatientResult | null) => {
     setPatient(p);

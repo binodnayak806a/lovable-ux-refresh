@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Activity, RotateCcw, Save, Loader2, CheckCircle2, AlertOctagon } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent } from '../../../components/ui/card';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import vitalsService, { getCriticalAlerts } from '../../../services/vitals.service';
+import { mockStore } from '../../../lib/mockStore';
 import VitalsForm from './VitalsForm';
 import VitalsHistory from './VitalsHistory';
 import PatientLookup from './PatientLookup';
@@ -55,7 +56,11 @@ function validate(form: VitalsFormData): Partial<Record<keyof VitalsFormData, st
   return errs;
 }
 
-export default function VitalsPage() {
+interface VitalsPageProps {
+  initialPatientId?: string | null;
+}
+
+export default function VitalsPage({ initialPatientId }: VitalsPageProps) {
   const { user } = useAppSelector((s) => s.auth);
   const { toast } = useToast();
 
@@ -67,6 +72,21 @@ export default function VitalsPage() {
   const [saved, setSaved] = useState(false);
   const [history, setHistory] = useState<VitalsRecord[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+
+  // Auto-select patient from queue context
+  useEffect(() => {
+    if (initialPatientId && !patient) {
+      const p = mockStore.getPatientById(initialPatientId);
+      if (p) {
+        const result: PatientResult = {
+          id: p.id, uhid: p.uhid, full_name: p.full_name,
+          phone: p.phone, gender: p.gender, date_of_birth: p.date_of_birth,
+        };
+        setPatient(result);
+        loadHistory(p.id);
+      }
+    }
+  }, [initialPatientId]);
 
   const loadHistory = useCallback(async (patientId: string) => {
     setHistoryLoading(true);

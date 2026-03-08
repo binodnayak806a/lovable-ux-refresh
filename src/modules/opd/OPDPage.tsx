@@ -95,6 +95,8 @@ export default function OPDPage() {
   const registeredUhid = searchParams.get('registered');
 
   const [tab, setTab] = useState<Tab>('queue');
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
   const [appointments, setAppointments] = useState<AppointmentRow[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -172,10 +174,14 @@ export default function OPDPage() {
 
   const handleStartConsultation = (appt: AppointmentRow) => {
     mockStore.updateAppointmentStatus(appt.id, 'in_progress');
+    setSelectedPatientId(appt.patient_id);
+    setSelectedAppointmentId(appt.id);
     setTab('consultation');
   };
 
-  const handleRecordVitals = (_appt: AppointmentRow) => {
+  const handleRecordVitals = (appt: AppointmentRow) => {
+    setSelectedPatientId(appt.patient_id);
+    setSelectedAppointmentId(appt.id);
     setTab('vitals');
   };
 
@@ -533,13 +539,13 @@ export default function OPDPage() {
 
       {tab === 'vitals' && (
         <div className="flex-1 overflow-auto p-6">
-          <VitalsPage />
+          <VitalsPage initialPatientId={selectedPatientId} />
         </div>
       )}
 
       {tab === 'consultation' && (
         <div className="flex-1 overflow-auto p-6">
-          <ConsultationPage />
+          <ConsultationPage initialPatientId={selectedPatientId} initialAppointmentId={selectedAppointmentId} />
         </div>
       )}
 

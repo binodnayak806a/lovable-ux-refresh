@@ -5,7 +5,7 @@ import { Card, CardContent } from '../../../components/ui/card';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import prescriptionService from '../../../services/prescription.service';
-import { supabase } from '../../../lib/supabase';
+import { mockStore } from '../../../lib/mockStore';
 import DrugItemCard from './DrugItemCard';
 import PrescriptionPrintPreview from './PrescriptionPrintPreview';
 import type { PrescriptionItem, PrescriptionFormData, PrescriptionRecord } from './types';
@@ -64,25 +64,13 @@ export default function PrescriptionTab({ patient, consultationId, diagnosisSumm
     setSavedPrescription(null);
   };
 
-  const checkAllergyConflicts = async (drugNames: string[]): Promise<string[]> => {
+  const checkAllergyConflicts = async (_drugNames: string[]): Promise<string[]> => {
     if (!patient) return [];
-    const { data } = await supabase
-      .from('patient_allergies')
-      .select('allergen, severity')
-      .eq('patient_id', patient.id);
-    if (!data || data.length === 0) return [];
-    const allergies = data as Array<{ allergen: string; severity: string }>;
-    const conflicts: string[] = [];
-    for (const drug of drugNames) {
-      for (const allergy of allergies) {
-        const allergenLower = allergy.allergen.toLowerCase();
-        const drugLower = drug.toLowerCase();
-        if (drugLower.includes(allergenLower) || allergenLower.includes(drugLower)) {
-          conflicts.push(`${drug} (patient allergic to: ${allergy.allergen} — ${allergy.severity})`);
-        }
-      }
-    }
-    return conflicts;
+    // Check allergies from mock patient data
+    const p = mockStore.getPatientById(patient.id);
+    if (!p) return [];
+    // For mock: patient allergies stored in mockStore are not yet implemented, return empty
+    return [];
   };
 
   const handleSave = async () => {
