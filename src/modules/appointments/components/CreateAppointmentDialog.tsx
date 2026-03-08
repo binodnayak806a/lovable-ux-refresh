@@ -584,17 +584,20 @@ export default function CreateAppointmentDialog({
             )}
           </div>
 
-          <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3 rounded-b-2xl">
-            <Button variant="outline" onClick={handleClose} disabled={submitting}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={!selectedPatient || !doctorId || submitting}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {submitting ? 'Creating...' : 'Create Appointment'}
-            </Button>
+          <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex items-center justify-between rounded-b-2xl">
+            <p className="text-[10px] text-muted-foreground">Press <kbd className="px-1 py-0.5 bg-muted rounded text-[9px] font-mono">Enter</kbd> to create</p>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" onClick={handleClose} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={!selectedPatient || !doctorId || submitting}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {submitting ? 'Creating...' : 'Create Appointment'}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
