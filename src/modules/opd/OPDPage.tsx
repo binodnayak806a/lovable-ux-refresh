@@ -3,8 +3,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   UserPlus, List, Search, RefreshCw, Clock, CheckCircle2,
   XCircle, User, CalendarClock, Stethoscope, Activity,
-  ChevronLeft, ChevronRight, AlertTriangle, Play, Eye,
-  MoreVertical, Ban, FileText, Printer,
+  ChevronLeft, ChevronRight, AlertTriangle, Play,
+  Ban, FileText, Printer,
   CalendarDays, Ticket,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
