@@ -86,6 +86,7 @@ const consultationService = {
       plan: form.plan || null,
       is_completed: false,
       consultation_date: consultation.consultation_date,
+      created_at: new Date().toISOString(),
     });
 
     if (appointmentId) {
