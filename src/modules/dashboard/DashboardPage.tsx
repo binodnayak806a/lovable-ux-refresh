@@ -185,62 +185,6 @@ export default function DashboardPage() {
   );
 }
 
-/* ─── Hero Banner ─── */
-function DashboardHeader({
-  userName, refreshing, loading, onRefresh, onNewPatient, showNewPatient,
-  lastUpdated,
-}: {
-  userName: string; refreshing: boolean; loading: boolean;
-  onRefresh: () => void; onNewPatient: () => void; showNewPatient: boolean;
-  lastUpdated: Date; todayOPD: number; newPatients: number;
-}) {
-  const clock = useLiveClock();
-
-  function timeSince(date: Date): string {
-    const mins = Math.floor((Date.now() - date.getTime()) / 60000);
-    if (mins < 1) return 'just now';
-    return `${mins}m ago`;
-  }
-
-  return (
-    <div className="hero-banner flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div className="space-y-2 relative z-10">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">
-              Good {getTimeOfDay().toLowerCase()}, {userName}!
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {formatDate()} · <span className="font-medium text-foreground/70">{clock}</span>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 flex-wrap relative z-10">
-        <span className="text-[11px] text-muted-foreground mr-1">
-          Updated {timeSince(lastUpdated)}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onRefresh}
-          disabled={refreshing || loading}
-          className="gap-2 bg-card/50 backdrop-blur-sm"
-        >
-          <RefreshCw className={cn('w-4 h-4', (refreshing || loading) && 'animate-spin')} />
-          Refresh
-        </Button>
-        {showNewPatient && (
-          <Button size="sm" onClick={onNewPatient} className="gap-2 shadow-sm">
-            <UserPlus className="w-4 h-4" />
-            New Patient
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-}
 
 /* ─── Admin Dashboard — Industry Standard HMS Layout ─── */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
