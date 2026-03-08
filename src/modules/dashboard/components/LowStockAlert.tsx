@@ -45,11 +45,11 @@ export default function LowStockAlert() {
   }, [hospitalId]);
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl overflow-hidden h-full">
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+    <section className="bg-card border border-border rounded-xl overflow-hidden h-full">
+      <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <AlertTriangle className="w-4 h-4 text-amber-500" />
-          <h2 className="text-sm font-semibold text-gray-900">Low Stock Medicines</h2>
+          <h2 className="text-sm font-semibold text-foreground">Low Stock Medicines</h2>
           {!loading && items.length > 0 && (
             <Badge variant="secondary" className="text-xs bg-red-100 text-red-700">
               {items.length}
@@ -58,7 +58,7 @@ export default function LowStockAlert() {
         </div>
         <button
           onClick={() => navigate('/pharmacy')}
-          className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-0.5"
+          className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-0.5"
         >
           View All <ChevronRight className="w-3.5 h-3.5" />
         </button>
@@ -79,8 +79,8 @@ export default function LowStockAlert() {
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Pill className="w-8 h-8 text-gray-300 mb-2" />
-            <p className="text-sm text-gray-500">All stock levels are healthy</p>
+            <Pill className="w-8 h-8 text-muted-foreground/50 mb-2" />
+            <p className="text-sm text-muted-foreground">All stock levels are healthy</p>
           </div>
         ) : (
           <div className="space-y-2.5">
@@ -92,8 +92,8 @@ export default function LowStockAlert() {
                     <Pill className={`w-4 h-4 ${critical ? 'text-red-500' : 'text-amber-500'}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{item.medication_name}</p>
-                    <p className="text-xs text-gray-500">Batch: {item.batch_number || '-'}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{item.medication_name}</p>
+                    <p className="text-xs text-muted-foreground">Batch: {item.batch_number || '-'}</p>
                   </div>
                   <Badge variant="secondary" className={`text-xs ${critical ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
                     {item.quantity_in_stock} left

@@ -34,10 +34,10 @@ export default function PharmacySalesToday() {
   }, [hospitalId]);
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl p-5 h-full">
+    <section className="bg-card border border-border rounded-xl p-5 h-full">
       <div className="flex items-center gap-2.5 mb-4">
         <ShoppingCart className="w-4 h-4 text-emerald-500" />
-        <h2 className="text-sm font-semibold text-gray-900">Pharmacy Sales Today</h2>
+        <h2 className="text-sm font-semibold text-foreground">Pharmacy Sales Today</h2>
       </div>
 
       {loading ? (
@@ -49,12 +49,12 @@ export default function PharmacySalesToday() {
         <div className="space-y-4">
           <div>
             <div className="flex items-baseline gap-1">
-              <IndianRupee className="w-5 h-5 text-gray-400" />
-              <span className="text-3xl font-bold text-gray-900">
+              <IndianRupee className="w-5 h-5 text-muted-foreground" />
+              <span className="text-3xl font-bold text-foreground">
                 {totalSales.toLocaleString('en-IN')}
               </span>
             </div>
-            <p className="text-sm text-gray-500 mt-1">from {saleCount} sales</p>
+            <p className="text-sm text-muted-foreground mt-1">from {saleCount} sales</p>
           </div>
         </div>
       )}

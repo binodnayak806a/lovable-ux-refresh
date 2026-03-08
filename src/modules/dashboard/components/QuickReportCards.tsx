@@ -52,7 +52,7 @@ export default function QuickReportCards() {
         {CARDS.map(c => (
           <Card key={c.key} className="border-0 shadow-sm">
             <CardContent className="p-4 flex items-center justify-center h-20">
-              <Loader2 className="w-5 h-5 animate-spin text-gray-300" />
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground/50" />
             </CardContent>
           </Card>
         ))}
@@ -73,14 +73,14 @@ export default function QuickReportCards() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">{c.label}</p>
-                <p className="text-xl font-bold text-gray-900 mt-1">{c.format(stats[c.key])}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">{c.label}</p>
+                <p className="text-xl font-bold text-foreground mt-1">{c.format(stats[c.key])}</p>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className={`p-2 rounded-xl ${COLOR_MAP[c.color].bg} ${COLOR_MAP[c.color].bgHover} transition-colors`}>
                   <c.icon className={`w-5 h-5 ${COLOR_MAP[c.color].text}`} />
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors" />
               </div>
             </div>
           </CardContent>

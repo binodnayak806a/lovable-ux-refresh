@@ -32,11 +32,11 @@ interface PatientCardProps {
 const GENDER_COLORS: Record<string, string> = {
   male: 'text-blue-600 bg-blue-50',
   female: 'text-rose-600 bg-rose-50',
-  other: 'text-gray-600 bg-gray-100',
+  other: 'text-muted-foreground bg-muted',
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  'walk-in': 'bg-gray-100 text-gray-600',
+  'walk-in': 'bg-muted text-muted-foreground',
   scheduled: 'bg-blue-50 text-blue-600',
   emergency: 'bg-red-50 text-red-600',
 };
@@ -64,23 +64,23 @@ export default function PatientCard({
 
   return (
     <div
-      className={`group relative bg-white border rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
+      className={`group relative bg-card border rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
         isSelected
-          ? 'border-blue-400 ring-2 ring-blue-100 shadow-md'
-          : 'border-gray-200 hover:border-gray-300'
+          ? 'border-primary ring-2 ring-primary/20 shadow-md'
+          : 'border-border hover:border-border/80'
       }`}
       onClick={onSelect}
     >
       <div className="flex items-start gap-3">
         <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-colors ${
-          isSelected ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700'
+          isSelected ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'
         }`}>
           {initials}
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <h3 className={`text-sm font-semibold truncate ${isSelected ? 'text-blue-700' : 'text-gray-900'}`}>
+            <h3 className={`text-sm font-semibold truncate ${isSelected ? 'text-primary' : 'text-foreground'}`}>
               {p.full_name}
             </h3>
             {p.registration_type && (
@@ -93,7 +93,7 @@ export default function PatientCard({
             )}
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1 font-mono">
               <Hash className="w-3 h-3" />{p.uhid}
             </span>
@@ -111,7 +111,7 @@ export default function PatientCard({
 
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             {p.age != null && (
-              <span className="text-xs text-gray-600 bg-gray-50 px-2 py-0.5 rounded-md font-medium">
+              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-md font-medium">
                 {p.age}y
               </span>
             )}
@@ -131,12 +131,12 @@ export default function PatientCard({
         </div>
 
         <ChevronRight className={`w-4 h-4 mt-1 shrink-0 transition-colors ${
-          isSelected ? 'text-blue-400' : 'text-gray-200 group-hover:text-gray-400'
+          isSelected ? 'text-primary' : 'text-muted-foreground/30 group-hover:text-muted-foreground'
         }`} />
       </div>
 
       {isSelected && (
-        <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-blue-100 flex-wrap">
+        <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/20 flex-wrap">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -195,7 +195,7 @@ export default function PatientCard({
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-7 w-7 p-0 text-gray-500 hover:bg-gray-50"
+                className="h-7 w-7 p-0 text-muted-foreground hover:bg-muted"
                 onClick={(e) => { e.stopPropagation(); onPrintSticker(); }}
               >
                 <Printer className="w-3.5 h-3.5" />
@@ -208,7 +208,7 @@ export default function PatientCard({
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-7 w-7 p-0 text-gray-500 hover:bg-gray-50"
+                className="h-7 w-7 p-0 text-muted-foreground hover:bg-muted"
                 onClick={(e) => { e.stopPropagation(); onViewHistory(); }}
               >
                 <Activity className="w-3.5 h-3.5" />

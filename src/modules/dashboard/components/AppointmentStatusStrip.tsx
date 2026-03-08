@@ -70,7 +70,7 @@ export default function AppointmentStatusStrip({ data, loading }: Props) {
 
         if (loading) {
           return (
-            <div key={config.key} className="bg-white border border-gray-200 rounded-xl p-4">
+            <div key={config.key} className="bg-card border border-border rounded-xl p-4">
               <Skeleton className="h-8 w-12 mb-2" />
               <Skeleton className="h-4 w-16" />
             </div>
