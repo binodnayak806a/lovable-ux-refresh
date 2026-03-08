@@ -1,7 +1,7 @@
 import {
   Bold, Italic, AlignLeft, AlignCenter, AlignRight,
   Trash2, Type, Minus, Square, Image as ImageIcon,
-  ZoomIn, ZoomOut, Copy, ArrowUp, ArrowDown,
+  ZoomIn, ZoomOut, Copy, ArrowUp, ArrowDown, Palette,
 } from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
@@ -38,7 +38,7 @@ function ToolBtn({ icon: Icon, label, onClick, active, disabled }: {
             variant={active ? 'default' : 'ghost'}
             onClick={onClick}
             disabled={disabled}
-            className={`h-8 w-8 p-0 ${active ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}`}
+            className="h-8 w-8 p-0"
           >
             <Icon className="w-4 h-4" />
           </Button>
@@ -68,7 +68,8 @@ export default function DesignerToolbar({
   };
 
   return (
-    <div className="flex items-center gap-1 px-3 py-2 bg-white border-b border-gray-200 flex-wrap">
+    <div className="flex items-center gap-1 px-3 py-2 bg-card border-b border-border flex-wrap">
+      {/* Shape tools */}
       <ToolBtn icon={Type} label="Add Text" onClick={onAddText} />
       <ToolBtn icon={Minus} label="Add Line" onClick={onAddLine} />
       <ToolBtn icon={Square} label="Add Rectangle" onClick={onAddRect} />
@@ -87,6 +88,7 @@ export default function DesignerToolbar({
 
       <Separator orientation="vertical" className="h-6 mx-1" />
 
+      {/* Text formatting */}
       {isText && (
         <>
           <div className="w-20">
@@ -145,36 +147,37 @@ export default function DesignerToolbar({
 
           <Separator orientation="vertical" className="h-6 mx-1" />
 
-          <label className="flex items-center gap-1.5 text-xs text-gray-500">
-            Color
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+            <Palette className="w-3.5 h-3.5" />
             <input
               type="color"
               value={(selectedObj?.fill as string) || '#000000'}
               onChange={(e) => onUpdateSelected({ fill: e.target.value })}
-              className="w-7 h-7 rounded border border-gray-200 cursor-pointer"
+              className="w-7 h-7 rounded-md border border-border cursor-pointer bg-transparent"
             />
           </label>
         </>
       )}
 
+      {/* Shape formatting */}
       {selectedObj && !isText && (
         <>
-          <label className="flex items-center gap-1.5 text-xs text-gray-500">
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
             Stroke
             <input
               type="color"
               value={(selectedObj?.stroke as string) || '#000000'}
               onChange={(e) => onUpdateSelected({ stroke: e.target.value })}
-              className="w-7 h-7 rounded border border-gray-200 cursor-pointer"
+              className="w-7 h-7 rounded-md border border-border cursor-pointer bg-transparent"
             />
           </label>
-          <label className="flex items-center gap-1.5 text-xs text-gray-500">
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
             Fill
             <input
               type="color"
               value={(selectedObj?.fill as string) || '#ffffff'}
               onChange={(e) => onUpdateSelected({ fill: e.target.value })}
-              className="w-7 h-7 rounded border border-gray-200 cursor-pointer"
+              className="w-7 h-7 rounded-md border border-border cursor-pointer bg-transparent"
             />
           </label>
         </>
@@ -182,6 +185,7 @@ export default function DesignerToolbar({
 
       <Separator orientation="vertical" className="h-6 mx-1" />
 
+      {/* Object actions */}
       <ToolBtn icon={Copy} label="Duplicate" onClick={onDuplicate} disabled={!selectedObj} />
       <ToolBtn icon={ArrowUp} label="Bring Forward" onClick={onBringForward} disabled={!selectedObj} />
       <ToolBtn icon={ArrowDown} label="Send Backward" onClick={onSendBackward} disabled={!selectedObj} />
@@ -189,9 +193,10 @@ export default function DesignerToolbar({
 
       <div className="flex-1" />
 
+      {/* Zoom */}
       <div className="flex items-center gap-1">
         <ToolBtn icon={ZoomOut} label="Zoom Out" onClick={() => onZoom(zoom - 0.1)} />
-        <span className="text-xs text-gray-500 w-12 text-center tabular-nums">
+        <span className="text-xs text-muted-foreground w-12 text-center tabular-nums font-medium">
           {Math.round(zoom * 100)}%
         </span>
         <ToolBtn icon={ZoomIn} label="Zoom In" onClick={() => onZoom(zoom + 0.1)} />

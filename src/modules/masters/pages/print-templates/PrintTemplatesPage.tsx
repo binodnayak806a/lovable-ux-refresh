@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Save, Eye, Printer, Loader2, FileText, LayoutTemplate,
+  Save, Eye, Printer, Loader2, FileText, LayoutTemplate, Plus,
 } from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../../components/ui/dialog';
 import { Separator } from '../../../../components/ui/separator';
+import { Input } from '../../../../components/ui/input';
 import { useHospitalId } from '../../../../hooks/useHospitalId';
 import { useToast } from '../../../../hooks/useToast';
 import printTemplateService from '../../../../services/print-template.service';
@@ -89,7 +90,6 @@ export default function PrintTemplatesPage() {
     setPageSize(t.page_size);
     setPageWidthMm(t.page_width_mm);
     setPageHeightMm(t.page_height_mm);
-
     setTimeout(async () => {
       if (t.canvas_json && Object.keys(t.canvas_json).length > 0) {
         await loadJSON(t.canvas_json);
@@ -163,7 +163,6 @@ export default function PrintTemplatesPage() {
       const json = toJSON();
       const sampleData = getSampleData(docType);
       const substituted = substituteVariables(json as Record<string, unknown>, sampleData);
-
       if (canvasRef.current) {
         const origJson = toJSON();
         await loadJSON(substituted as Record<string, unknown>);
@@ -199,14 +198,15 @@ export default function PrintTemplatesPage() {
 
   return (
     <div className="h-full flex flex-col -m-4 lg:-m-6">
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-3 bg-card border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-blue-50">
-            <LayoutTemplate className="w-5 h-5 text-blue-600" />
+          <div className="p-2.5 rounded-xl bg-primary/10">
+            <LayoutTemplate className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gray-900">Print Template Designer</h1>
-            <p className="text-xs text-gray-500">Design custom print layouts for bills, prescriptions, and more</p>
+            <h1 className="text-lg font-bold text-foreground">Print Template Designer</h1>
+            <p className="text-xs text-muted-foreground">Design custom print layouts for bills, prescriptions, and more</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -217,19 +217,21 @@ export default function PrintTemplatesPage() {
             size="sm"
             onClick={handleSave}
             disabled={saving}
-            className="gap-1.5 h-8 text-xs bg-blue-600 hover:bg-blue-700"
+            className="gap-1.5 h-8 text-xs"
           >
             {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            Save
+            Save Template
           </Button>
         </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-64 shrink-0 border-r border-gray-200 bg-white flex flex-col overflow-hidden">
-          <div className="p-3 border-b border-gray-100 space-y-3">
+        {/* Left Sidebar */}
+        <aside className="w-72 shrink-0 border-r border-border bg-card flex flex-col overflow-hidden">
+          {/* Config Section */}
+          <div className="p-4 space-y-4 border-b border-border">
             <div>
-              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
                 Document Type
               </label>
               <Select value={docType} onValueChange={setDocType}>
@@ -240,7 +242,7 @@ export default function PrintTemplatesPage() {
                   {DOCUMENT_TYPES.map((d) => (
                     <SelectItem key={d.key} value={d.key}>
                       <div className="flex items-center gap-2">
-                        <FileText className="w-3.5 h-3.5 text-gray-400" />
+                        <FileText className="w-3.5 h-3.5 text-muted-foreground" />
                         {d.label}
                       </div>
                     </SelectItem>
@@ -250,18 +252,20 @@ export default function PrintTemplatesPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
                 Template Name
               </label>
-              <input
-                type="text"
+              <Input
                 value={templateName}
                 onChange={(e) => setTemplateName(e.target.value)}
                 placeholder="e.g. Standard A4"
-                className="w-full h-8 px-2.5 rounded-lg border border-gray-200 text-xs outline-none focus:border-blue-400"
+                className="h-8 text-xs"
               />
             </div>
+          </div>
 
+          {/* Templates List */}
+          <div className="px-4 py-3 border-b border-border">
             <TemplateListPanel
               templates={templates}
               activeId={activeTemplate?.id || null}
@@ -273,8 +277,7 @@ export default function PrintTemplatesPage() {
             />
           </div>
 
-          <Separator />
-
+          {/* Field Palette */}
           <div className="flex-1 overflow-hidden">
             <FieldPalette
               fields={docConfig.fields}
@@ -283,7 +286,9 @@ export default function PrintTemplatesPage() {
           </div>
         </aside>
 
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+        {/* Main Canvas Area */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-muted/30">
+          {/* Toolbar */}
           <DesignerToolbar
             selectedObj={selectedObj}
             zoom={zoom}
@@ -299,7 +304,8 @@ export default function PrintTemplatesPage() {
             onSendBackward={sendBackward}
           />
 
-          <div className="px-3 py-2 bg-white border-b border-gray-200">
+          {/* Page Size Bar */}
+          <div className="px-4 py-2.5 bg-card border-b border-border">
             <PageSizeSelector
               pageSize={pageSize}
               pageWidthMm={pageWidthMm}
@@ -309,9 +315,10 @@ export default function PrintTemplatesPage() {
             />
           </div>
 
+          {/* Canvas */}
           <div ref={containerRef} className="flex-1 overflow-auto p-6 flex justify-center">
             <div
-              className="shadow-lg border border-gray-300"
+              className="shadow-lg border border-border rounded-sm"
               style={{
                 width: canvasWidthPx * zoom,
                 height: canvasHeightPx * zoom,
@@ -322,40 +329,42 @@ export default function PrintTemplatesPage() {
             </div>
           </div>
 
+          {/* Status Bar */}
           {selectedObj && (
-            <div className="px-4 py-2 bg-white border-t border-gray-200 text-xs text-gray-500 flex items-center gap-4">
-              <span>Type: <strong className="text-gray-700">{String(selectedObj.type)}</strong></span>
-              <span>X: <strong className="text-gray-700">{String(selectedObj.left)}</strong></span>
-              <span>Y: <strong className="text-gray-700">{String(selectedObj.top)}</strong></span>
-              <span>W: <strong className="text-gray-700">{String(selectedObj.width)}</strong></span>
-              <span>H: <strong className="text-gray-700">{String(selectedObj.height)}</strong></span>
+            <div className="px-4 py-2 bg-card border-t border-border text-xs text-muted-foreground flex items-center gap-4">
+              <span>Type: <strong className="text-foreground">{String(selectedObj.type)}</strong></span>
+              <span>X: <strong className="text-foreground">{String(selectedObj.left)}</strong></span>
+              <span>Y: <strong className="text-foreground">{String(selectedObj.top)}</strong></span>
+              <span>W: <strong className="text-foreground">{String(selectedObj.width)}</strong></span>
+              <span>H: <strong className="text-foreground">{String(selectedObj.height)}</strong></span>
             </div>
           )}
         </div>
       </div>
 
+      {/* Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto">
           <DialogHeader>
-            <DialogTitle>Preview - {docConfig.label}</DialogTitle>
+            <DialogTitle>Preview — {docConfig.label}</DialogTitle>
           </DialogHeader>
           {previewLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="flex justify-center bg-gray-50 rounded-lg p-4">
+            <div className="flex justify-center bg-muted/50 rounded-xl p-6">
               <img
                 src={previewUrl}
                 alt="Template preview"
-                className="max-w-full shadow-lg border border-gray-200"
+                className="max-w-full shadow-lg border border-border rounded"
                 style={{ maxHeight: '70vh' }}
               />
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setPreviewOpen(false)}>Close</Button>
-            <Button onClick={handlePrint} className="gap-1.5 bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handlePrint} className="gap-1.5">
               <Printer className="w-4 h-4" /> Print
             </Button>
           </DialogFooter>
