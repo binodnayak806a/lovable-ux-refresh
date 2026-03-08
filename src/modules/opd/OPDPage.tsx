@@ -147,7 +147,6 @@ export default function OPDPage() {
           subtitle={`Outpatient Department — ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
           icon={Stethoscope}
         />
-        </div>
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
           <TabsList>
             <TabsTrigger value="queue" className="gap-1.5">
