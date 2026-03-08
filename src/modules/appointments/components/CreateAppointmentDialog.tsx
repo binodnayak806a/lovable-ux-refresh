@@ -340,10 +340,12 @@ export default function CreateAppointmentDialog({
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
+                    ref={patientSearchRef}
                     value={patientSearch}
                     onChange={e => setPatientSearch(e.target.value)}
                     placeholder="Search by name, UHID, or phone..."
                     className="pl-10"
+                    autoFocus
                   />
                   {(patients.length > 0 || (debouncedSearch.length >= 2 && !searchLoading)) && (
                     <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-56 overflow-y-auto">
