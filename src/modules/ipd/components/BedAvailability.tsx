@@ -3,6 +3,7 @@ import { BedDouble, Filter, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
+import SharedStatCard from '../../../components/shared/StatCard';
 import { useToast } from '../../../hooks/useToast';
 import ipdService from '../../../services/ipd.service';
 import BedCard from './BedCard';
@@ -111,20 +112,20 @@ export default function BedAvailability({ hospitalId }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <BedDouble className="w-5 h-5 text-blue-600" />
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <BedDouble className="w-5 h-5 text-primary" />
             Bed Availability
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          </h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
             Real-time bed status across all wards
           </p>
         </div>
@@ -140,23 +141,23 @@ export default function BedAvailability({ hospitalId }: Props) {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-        <StatCard label="Total Beds" value={stats.total} color="bg-gray-100 text-gray-700" />
-        <StatCard label="Available" value={stats.available} color="bg-emerald-100 text-emerald-700" />
-        <StatCard label="Occupied" value={stats.occupied} color="bg-blue-100 text-blue-700" />
-        <StatCard label="Reserved" value={stats.reserved} color="bg-violet-100 text-violet-700" />
-        <StatCard label="Cleaning" value={stats.cleaning} color="bg-amber-100 text-amber-700" />
-        <StatCard label="Maintenance" value={stats.maintenance} color="bg-red-100 text-red-700" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 stagger-children">
+        <SharedStatCard label="Total Beds" value={stats.total} iconClassName="bg-muted text-muted-foreground" />
+        <SharedStatCard label="Available" value={stats.available} iconClassName="bg-emerald-50 text-emerald-600" accentColor="green" />
+        <SharedStatCard label="Occupied" value={stats.occupied} iconClassName="bg-primary/10 text-primary" accentColor="blue" />
+        <SharedStatCard label="Reserved" value={stats.reserved} iconClassName="bg-violet-50 text-violet-600" accentColor="violet" />
+        <SharedStatCard label="Cleaning" value={stats.cleaning} iconClassName="bg-amber-50 text-amber-600" accentColor="amber" />
+        <SharedStatCard label="Maintenance" value={stats.maintenance} iconClassName="bg-red-50 text-red-600" accentColor="rose" />
       </div>
 
-      <Card className="border border-gray-100 shadow-sm">
-        <CardHeader className="py-3 px-4 border-b border-gray-100">
+      <Card>
+        <CardHeader className="py-3 px-4 border-b border-border/50">
           <div className="flex flex-wrap items-center gap-3">
-            <Filter className="w-4 h-4 text-gray-400" />
+            <Filter className="w-4 h-4 text-muted-foreground" />
             <select
               value={filterWard}
               onChange={(e) => setFilterWard(e.target.value)}
-              className="h-8 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-blue-400"
+              className="h-8 px-3 rounded-lg border border-border text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-background"
             >
               <option value="all">All Wards</option>
               {wards.map((w) => (
@@ -166,7 +167,7 @@ export default function BedAvailability({ hospitalId }: Props) {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as BedStatus | 'all')}
-              className="h-8 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-blue-400"
+              className="h-8 px-3 rounded-lg border border-border text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-background"
             >
               <option value="all">All Status</option>
               <option value="available">Available</option>
@@ -180,16 +181,16 @@ export default function BedAvailability({ hospitalId }: Props) {
       </Card>
 
       {bedsByWard.map(({ ward, beds: wardBeds }) => (
-        <Card key={ward.id} className="border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+        <Card key={ward.id} className="overflow-hidden">
+          <div className="px-4 py-3 bg-muted/30 border-b border-border/50 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h3 className="font-semibold text-gray-800">{ward.name}</h3>
-              <Badge className={WARD_TYPE_CONFIG[ward.ward_type as WardType]?.color || 'bg-gray-100'}>
+              <h3 className="font-semibold text-foreground">{ward.name}</h3>
+              <Badge className={WARD_TYPE_CONFIG[ward.ward_type as WardType]?.color || 'bg-muted'}>
                 {WARD_TYPE_CONFIG[ward.ward_type as WardType]?.label || ward.ward_type}
               </Badge>
-              <span className="text-xs text-gray-500">Floor {ward.floor}</span>
+              <span className="text-xs text-muted-foreground">Floor {ward.floor}</span>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-muted-foreground">
               {wardBeds.filter((b) => b.status === 'available').length} / {wardBeds.length} available
             </div>
           </div>
@@ -204,7 +205,7 @@ export default function BedAvailability({ hospitalId }: Props) {
       ))}
 
       {filteredBeds.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-muted-foreground">
           No beds match the selected filters
         </div>
       )}
@@ -213,10 +214,10 @@ export default function BedAvailability({ hospitalId }: Props) {
         {Object.entries(BED_STATUS_CONFIG).map(([status, config]) => (
           <div key={status} className="flex items-center gap-2">
             <div
-              className="w-4 h-4 rounded"
+              className="w-4 h-4 rounded-md"
               style={{ backgroundColor: config.color }}
             />
-            <span className="text-xs text-gray-600">{config.label}</span>
+            <span className="text-xs text-muted-foreground">{config.label}</span>
           </div>
         ))}
       </div>
@@ -231,15 +232,6 @@ export default function BedAvailability({ hospitalId }: Props) {
           onSuccess={handleAdmissionSuccess}
         />
       )}
-    </div>
-  );
-}
-
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div className={`rounded-xl p-3 ${color}`}>
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="text-xs font-medium opacity-80">{label}</div>
     </div>
   );
 }

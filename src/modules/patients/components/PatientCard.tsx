@@ -6,6 +6,7 @@ import {
 import { Badge } from '../../../components/ui/badge';
 import { Button } from '../../../components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../../components/ui/tooltip';
+import { cn } from '../../../lib/utils';
 
 interface PatientCardProps {
   patient: {
@@ -31,14 +32,14 @@ interface PatientCardProps {
 }
 
 const GENDER_COLORS: Record<string, string> = {
-  male: 'text-blue-600 bg-blue-50',
+  male: 'text-primary bg-primary/10',
   female: 'text-rose-600 bg-rose-50',
   other: 'text-muted-foreground bg-muted',
 };
 
 const TYPE_COLORS: Record<string, string> = {
   'walk-in': 'bg-muted text-muted-foreground',
-  scheduled: 'bg-blue-50 text-blue-600',
+  scheduled: 'bg-primary/10 text-primary',
   emergency: 'bg-red-50 text-red-600',
 };
 
@@ -66,32 +67,40 @@ export default function PatientCard({
 
   return (
     <div
-      className={`group relative bg-card border rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
+      className={cn(
+        'group relative bg-card border rounded-2xl p-4 cursor-pointer transition-all duration-300',
+        'hover:shadow-hover',
         isSelected
-          ? 'border-primary ring-2 ring-primary/20 shadow-md'
-          : 'border-border hover:border-border/80'
-      }`}
+          ? 'border-primary shadow-hover animate-pulse-glow'
+          : 'border-border/50 hover:border-primary/30',
+      )}
       onClick={onSelect}
     >
       <div className="flex items-start gap-3">
-        <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-colors ${
-          isSelected ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'
-        }`}>
+        <div className={cn(
+          'w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-all duration-300',
+          isSelected
+            ? 'bg-gradient-to-br from-primary to-primary-dark text-primary-foreground shadow-sm'
+            : 'bg-primary/10 text-primary group-hover:bg-primary/15',
+        )}>
           {initials}
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <h3 className={`text-sm font-semibold truncate ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+            <h3 className={cn(
+              'text-sm font-semibold truncate transition-colors',
+              isSelected ? 'text-primary' : 'text-foreground',
+            )}>
               {p.full_name}
             </h3>
             {p.registration_type && (
-              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded capitalize ${typeStyle}`}>
+              <span className={cn('text-[10px] font-medium px-1.5 py-0.5 rounded-full capitalize', typeStyle)}>
                 {p.registration_type}
               </span>
             )}
             {!p.is_active && (
-              <Badge variant="secondary" className="text-[10px] bg-red-50 text-red-600">Inactive</Badge>
+              <Badge variant="secondary" className="text-[10px] bg-destructive/10 text-destructive">Inactive</Badge>
             )}
           </div>
 
@@ -113,18 +122,18 @@ export default function PatientCard({
 
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             {p.age != null && (
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-md font-medium">
+              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
                 {p.age}y
               </span>
             )}
             {p.gender && (
-              <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 border-0 capitalize ${genderStyle}`}>
+              <Badge variant="secondary" className={cn('text-[10px] px-1.5 py-0 border-0 capitalize rounded-full', genderStyle)}>
                 <User className="w-2.5 h-2.5 mr-0.5" />
                 {p.gender}
               </Badge>
             )}
             {p.blood_group && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 border-0 bg-red-50 text-red-600">
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 border-0 bg-red-50 text-red-600 rounded-full">
                 <Droplets className="w-2.5 h-2.5 mr-0.5" />
                 {p.blood_group}
               </Badge>
@@ -132,89 +141,25 @@ export default function PatientCard({
           </div>
         </div>
 
-        <ChevronRight className={`w-4 h-4 mt-1 shrink-0 transition-colors ${
-          isSelected ? 'text-primary' : 'text-muted-foreground/30 group-hover:text-muted-foreground'
-        }`} />
+        <ChevronRight className={cn(
+          'w-4 h-4 mt-1 shrink-0 transition-all duration-300',
+          isSelected ? 'text-primary translate-x-0.5' : 'text-muted-foreground/20 group-hover:text-muted-foreground/50',
+        )} />
       </div>
 
       {isSelected && (
-        <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/20 flex-wrap">
+        <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/15 flex-wrap animate-slide-up">
           {onBookAppointment && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 px-2 text-xs gap-1 text-blue-700 hover:bg-blue-50"
-                  onClick={(e) => { e.stopPropagation(); onBookAppointment(); }}
-                >
-                  <CalendarCheck className="w-3 h-3" />Book Appt
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Book Appointment</TooltipContent>
-            </Tooltip>
+            <ActionButton icon={CalendarCheck} label="Book Appt" tooltip="Book Appointment" color="text-primary hover:bg-primary/10" onClick={onBookAppointment} />
           )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 px-2 text-xs gap-1 text-teal-700 hover:bg-teal-50"
-                onClick={(e) => { e.stopPropagation(); onConsult(); }}
-              >
-                <Stethoscope className="w-3 h-3" />Consult
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Start Consultation</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 px-2 text-xs gap-1 text-emerald-700 hover:bg-emerald-50"
-                onClick={(e) => { e.stopPropagation(); onBill(); }}
-              >
-                <Receipt className="w-3 h-3" />Bill
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Generate Bill</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 px-2 text-xs gap-1 text-amber-700 hover:bg-amber-50"
-                onClick={(e) => { e.stopPropagation(); onAdmit(); }}
-              >
-                <BedDouble className="w-3 h-3" />Admit
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Admit to IPD</TooltipContent>
-          </Tooltip>
+          <ActionButton icon={Stethoscope} label="Consult" tooltip="Start Consultation" color="text-teal-700 hover:bg-teal-50" onClick={onConsult} />
+          <ActionButton icon={Receipt} label="Bill" tooltip="Generate Bill" color="text-emerald-700 hover:bg-emerald-50" onClick={onBill} />
+          <ActionButton icon={BedDouble} label="Admit" tooltip="Admit to IPD" color="text-amber-700 hover:bg-amber-50" onClick={onAdmit} />
           <div className="flex-1" />
+          <ActionButton icon={History} label="History" tooltip="View Patient History" color="text-primary hover:bg-primary/10" onClick={onViewHistory} />
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 px-2 text-xs gap-1 text-sky-700 hover:bg-sky-50"
-                onClick={(e) => { e.stopPropagation(); onViewHistory(); }}
-              >
-                <History className="w-3 h-3" />History
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>View Patient History</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 w-7 p-0 text-muted-foreground hover:bg-muted"
-                onClick={(e) => { e.stopPropagation(); onPrintSticker(); }}
-              >
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:bg-muted" onClick={(e) => { e.stopPropagation(); onPrintSticker(); }}>
                 <Printer className="w-3.5 h-3.5" />
               </Button>
             </TooltipTrigger>
@@ -222,12 +167,7 @@ export default function PatientCard({
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 w-7 p-0 text-muted-foreground hover:bg-muted"
-                onClick={(e) => { e.stopPropagation(); onViewHistory(); }}
-              >
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:bg-muted" onClick={(e) => { e.stopPropagation(); onViewHistory(); }}>
                 <Activity className="w-3.5 h-3.5" />
               </Button>
             </TooltipTrigger>
@@ -236,5 +176,25 @@ export default function PatientCard({
         </div>
       )}
     </div>
+  );
+}
+
+function ActionButton({ icon: Icon, label, tooltip, color, onClick }: {
+  icon: React.ElementType; label: string; tooltip: string; color: string; onClick: () => void;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="sm"
+          variant="ghost"
+          className={cn('h-7 px-2 text-xs gap-1 transition-all', color)}
+          onClick={(e) => { e.stopPropagation(); onClick(); }}
+        >
+          <Icon className="w-3 h-3" />{label}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
   );
 }

@@ -3,11 +3,13 @@ import { Building2, Filter, RefreshCw, Users, AlertTriangle, CheckCircle } from 
 import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
+import SharedStatCard from '../../../components/shared/StatCard';
 import { useToast } from '../../../hooks/useToast';
 import ipdService from '../../../services/ipd.service';
 import PatientDetailPanel from './PatientDetailPanel';
 import type { Ward, Admission } from '../types';
 import { formatDistanceToNow } from 'date-fns';
+import { cn } from '../../../lib/utils';
 
 function getPatientStatus(admission: Admission): { label: string; color: string } {
   if (admission.pending_tasks_count && admission.pending_tasks_count > 5) {
@@ -87,21 +89,21 @@ export default function WardBoard({ hospitalId }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
 
   return (
-    <div className="flex h-[calc(100vh-180px)] gap-4">
+    <div className="flex h-[calc(100vh-180px)] gap-4 animate-fade-in">
       <div className="flex-1 flex flex-col min-w-0">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
-            <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-primary" />
               Ward Board
-            </h1>
-            <p className="text-sm text-gray-500 mt-0.5">
+            </h2>
+            <p className="text-sm text-muted-foreground mt-0.5">
               {admissions.length} patients currently admitted
             </p>
           </div>
@@ -117,20 +119,20 @@ export default function WardBoard({ hospitalId }: Props) {
           </Button>
         </div>
 
-        <div className="grid grid-cols-4 gap-3 mb-4">
-          <StatCard label="Total" value={stats.total} color="bg-blue-100 text-blue-700" icon={Users} />
-          <StatCard label="Critical" value={stats.critical} color="bg-red-100 text-red-700" icon={AlertTriangle} />
-          <StatCard label="Attention" value={stats.attention} color="bg-amber-100 text-amber-700" icon={AlertTriangle} />
-          <StatCard label="Stable" value={stats.stable} color="bg-emerald-100 text-emerald-700" icon={CheckCircle} />
+        <div className="grid grid-cols-4 gap-3 mb-4 stagger-children">
+          <SharedStatCard label="Total" value={stats.total} icon={Users} iconClassName="bg-primary/10 text-primary" accentColor="blue" />
+          <SharedStatCard label="Critical" value={stats.critical} icon={AlertTriangle} iconClassName="bg-red-50 text-red-600" accentColor="rose" />
+          <SharedStatCard label="Attention" value={stats.attention} icon={AlertTriangle} iconClassName="bg-amber-50 text-amber-600" accentColor="amber" />
+          <SharedStatCard label="Stable" value={stats.stable} icon={CheckCircle} iconClassName="bg-emerald-50 text-emerald-600" accentColor="green" />
         </div>
 
-        <Card className="border border-gray-100 shadow-sm mb-4">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
-            <Filter className="w-4 h-4 text-gray-400" />
+        <Card className="mb-4">
+          <div className="px-4 py-3 border-b border-border/50 flex items-center gap-3">
+            <Filter className="w-4 h-4 text-muted-foreground" />
             <select
               value={filterWard}
               onChange={(e) => setFilterWard(e.target.value)}
-              className="h-8 px-3 rounded-lg border border-gray-200 text-sm outline-none"
+              className="h-8 px-3 rounded-lg border border-border text-sm outline-none focus:border-primary bg-background"
             >
               <option value="all">All Wards</option>
               {wards.map((w) => (
@@ -140,7 +142,7 @@ export default function WardBoard({ hospitalId }: Props) {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="h-8 px-3 rounded-lg border border-gray-200 text-sm outline-none"
+              className="h-8 px-3 rounded-lg border border-border text-sm outline-none focus:border-primary bg-background"
             >
               <option value="all">All Status</option>
               <option value="critical">Critical</option>
@@ -150,67 +152,70 @@ export default function WardBoard({ hospitalId }: Props) {
           </div>
         </Card>
 
-        <Card className="border border-gray-100 shadow-sm flex-1 overflow-hidden">
+        <Card className="flex-1 overflow-hidden">
           <div className="overflow-auto h-full">
             <table className="w-full">
-              <thead className="bg-gray-50 sticky top-0">
+              <thead className="bg-muted/30 sticky top-0">
                 <tr>
-                  <th className="py-3 px-4 text-xs font-semibold text-gray-500 text-left">Status</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-gray-500 text-left">Patient</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-gray-500 text-left">Bed</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-gray-500 text-left">Admitted</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-gray-500 text-left">Doctor</th>
-                  <th className="py-3 px-4 text-xs font-semibold text-gray-500 text-center">Tasks</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-muted-foreground text-left">Status</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-muted-foreground text-left">Patient</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-muted-foreground text-left">Bed</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-muted-foreground text-left">Admitted</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-muted-foreground text-left">Doctor</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-muted-foreground text-center">Tasks</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredAdmissions.map((admission) => {
                   const status = getPatientStatus(admission);
                   const isSelected = selectedAdmission?.id === admission.id;
+                  const isCritical = status.label === 'Critical';
                   return (
                     <tr
                       key={admission.id}
                       onClick={() => setSelectedAdmission(admission)}
-                      className={`border-b border-gray-50 cursor-pointer transition-colors ${
-                        isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
-                      }`}
+                      className={cn(
+                        'border-b border-border/30 cursor-pointer transition-all duration-200',
+                        isSelected ? 'bg-primary/5' : 'hover:bg-muted/30',
+                        isCritical && !isSelected && 'bg-destructive/5',
+                      )}
                     >
                       <td className="py-3 px-4">
-                        <Badge className={`text-xs ${status.color}`}>{status.label}</Badge>
+                        <Badge className={cn('text-xs border-0', status.color)}>{status.label}</Badge>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="font-medium text-sm text-gray-800">
+                        <div className="font-medium text-sm text-foreground">
                           {admission.patient?.full_name}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-muted-foreground">
                           {admission.patient?.uhid} | {admission.patient?.gender}
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="font-medium text-sm">{admission.bed?.bed_number}</div>
-                        <div className="text-xs text-gray-500">
+                        <div className="font-medium text-sm text-foreground">{admission.bed?.bed_number}</div>
+                        <div className="text-xs text-muted-foreground">
                           {(admission.bed?.ward as { name?: string })?.name}
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="text-sm text-gray-700">
+                        <div className="text-sm text-foreground">
                           {formatDistanceToNow(new Date(admission.admission_date), { addSuffix: true })}
                         </div>
-                        <div className="text-xs text-gray-500">{admission.admission_number}</div>
+                        <div className="text-xs text-muted-foreground">{admission.admission_number}</div>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="text-sm text-gray-700">
+                        <div className="text-sm text-foreground">
                           Dr. {admission.doctor?.full_name?.split(' ')[0]}
                         </div>
-                        <div className="text-xs text-gray-500">{admission.doctor?.department}</div>
+                        <div className="text-xs text-muted-foreground">{admission.doctor?.department}</div>
                       </td>
                       <td className="py-3 px-4 text-center">
                         {admission.pending_tasks_count ? (
-                          <Badge className="bg-blue-100 text-blue-700">
+                          <Badge className="bg-primary/10 text-primary border-0">
                             {admission.pending_tasks_count}
                           </Badge>
                         ) : (
-                          <span className="text-xs text-gray-400">-</span>
+                          <span className="text-xs text-muted-foreground">-</span>
                         )}
                       </td>
                     </tr>
@@ -220,7 +225,7 @@ export default function WardBoard({ hospitalId }: Props) {
             </table>
 
             {filteredAdmissions.length === 0 && (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-muted-foreground">
                 No patients match the selected filters
               </div>
             )}
@@ -236,36 +241,16 @@ export default function WardBoard({ hospitalId }: Props) {
             onClose={() => setSelectedAdmission(null)}
           />
         ) : (
-          <Card className="border border-gray-100 shadow-sm h-full flex items-center justify-center">
-            <div className="text-center text-gray-400 p-8">
-              <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>Select a patient to view details</p>
+          <Card className="h-full flex items-center justify-center">
+            <div className="text-center text-muted-foreground p-8">
+              <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 opacity-40" />
+              </div>
+              <p className="text-sm font-medium">Select a patient to view details</p>
             </div>
           </Card>
         )}
       </div>
-    </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  color,
-  icon: Icon,
-}: {
-  label: string;
-  value: number;
-  color: string;
-  icon: React.ElementType;
-}) {
-  return (
-    <div className={`rounded-xl p-3 ${color}`}>
-      <div className="flex items-center justify-between">
-        <div className="text-2xl font-bold">{value}</div>
-        <Icon className="w-5 h-5 opacity-70" />
-      </div>
-      <div className="text-xs font-medium opacity-80 mt-1">{label}</div>
     </div>
   );
 }

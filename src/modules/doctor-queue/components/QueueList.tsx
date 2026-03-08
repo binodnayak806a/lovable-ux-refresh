@@ -38,16 +38,24 @@ export default function QueueList({ appointments, tab, onStart, onStatusChange }
     };
     const m = msgs[tab];
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <m.icon className="w-12 h-12 text-gray-200 mb-3" />
-        <p className="text-sm font-medium text-gray-500">{m.text}</p>
-        <p className="text-xs text-gray-400 mt-1">{m.sub}</p>
+      <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
+        <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+          <m.icon className="w-8 h-8 text-muted-foreground/40" />
+        </div>
+        <p className="text-sm font-medium text-muted-foreground">{m.text}</p>
+        <p className="text-xs text-muted-foreground/70 mt-1">{m.sub}</p>
       </div>
     );
   }
 
+  const TAB_ACCENT: Record<string, string> = {
+    waiting: 'border-l-amber-500',
+    engaged: 'border-l-primary',
+    completed: 'border-l-emerald-500',
+  };
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5 stagger-children">
       {appointments.map(appt => {
         const initials = appt.patient_name
           ?.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() || '?';
@@ -63,25 +71,26 @@ export default function QueueList({ appointments, tab, onStart, onStatusChange }
           <div
             key={appt.id}
             className={cn(
-              'bg-white rounded-xl border p-4 transition-all hover:shadow-sm',
-              appt.emergency ? 'border-red-200 bg-red-50/30' : 'border-gray-100',
-              isEngaged && !appt.emergency && 'border-blue-200 bg-blue-50/30'
+              'bg-card rounded-2xl border border-border/50 border-l-[3px] p-4 transition-all duration-300 hover:shadow-hover group',
+              TAB_ACCENT[tab] || 'border-l-border',
+              appt.emergency && 'border-l-destructive animate-pulse-red bg-destructive/5',
+              isEngaged && !appt.emergency && 'bg-primary/5',
             )}
           >
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className={cn(
-                  'w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shrink-0',
+                  'w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-all duration-300',
                   appt.emergency
-                    ? 'bg-red-100 text-red-700'
+                    ? 'bg-gradient-to-br from-red-100 to-red-200 text-red-700'
                     : isEngaged
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-gray-100 text-gray-700'
+                      ? 'bg-gradient-to-br from-primary/20 to-primary/30 text-primary'
+                      : 'bg-muted text-muted-foreground',
                 )}>
                   {initials}
                 </div>
                 {appt.token_number && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-gray-900 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-foreground text-background text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
                     {appt.token_number}
                   </span>
                 )}
@@ -89,32 +98,32 @@ export default function QueueList({ appointments, tab, onStart, onStatusChange }
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-semibold text-gray-900">{appt.patient_name}</span>
+                  <span className="text-sm font-semibold text-foreground">{appt.patient_name}</span>
                   {appt.emergency && (
-                    <Badge className="bg-red-100 text-red-700 border-red-200 text-[10px] gap-0.5 h-5">
+                    <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-[10px] gap-0.5 h-5">
                       <AlertTriangle className="w-3 h-3" />
                       Emergency
                     </Badge>
                   )}
                   {appt.visit_type && (
-                    <Badge variant="outline" className="text-[10px] h-5 border-gray-200">
+                    <Badge variant="outline" className="text-[10px] h-5 border-border">
                       {appt.visit_type}
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500 flex-wrap">
-                  <span className="font-mono text-gray-400">{appt.patient_uhid}</span>
+                <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground flex-wrap">
+                  <span className="font-mono opacity-70">{appt.patient_uhid}</span>
                   {demographics && (
                     <>
-                      <span className="text-gray-300">|</span>
+                      <span className="text-border">|</span>
                       <span>{demographics}</span>
                     </>
                   )}
-                  <span className="text-gray-300">|</span>
+                  <span className="text-border">|</span>
                   <span>{appt.appointment_time?.slice(0, 5)}</span>
                   {isWaiting && (
                     <>
-                      <span className="text-gray-300">|</span>
+                      <span className="text-border">|</span>
                       <span className="text-amber-600 flex items-center gap-0.5">
                         <Clock className="w-3 h-3" />
                         {getWaitTime(appt.created_at)}
@@ -123,7 +132,7 @@ export default function QueueList({ appointments, tab, onStart, onStatusChange }
                   )}
                 </div>
                 {appt.chief_complaint && (
-                  <p className="text-xs text-gray-400 mt-1 truncate max-w-md">
+                  <p className="text-xs text-muted-foreground/70 mt-1 truncate max-w-md">
                     CC: {appt.chief_complaint}
                   </p>
                 )}
@@ -135,7 +144,7 @@ export default function QueueList({ appointments, tab, onStart, onStatusChange }
                     <Button
                       size="sm"
                       onClick={() => onStart(appt)}
-                      className="h-9 gap-1.5 bg-teal-600 hover:bg-teal-700 text-white"
+                      className="h-9 gap-1.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-primary-foreground shadow-sm transition-all hover:scale-[1.02]"
                     >
                       <Play className="w-3.5 h-3.5" />
                       Start
@@ -144,7 +153,7 @@ export default function QueueList({ appointments, tab, onStart, onStatusChange }
                       variant="ghost"
                       size="sm"
                       onClick={() => onStatusChange(appt.id, 'cancelled')}
-                      className="h-9 w-9 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                      className="h-9 w-9 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     >
                       <XCircle className="w-4 h-4" />
                     </Button>
@@ -154,14 +163,16 @@ export default function QueueList({ appointments, tab, onStart, onStatusChange }
                   <Button
                     size="sm"
                     onClick={() => onStart(appt)}
-                    className="h-9 gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
+                    className="h-9 gap-1.5 bg-gradient-to-r from-primary to-primary-dark text-primary-foreground shadow-sm transition-all hover:scale-[1.02]"
                   >
                     <Stethoscope className="w-3.5 h-3.5" />
                     Continue
                   </Button>
                 )}
                 {tab === 'completed' && (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  </div>
                 )}
               </div>
             </div>
