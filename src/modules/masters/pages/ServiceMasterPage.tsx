@@ -13,7 +13,7 @@ import { exportToCSV } from '../utils/csv';
 import type { ServiceMasterRow } from '../types';
 import { SERVICE_CATEGORIES, GST_SLABS, SERVICE_TYPE_OPTIONS } from '../types';
 
-const EMPTY: Partial<ServiceMasterRow> = { service_name: '', category: '', price: 0, gst_rate: 0, hsn_code: '', is_active: true };
+const EMPTY: Partial<ServiceMasterRow> = { service_name: '', category: '', service_type: 'BOTH', price: 0, gst_rate: 0, hsn_code: '', ward_prices: null, is_active: true };
 
 export default function ServiceMasterPage() {
   const hospitalId = useHospitalId();
