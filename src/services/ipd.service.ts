@@ -1213,6 +1213,67 @@ const ipdService = {
 
     return records.length;
   },
+  async getAllAdmissions(
+    hospitalId: string,
+    filters?: {
+      status?: string | null;
+      wardId?: string | null;
+      doctorId?: string | null;
+      search?: string;
+      billingStatus?: 'all' | 'paid' | 'due';
+      dateFrom?: string;
+      dateTo?: string;
+    },
+    page = 1,
+    perPage = 25
+  ): Promise<{ data: Admission[]; total: number }> {
+    const from = (page - 1) * perPage;
+    const to = from + perPage - 1;
+
+    let query = supabase
+      .from('admissions')
+      .select(`
+        *,
+        patient:patients(id, uhid, full_name, phone, gender, date_of_birth, blood_group),
+        bed:beds(id, bed_number, bed_type, daily_rate, ward:wards(id, name, ward_type)),
+        doctor:profiles!admissions_doctor_id_fkey(id, full_name, department, designation)
+      `, { count: 'exact' })
+      .eq('hospital_id', hospitalId)
+      .order('admission_date', { ascending: false })
+      .range(from, to);
+
+    if (filters?.status && filters.status !== 'all') {
+      query = query.eq('status', filters.status);
+    }
+    if (filters?.wardId) query = query.eq('ward_id', filters.wardId);
+    if (filters?.doctorId) query = query.eq('doctor_id', filters.doctorId);
+    if (filters?.search) {
+      // Search handled client-side after fetch for simplicity
+    }
+    if (filters?.dateFrom) query = query.gte('admission_date', filters.dateFrom);
+    if (filters?.dateTo) query = query.lte('admission_date', filters.dateTo + 'T23:59:59');
+
+    const { data, error, count } = await query;
+    if (error) throw error;
+    return { data: (data ?? []) as unknown as Admission[], total: count ?? 0 };
+  },
+
+  async getAdmissionCounts(hospitalId: string): Promise<Record<string, number>> {
+    const statuses = ['active', 'discharged', 'transferred', 'absconded', 'death'] as const;
+    const counts: Record<string, number> = { all: 0 };
+
+    for (const s of statuses) {
+      const { count } = await supabase
+        .from('admissions')
+        .select('*', { count: 'exact', head: true })
+        .eq('hospital_id', hospitalId)
+        .eq('status', s);
+      counts[s] = count ?? 0;
+      counts.all += count ?? 0;
+    }
+
+    return counts;
+  },
 };
 
 interface DoctorInfo {
