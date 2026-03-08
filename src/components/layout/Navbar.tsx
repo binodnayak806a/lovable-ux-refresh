@@ -18,6 +18,7 @@ import {
 const PATH_LABELS: Record<string, string> = {
   dashboard: 'Dashboard',
   patients: 'Patients',
+  'add-patient': 'Add Patient',
   appointments: 'Appointments',
   opd: 'OPD',
   ipd: 'IPD',
@@ -107,7 +108,7 @@ export default function Navbar() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigate('/opd')}
+          onClick={() => navigate('/add-patient')}
           className="hidden sm:flex items-center gap-1.5 h-8 px-3 border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800"
         >
           <UserPlus className="w-3.5 h-3.5" />
