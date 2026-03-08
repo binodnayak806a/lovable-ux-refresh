@@ -8,6 +8,7 @@ import { Card, CardContent } from '../../../components/ui/card';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import consultationService from '../../../services/consultation.service';
+import { mockStore } from '../../../lib/mockStore';
 import SymptomsTab from './SymptomsTab';
 import HistoryTab from './HistoryTab';
 import ExaminationTab from './ExaminationTab';
