@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import {
   X, Clock, Stethoscope, BedDouble, CreditCard,
   Activity, Pill, Calendar, User, FileText,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, Download,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Skeleton } from '../../../components/ui/skeleton';
@@ -55,6 +56,199 @@ const STATUS_STYLES: Record<string, string> = {
   active: 'bg-green-50 text-green-700',
   discharged: 'bg-gray-100 text-gray-600',
 };
+
+function downloadCompleteRecord(
+  patient: PatientDetail,
+  opdVisits: OPDVisit[],
+  ipdAdmissions: IPDAdmission[],
+  payments: PatientPayment[],
+  vitals: PatientVitalRecord[],
+  prescriptions: PatientPrescription[],
+) {
+  const fd = (d: string | null) => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+  const fc = (n: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+
+  const sections: string[] = [];
+
+  // Header
+  sections.push(`
+    <div style="text-align:center;border-bottom:2px solid #1a56db;padding-bottom:16px;margin-bottom:24px">
+      <h1 style="font-size:22px;font-weight:700;color:#1a56db;margin:0">Complete Patient Record</h1>
+      <p style="color:#6b7280;font-size:12px;margin-top:4px">Generated on ${new Date().toLocaleString('en-IN')}</p>
+    </div>
+  `);
+
+  // Patient Info
+  sections.push(`
+    <div style="background:#f0f7ff;border:1px solid #dbeafe;border-radius:8px;padding:16px;margin-bottom:20px">
+      <h2 style="font-size:16px;font-weight:700;color:#1e3a5f;margin:0 0 12px">Patient Information</h2>
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        <tr><td style="padding:4px 8px;color:#6b7280;width:140px">UHID</td><td style="padding:4px 8px;font-weight:600">${patient.uhid}</td>
+            <td style="padding:4px 8px;color:#6b7280;width:140px">Name</td><td style="padding:4px 8px;font-weight:600">${patient.full_name}</td></tr>
+        <tr><td style="padding:4px 8px;color:#6b7280">Age / Gender</td><td style="padding:4px 8px">${patient.age ?? '-'}y / ${patient.gender}</td>
+            <td style="padding:4px 8px;color:#6b7280">Blood Group</td><td style="padding:4px 8px;color:#dc2626;font-weight:600">${patient.blood_group || '-'}</td></tr>
+        <tr><td style="padding:4px 8px;color:#6b7280">Phone</td><td style="padding:4px 8px">${patient.phone}</td>
+            <td style="padding:4px 8px;color:#6b7280">Email</td><td style="padding:4px 8px">${patient.email || '-'}</td></tr>
+        <tr><td style="padding:4px 8px;color:#6b7280">Address</td><td style="padding:4px 8px" colspan="3">${[patient.address, patient.city, patient.state, patient.pincode].filter(Boolean).join(', ')}</td></tr>
+        <tr><td style="padding:4px 8px;color:#6b7280">Registration</td><td style="padding:4px 8px">${patient.registration_type || '-'}</td>
+            <td style="padding:4px 8px;color:#6b7280">Registered On</td><td style="padding:4px 8px">${fd(patient.created_at)}</td></tr>
+        ${patient.emergency_contact_name ? `<tr><td style="padding:4px 8px;color:#6b7280">Emergency Contact</td><td style="padding:4px 8px" colspan="3">${patient.emergency_contact_name} (${patient.emergency_contact_relation || '-'}) - ${patient.emergency_contact_phone || '-'}</td></tr>` : ''}
+        ${patient.insurance_provider ? `<tr><td style="padding:4px 8px;color:#6b7280">Insurance</td><td style="padding:4px 8px" colspan="3">${patient.insurance_provider} - ${patient.insurance_number || ''} (Exp: ${fd(patient.insurance_expiry)})</td></tr>` : ''}
+      </table>
+    </div>
+  `);
+
+  // OPD Visits
+  sections.push(`
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:15px;font-weight:700;color:#0d9488;border-bottom:1px solid #ccfbf1;padding-bottom:6px;margin-bottom:10px">OPD Visits (${opdVisits.length})</h2>
+      ${opdVisits.length === 0 ? '<p style="color:#9ca3af;font-size:12px">No OPD visits</p>' : `
+      <table style="width:100%;font-size:12px;border-collapse:collapse;border:1px solid #e5e7eb">
+        <thead><tr style="background:#f0fdfa">
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Date</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Time</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Doctor</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Type</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Chief Complaint</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Status</th>
+        </tr></thead>
+        <tbody>${opdVisits.map(v => `<tr>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${fd(v.appointment_date)}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${v.appointment_time || '-'}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">Dr. ${v.doctor_name}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${v.type}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${v.chief_complaint || '-'}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${v.status}</td>
+        </tr>`).join('')}</tbody>
+      </table>`}
+    </div>
+  `);
+
+  // IPD Admissions
+  sections.push(`
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:15px;font-weight:700;color:#d97706;border-bottom:1px solid #fef3c7;padding-bottom:6px;margin-bottom:10px">IPD Admissions (${ipdAdmissions.length})</h2>
+      ${ipdAdmissions.length === 0 ? '<p style="color:#9ca3af;font-size:12px">No IPD admissions</p>' : `
+      <table style="width:100%;font-size:12px;border-collapse:collapse;border:1px solid #e5e7eb">
+        <thead><tr style="background:#fffbeb">
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Admission #</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Admission Date</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Discharge Date</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Ward</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Diagnosis</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Status</th>
+        </tr></thead>
+        <tbody>${ipdAdmissions.map(a => `<tr>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${a.admission_number}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${fd(a.admission_date)}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${fd(a.discharge_date)}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${a.ward_name}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${a.primary_diagnosis || '-'}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${a.status}</td>
+        </tr>`).join('')}</tbody>
+      </table>`}
+    </div>
+  `);
+
+  // Payments
+  const totalPaid = payments.reduce((s, p) => s + p.amount, 0);
+  sections.push(`
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:15px;font-weight:700;color:#059669;border-bottom:1px solid #d1fae5;padding-bottom:6px;margin-bottom:10px">Payments (${payments.length}) — Total: ${fc(totalPaid)}</h2>
+      ${payments.length === 0 ? '<p style="color:#9ca3af;font-size:12px">No payments</p>' : `
+      <table style="width:100%;font-size:12px;border-collapse:collapse;border:1px solid #e5e7eb">
+        <thead><tr style="background:#ecfdf5">
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Date</th>
+          <th style="padding:6px 8px;text-align:right;border:1px solid #e5e7eb">Amount</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Mode</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Bill #</th>
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Reference</th>
+        </tr></thead>
+        <tbody>${payments.map(p => `<tr>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${fd(p.payment_date)}</td>
+          <td style="padding:5px 8px;text-align:right;border:1px solid #e5e7eb;font-weight:600">${fc(p.amount)}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${p.payment_mode}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${p.bill_number || '-'}</td>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${p.payment_reference || '-'}</td>
+        </tr>`).join('')}</tbody>
+      </table>`}
+    </div>
+  `);
+
+  // Prescriptions
+  sections.push(`
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:15px;font-weight:700;color:#ea580c;border-bottom:1px solid #ffedd5;padding-bottom:6px;margin-bottom:10px">Prescriptions (${prescriptions.length})</h2>
+      ${prescriptions.length === 0 ? '<p style="color:#9ca3af;font-size:12px">No prescriptions</p>' : prescriptions.map(rx => `
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:12px;margin-bottom:10px">
+          <p style="font-size:13px;font-weight:600;margin:0">#${rx.prescription_number} — Dr. ${rx.doctor_name}</p>
+          <p style="font-size:11px;color:#6b7280;margin:2px 0 8px">${fd(rx.prescription_date)}${rx.diagnosis ? ' | ' + rx.diagnosis : ''}</p>
+          <table style="width:100%;font-size:11px;border-collapse:collapse">
+            <thead><tr style="background:#fff">
+              <th style="padding:4px 6px;text-align:left;border-bottom:1px solid #e5e7eb">#</th>
+              <th style="padding:4px 6px;text-align:left;border-bottom:1px solid #e5e7eb">Medicine</th>
+              <th style="padding:4px 6px;text-align:left;border-bottom:1px solid #e5e7eb">Dosage</th>
+              <th style="padding:4px 6px;text-align:left;border-bottom:1px solid #e5e7eb">Frequency</th>
+              <th style="padding:4px 6px;text-align:left;border-bottom:1px solid #e5e7eb">Duration</th>
+            </tr></thead>
+            <tbody>${rx.items.map((item, i) => `<tr>
+              <td style="padding:3px 6px">${i + 1}</td>
+              <td style="padding:3px 6px;font-weight:500">${item.drug_name}</td>
+              <td style="padding:3px 6px">${item.dosage || '-'}</td>
+              <td style="padding:3px 6px">${item.frequency || '-'}</td>
+              <td style="padding:3px 6px">${item.duration_days ? item.duration_days + ' days' : '-'}</td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      `).join('')}
+    </div>
+  `);
+
+  // Vitals
+  sections.push(`
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:15px;font-weight:700;color:#0284c7;border-bottom:1px solid #bae6fd;padding-bottom:6px;margin-bottom:10px">Vitals History (${vitals.length})</h2>
+      ${vitals.length === 0 ? '<p style="color:#9ca3af;font-size:12px">No vitals recorded</p>' : `
+      <table style="width:100%;font-size:12px;border-collapse:collapse;border:1px solid #e5e7eb">
+        <thead><tr style="background:#f0f9ff">
+          <th style="padding:6px 8px;text-align:left;border:1px solid #e5e7eb">Date</th>
+          <th style="padding:6px 8px;text-align:center;border:1px solid #e5e7eb">BP</th>
+          <th style="padding:6px 8px;text-align:center;border:1px solid #e5e7eb">HR</th>
+          <th style="padding:6px 8px;text-align:center;border:1px solid #e5e7eb">Temp</th>
+          <th style="padding:6px 8px;text-align:center;border:1px solid #e5e7eb">SpO2</th>
+          <th style="padding:6px 8px;text-align:center;border:1px solid #e5e7eb">RR</th>
+          <th style="padding:6px 8px;text-align:center;border:1px solid #e5e7eb">Weight</th>
+        </tr></thead>
+        <tbody>${vitals.map(v => `<tr>
+          <td style="padding:5px 8px;border:1px solid #e5e7eb">${v.recorded_at ? new Date(v.recorded_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #e5e7eb">${v.systolic_bp && v.diastolic_bp ? v.systolic_bp + '/' + v.diastolic_bp : '-'}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #e5e7eb">${v.heart_rate ?? '-'}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #e5e7eb">${v.temperature ?? '-'}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #e5e7eb">${v.spo2 ? v.spo2 + '%' : '-'}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #e5e7eb">${v.respiratory_rate ?? '-'}</td>
+          <td style="padding:5px 8px;text-align:center;border:1px solid #e5e7eb">${v.weight ? v.weight + 'kg' : '-'}</td>
+        </tr>`).join('')}</tbody>
+      </table>`}
+    </div>
+  `);
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Patient Record - ${patient.full_name}</title>
+    <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:900px;margin:0 auto;padding:24px;color:#1f2937;font-size:13px}
+    @media print{body{padding:12px}}</style></head><body>${sections.join('')}
+    <div style="text-align:center;margin-top:30px;padding-top:12px;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:10px">
+      This is a computer-generated document. Printed from Healthcare HMS.
+    </div></body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `Patient_Record_${patient.uhid}_${patient.full_name.replace(/\s+/g, '_')}.html`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+  toast.success('Complete patient record downloaded');
+}
 
 export default function PatientHistoryDrawer({ patientId, onClose }: Props) {
   const [tab, setTab] = useState<TabId>('overview');
@@ -125,9 +319,18 @@ export default function PatientHistoryDrawer({ patientId, onClose }: Props) {
               </p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose}>
-            <X className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            {patient && !loading && (
+              <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5"
+                onClick={() => downloadCompleteRecord(patient, opdVisits, ipdAdmissions, payments, vitals, prescriptions)}>
+                <Download className="w-3.5 h-3.5" />
+                Download Record
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         <div className="flex items-center gap-1 px-4 pt-3 pb-0 overflow-x-auto">
