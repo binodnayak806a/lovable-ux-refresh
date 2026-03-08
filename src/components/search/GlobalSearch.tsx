@@ -196,12 +196,13 @@ export default function GlobalSearch() {
           )}
           <input
             ref={inputRef}
+            data-search-input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search patients, admissions, bills…"
-            className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none"
+            placeholder="Search patients, admissions, bills… (or scan barcode)"
+            className="flex-1 bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none"
           />
           <div className="flex items-center gap-1.5">
             {query && (
