@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { CreditCard } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { supabase } from '../../../lib/supabase';
 import { useHospitalId } from '../../../hooks/useHospitalId';
 import { format } from 'date-fns';
 
@@ -62,27 +61,26 @@ export default function PaymentModePieChart() {
   useEffect(() => {
     (async () => {
       try {
+        // Use mockStore bills to calculate payment mode breakdown instead of non-existent payments table
+        const { mockStore } = await import('../../../lib/mockStore');
+        const store = mockStore.get();
         const today = format(new Date(), 'yyyy-MM-dd');
-        const { data: payments, error } = await supabase
-          .from('payments')
-          .select('amount, payment_method')
-          .eq('hospital_id', hospitalId)
-          .eq('payment_date', today);
+        const todayBills = store.bills.filter(b => b.bill_date === today);
 
-        if (error) {
-          setData(DEMO_DATA);
-        } else {
+        if (todayBills.length > 0) {
           const modeMap: Record<string, number> = {};
-          for (const p of (payments ?? []) as { amount: number; payment_method: string }[]) {
-            const mode = (p.payment_method || 'cash').toLowerCase();
-            modeMap[mode] = (modeMap[mode] ?? 0) + (Number(p.amount) || 0);
+          for (const b of todayBills) {
+            const mode = (b.payment_mode || 'cash').toLowerCase();
+            modeMap[mode] = (modeMap[mode] ?? 0) + (b.amount_paid || 0);
           }
           const result = Object.entries(modeMap).map(([name, value]) => ({
             name: name.charAt(0).toUpperCase() + name.slice(1),
             value,
             color: MODE_COLORS[name] ?? 'hsl(220, 9%, 46%)',
           }));
-          setData(result.length > 0 ? result.sort((a, b) => b.value - a.value) : DEMO_DATA);
+          setData(result.sort((a, b) => b.value - a.value));
+        } else {
+          setData(DEMO_DATA);
         }
       } catch {
         setData(DEMO_DATA);
