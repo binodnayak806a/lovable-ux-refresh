@@ -14,8 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../
 import ipdService from '../../services/ipd.service';
 import PatientDetailPanel from './components/PatientDetailPanel';
 import BedAvailability from './components/BedAvailability';
-import AdmissionDialog from './components/AdmissionDialog';
-import type { Admission, Ward, Bed } from './types';
+import type { Admission, Ward } from './types';
 import { format, differenceInDays, differenceInMonths } from 'date-fns';
 import { cn } from '../../lib/utils';
 
