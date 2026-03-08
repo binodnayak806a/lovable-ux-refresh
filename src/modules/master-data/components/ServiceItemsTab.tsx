@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, ToggleLeft, ToggleRight, IndianRupee, Percent } from 'lucide-react';
+import { Plus, Edit2, ToggleLeft, ToggleRight, IndianRupee } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { toast } from 'sonner';
