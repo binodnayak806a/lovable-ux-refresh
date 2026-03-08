@@ -8,21 +8,21 @@ interface ProtectedRouteProps {
 
 function SplashLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
-        <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <span className="text-white font-bold text-2xl">W</span>
+        <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <span className="text-primary-foreground font-bold text-2xl">W</span>
         </div>
         <div className="flex items-center gap-1.5 justify-center">
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+              className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
               style={{ animationDelay: `${i * 150}ms` }}
             />
           ))}
         </div>
-        <p className="text-gray-400 text-sm mt-3">Loading wellnotes HMS...</p>
+        <p className="text-muted-foreground text-sm mt-3">Loading HealthCare HMS...</p>
       </div>
     </div>
   );
