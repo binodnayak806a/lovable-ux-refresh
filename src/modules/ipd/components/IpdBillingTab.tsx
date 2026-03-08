@@ -17,6 +17,7 @@ import type { Admission, IpdBillItem } from '../types';
 import { PAYMENT_MODES, BILL_ITEM_TYPE_CONFIG } from '../types';
 import ipdService from '../../../services/ipd.service';
 import { cn } from '../../../lib/utils';
+import { printIpdBill } from './IpdBillPrint';
 
 interface Props {
   admission: Admission;
