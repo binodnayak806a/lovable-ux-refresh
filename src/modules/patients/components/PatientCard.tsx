@@ -58,6 +58,7 @@ export default function PatientCard({
   onConsult,
   onAdmit,
   onBill,
+  onBookAppointment,
 }: PatientCardProps) {
   const initials = p.full_name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
   const genderStyle = GENDER_COLORS[p.gender ?? ''] ?? GENDER_COLORS.other;
