@@ -1,8 +1,5 @@
 import { mockStore } from '../lib/mockStore';
 import { mockMasterStore } from '../lib/mockMasterStore';
-import { format } from 'date-fns';
-
-const HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
 export interface DashboardMetrics {
   totalAppointments: number;
