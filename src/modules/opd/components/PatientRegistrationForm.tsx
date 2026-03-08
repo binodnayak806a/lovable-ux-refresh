@@ -57,6 +57,9 @@ interface DuplicatePatient {
 interface Props {
   onSuccess?: (patientId: string) => void;
   onCancel?: () => void;
+  /** Pass patient data for edit mode */
+  editPatientId?: string;
+  initialData?: Partial<RegistrationFormData>;
 }
 
 export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) {
