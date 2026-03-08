@@ -5,6 +5,7 @@ import { Card, CardContent } from '../../../components/ui/card';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import vitalsService, { getCriticalAlerts } from '../../../services/vitals.service';
+import { mockStore } from '../../../lib/mockStore';
 import VitalsForm from './VitalsForm';
 import VitalsHistory from './VitalsHistory';
 import PatientLookup from './PatientLookup';
