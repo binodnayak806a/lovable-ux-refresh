@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import {
   X, IndianRupee, Calculator, Banknote, CreditCard,
-  Smartphone, Globe, Shield, Loader2,
+  Smartphone, Globe, Shield, Loader2, Building2,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
