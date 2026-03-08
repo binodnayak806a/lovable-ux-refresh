@@ -11,6 +11,7 @@ import { useAppSelector } from '../../store';
 import { SidebarInset, SidebarProvider } from '../ui/sidebar';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
+const fullBleedRoutes = new Set(['/appointments']);
 
 export default function AppLayout() {
   const location = useLocation();
