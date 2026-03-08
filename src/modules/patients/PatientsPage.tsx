@@ -24,7 +24,7 @@ import PatientDetailSidebar from './components/PatientDetailSidebar';
 import PatientHistoryDrawer from './components/PatientHistoryDrawer';
 import PatientStickerPrint from './components/PatientStickerPrint';
 import CustomFieldsConfigPanel from './components/CustomFieldsConfigPanel';
-
+import QuickBookAppointment from './components/QuickBookAppointment';
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
 interface Patient {
