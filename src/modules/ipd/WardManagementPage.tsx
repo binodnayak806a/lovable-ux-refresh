@@ -7,7 +7,7 @@ import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Switch } from '../../components/ui/switch';
+
 import { useAppSelector } from '../../store';
 import { useToast } from '../../hooks/useToast';
 import { usePageTitle } from '../../hooks/usePageTitle';

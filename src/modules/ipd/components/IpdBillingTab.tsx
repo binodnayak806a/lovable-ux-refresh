@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  IndianRupee, Plus, Loader2, Download, Upload,
-  Banknote, CreditCard, ArrowDownLeft, Receipt,
+  IndianRupee, Loader2, Download, Upload,
+  ArrowDownLeft, Receipt,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
