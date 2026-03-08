@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { CreditCard } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { supabase } from '../../../lib/supabase';
+import { Skeleton } from '../../../components/ui/skeleton';
 import { useHospitalId } from '../../../hooks/useHospitalId';
 import { format } from 'date-fns';
 
