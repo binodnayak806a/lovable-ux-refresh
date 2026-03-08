@@ -19,6 +19,8 @@ import { ScrollArea } from '../../components/ui/scroll-area';
 import { useAppSelector } from '../../store';
 import { useToast } from '../../hooks/useToast';
 import { supabase } from '../../lib/supabase';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import ambulanceService from '../../services/ambulance.service';
 import { formatDistanceToNow } from 'date-fns';
 import type {
