@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, ChevronRight, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../../lib/supabase';
+import { mockStore } from '../../../lib/mockStore';
 import { useHospitalId } from '../../../hooks/useHospitalId';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { Badge } from '../../../components/ui/badge';
