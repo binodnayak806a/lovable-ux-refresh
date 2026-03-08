@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef, useState } from 'react';
 import {
   CalendarCheck, BedDouble, TrendingUp, Clock,
   ChevronRight, AlertTriangle, Stethoscope, UserPlus, RefreshCw,
-  IndianRupee, FileText, Activity, Sparkles,
+  } from 'lucide-react';
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store';
