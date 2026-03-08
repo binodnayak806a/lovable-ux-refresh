@@ -1,58 +1,45 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Loader2, Save, Trash2, AlertTriangle, Users } from 'lucide-react';
+import { Loader2, Save, Trash2, AlertTriangle, Users, User, MapPin, ClipboardList, CreditCard, CheckCircle, Plus, X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Badge } from '../../../components/ui/badge';
+import { Textarea } from '../../../components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import opdService from '../../../services/opd.service';
 import { supabase } from '../../../lib/supabase';
-import StepIndicator from './StepIndicator';
-import Step1Personal from '../steps/Step1Personal';
-import Step2Address from '../steps/Step2Address';
-import Step3Guardian from '../steps/Step3Guardian';
-import Step4Medical from '../steps/Step4Medical';
-import Step5Appointment from '../steps/Step5Appointment';
-import Step6Billing from '../steps/Step6Billing';
-import type { RegistrationFormData, StepId } from '../types';
-import { EMPTY_FORM, STEPS } from '../types';
+import { FormField, InputField } from './FormField';
+import type { RegistrationFormData } from '../types';
+import { EMPTY_FORM, BLOOD_GROUPS, INDIAN_STATES, RELATIONSHIP_OPTIONS, PRE_EXISTING_CONDITIONS } from '../types';
+import { cn } from '../../../lib/utils';
 
 const DRAFT_KEY = 'opd_registration_draft';
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
-function validate(
-  form: RegistrationFormData,
-  step: number
-): Partial<Record<keyof RegistrationFormData, string>> {
+const BILLING_OPTIONS = [
+  { value: 'cash', label: 'Cash / Self Pay', desc: 'Patient pays directly', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
+  { value: 'insurance', label: 'Insurance', desc: 'Health insurance', color: 'text-blue-700 bg-blue-50 border-blue-200' },
+  { value: 'tpa', label: 'TPA', desc: 'Third party', color: 'text-amber-700 bg-amber-50 border-amber-200' },
+];
+
+function validate(form: RegistrationFormData): Partial<Record<keyof RegistrationFormData, string>> {
   const errs: Partial<Record<keyof RegistrationFormData, string>> = {};
-  if (step === 0) {
-    if (!form.firstName.trim()) errs.firstName = 'First name is required';
-    if (!form.dateOfBirth && !form.ageYears) errs.dateOfBirth = 'Date of birth or age is required';
-    if (!form.gender) errs.gender = 'Gender is required';
-    if (!form.phone.trim()) errs.phone = 'Mobile number is required';
-    else if (!/^[0-9]{10}$/.test(form.phone)) errs.phone = 'Must be exactly 10 digits';
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Invalid email address';
-    if (form.aadharNumber && !/^[0-9]{12}$/.test(form.aadharNumber)) errs.aadharNumber = 'Must be 12 digits';
+  if (!form.firstName.trim()) errs.firstName = 'First name is required';
+  if (!form.dateOfBirth && !form.ageYears) errs.dateOfBirth = 'Date of birth or age is required';
+  if (!form.gender) errs.gender = 'Gender is required';
+  if (!form.phone.trim()) errs.phone = 'Mobile number is required';
+  else if (!/^[0-9]{10}$/.test(form.phone)) errs.phone = 'Must be exactly 10 digits';
+  if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Invalid email';
+  if (form.aadharNumber && !/^[0-9]{12}$/.test(form.aadharNumber)) errs.aadharNumber = 'Must be 12 digits';
+  if (form.pincode && !/^[0-9]{6}$/.test(form.pincode)) errs.pincode = 'Must be 6 digits';
+  if (form.guardianPhone && !/^[0-9]{10}$/.test(form.guardianPhone)) errs.guardianPhone = 'Must be 10 digits';
+  if ((form.billingCategory === 'insurance' || form.billingCategory === 'tpa') && !form.insuranceCompany.trim()) {
+    errs.insuranceCompany = 'Company name is required';
   }
-  if (step === 1) {
-    if (form.pincode && !/^[0-9]{6}$/.test(form.pincode)) errs.pincode = 'Must be 6 digits';
-  }
-  if (step === 2) {
-    if (form.guardianPhone && !/^[0-9]{10}$/.test(form.guardianPhone)) errs.guardianPhone = 'Must be 10 digits';
-  }
-  if (step === 4) {
-    if (!form.departmentId) errs.departmentId = 'Please select a department';
-    if (!form.doctorId) errs.doctorId = 'Please select a doctor';
-    if (!form.appointmentDate) errs.appointmentDate = 'Appointment date is required';
-    if (!form.appointmentTime) errs.appointmentTime = 'Please select a time slot';
-    if (!form.chiefComplaint.trim()) errs.chiefComplaint = 'Chief complaint is required';
-  }
-  if (step === 5) {
-    if ((form.billingCategory === 'insurance' || form.billingCategory === 'tpa') && !form.insuranceCompany.trim()) {
-      errs.insuranceCompany = 'Company name is required';
-    }
-    if ((form.billingCategory === 'insurance' || form.billingCategory === 'tpa') && !form.policyNumber.trim()) {
-      errs.policyNumber = 'Policy / ID number is required';
-    }
+  if ((form.billingCategory === 'insurance' || form.billingCategory === 'tpa') && !form.policyNumber.trim()) {
+    errs.policyNumber = 'Policy / ID number is required';
   }
   return errs;
 }
@@ -77,7 +64,6 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
   const { user } = useAppSelector((s) => s.auth);
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
 
-  const [step, setStep] = useState(0);
   const [form, setForm] = useState<RegistrationFormData>(() => {
     try {
       const saved = localStorage.getItem(DRAFT_KEY);
@@ -89,8 +75,8 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
   const [submitting, setSubmitting] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [duplicates, setDuplicates] = useState<DuplicatePatient[]>([]);
-  const [checkingDuplicates, setCheckingDuplicates] = useState(false);
   const [dismissedDuplicates, setDismissedDuplicates] = useState(false);
+  const [allergyInput, setAllergyInput] = useState('');
 
   const saveDraft = useCallback((data: RegistrationFormData) => {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch { /* noop */ }
@@ -112,68 +98,51 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
 
   const hasDraft = JSON.stringify(form) !== JSON.stringify(EMPTY_FORM);
 
-  const checkDuplicates = async () => {
-    if (step !== 0) return true;
-    setCheckingDuplicates(true);
-    try {
-      const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`.trim();
-      const { data } = await supabase
-        .from('patients')
-        .select('id, full_name, uhid, phone, age, gender')
-        .eq('hospital_id', hospitalId)
-        .or(`phone.eq.${form.phone},full_name.ilike.${fullName}`)
-        .limit(3);
-      const found = (data ?? []) as DuplicatePatient[];
-      if (found.length > 0 && !dismissedDuplicates) {
-        setDuplicates(found);
-        return false;
-      }
-    } catch { /* noop */ } finally {
-      setCheckingDuplicates(false);
-    }
-    return true;
-  };
-
-  const goNext = async () => {
-    const errs = validate(form, step);
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      return;
-    }
-    setErrors({});
-    if (step === 0 && duplicates.length === 0) {
-      const canProceed = await checkDuplicates();
-      if (!canProceed) return;
-    }
-    setDuplicates([]);
-    setStep((s) => Math.min(STEPS.length - 1, s + 1));
-  };
-
-  const goPrev = () => {
-    setErrors({});
-    setStep((s) => Math.max(0, s - 1));
-  };
-
   const clearDraft = () => {
     localStorage.removeItem(DRAFT_KEY);
     setForm(EMPTY_FORM);
-    setStep(0);
     setErrors({});
     setShowClearConfirm(false);
     setDuplicates([]);
     setDismissedDuplicates(false);
   };
 
+  const addAllergy = () => {
+    const trimmed = allergyInput.trim();
+    if (trimmed && !form.allergies.includes(trimmed)) {
+      handleChange('allergies', [...form.allergies, trimmed]);
+    }
+    setAllergyInput('');
+  };
+
   const handleSubmit = async () => {
-    const errs = validate(form, step);
+    const errs = validate(form);
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+
+    // Check duplicates
+    if (!dismissedDuplicates) {
+      try {
+        const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`.trim();
+        const { data } = await supabase
+          .from('patients')
+          .select('id, full_name, uhid, phone, age, gender')
+          .eq('hospital_id', hospitalId)
+          .or(`phone.eq.${form.phone},full_name.ilike.${fullName}`)
+          .limit(3);
+        const found = (data ?? []) as DuplicatePatient[];
+        if (found.length > 0) {
+          setDuplicates(found);
+          return;
+        }
+      } catch { /* noop */ }
+    }
 
     setSubmitting(true);
     try {
       const { patient } = await opdService.registerPatient(hospitalId, user?.id ?? '', form);
       const p = patient as { id: string; uhid: string };
       localStorage.removeItem(DRAFT_KEY);
-      toast('Patient Registered!', { description: `UHID: ${p.uhid} — appointment scheduled successfully.`, type: 'success' });
+      toast('Patient Registered!', { description: `UHID: ${p.uhid}`, type: 'success' });
       if (onSuccess) onSuccess(p.id);
       else navigate(`/opd?registered=${p.uhid}`);
     } catch (err: unknown) {
@@ -183,144 +152,250 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
     }
   };
 
-  const stepId: StepId = STEPS[step].id;
+  const phoneValid = form.phone.length === 10 && /^[6-9]/.test(form.phone);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="px-6 pt-6 pb-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">New Patient Registration</h2>
-            <p className="text-sm text-gray-500 mt-0.5">
-              Step {step + 1} of {STEPS.length} — {STEPS[step].title}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {hasDraft && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowClearConfirm(true)}
-                className="h-8 text-xs text-gray-400 hover:text-red-500 gap-1"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                Clear Draft
-              </Button>
-            )}
-          </div>
+      {/* Header */}
+      <div className="px-6 pt-5 pb-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">New Patient Registration</h2>
+          <p className="text-sm text-gray-500 mt-0.5">Fill all required details in a single form</p>
         </div>
-        <StepIndicator steps={STEPS} currentStep={step} />
+        <div className="flex items-center gap-2">
+          {hasDraft && (
+            <Button variant="ghost" size="sm" onClick={() => setShowClearConfirm(true)} className="h-8 text-xs text-gray-400 hover:text-red-500 gap-1">
+              <Trash2 className="w-3.5 h-3.5" /> Clear Draft
+            </Button>
+          )}
+        </div>
       </div>
 
       {showClearConfirm && (
         <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-red-700 text-sm">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
-            Clear all form data and start over?
+            <AlertTriangle className="w-4 h-4 shrink-0" /> Clear all form data?
           </div>
           <div className="flex gap-2 shrink-0">
-            <Button size="sm" variant="outline" className="h-7 text-xs border-red-200 text-red-600 hover:bg-red-50" onClick={clearDraft}>Clear</Button>
+            <Button size="sm" variant="outline" className="h-7 text-xs border-red-200 text-red-600" onClick={clearDraft}>Clear</Button>
             <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowClearConfirm(false)}>Cancel</Button>
           </div>
         </div>
       )}
 
-      {duplicates.length > 0 && step === 0 && (
+      {duplicates.length > 0 && (
         <div className="mx-6 mt-4 p-4 bg-amber-50 border border-amber-300 rounded-xl">
           <div className="flex items-start gap-2 mb-3">
             <Users className="w-4 h-4 text-amber-700 mt-0.5 shrink-0" />
             <div>
               <p className="text-sm font-semibold text-amber-800">Possible Duplicate Patients Found</p>
-              <p className="text-xs text-amber-700 mt-0.5">The following patients match by phone or name. Please confirm this is a new patient.</p>
+              <p className="text-xs text-amber-700 mt-0.5">Please confirm this is a new patient.</p>
             </div>
           </div>
           <div className="space-y-1.5 mb-3">
             {duplicates.map((p) => (
               <div key={p.id} className="flex items-center justify-between bg-white border border-amber-200 rounded-lg px-3 py-2">
-                <div>
-                  <span className="text-sm font-semibold text-gray-800">{p.full_name}</span>
-                  <span className="text-xs text-gray-500 ml-2">UHID: {p.uhid}</span>
-                </div>
+                <span className="text-sm font-semibold text-gray-800">{p.full_name} <span className="text-xs text-gray-500 ml-1">UHID: {p.uhid}</span></span>
                 <span className="text-xs text-gray-500">{p.phone} · {p.age ? `${p.age}y` : ''} {p.gender}</span>
               </div>
             ))}
           </div>
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-50"
-              onClick={() => { setDismissedDuplicates(true); setDuplicates([]); setStep((s) => s + 1); }}
-            >
+            <Button size="sm" variant="outline" className="h-7 text-xs border-amber-300 text-amber-700" onClick={() => { setDismissedDuplicates(true); setDuplicates([]); }}>
               Continue as New Patient
             </Button>
-            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setDuplicates([])}>
-              Cancel
-            </Button>
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setDuplicates([])}>Cancel</Button>
           </div>
         </div>
       )}
 
-      <div className="p-6 min-h-[400px]">
-        {stepId === 'personal' && (
-          <Step1Personal form={form} errors={errors} onChange={handleChange} />
-        )}
-        {stepId === 'address' && (
-          <Step2Address form={form} errors={errors} onChange={handleChange} />
-        )}
-        {stepId === 'guardian' && (
-          <Step3Guardian form={form} errors={errors} onChange={handleChange} />
-        )}
-        {stepId === 'medical' && (
-          <Step4Medical form={form} errors={errors} onChange={handleChange} />
-        )}
-        {stepId === 'appointment' && (
-          <Step5Appointment form={form} errors={errors} onChange={handleChange} hospitalId={hospitalId} />
-        )}
-        {stepId === 'billing' && (
-          <Step6Billing form={form} errors={errors} onChange={handleChange} />
-        )}
+      <div className="p-6 space-y-8">
+        {/* ─── PERSONAL INFO ─── */}
+        <section>
+          <div className="flex items-center gap-3 pb-3 border-b border-gray-100 mb-4">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <User className="w-4 h-4 text-blue-600" />
+            </div>
+            <h3 className="text-base font-semibold text-gray-900">Personal Information</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <InputField label="First Name" required placeholder="First name" value={form.firstName} onChange={(v) => handleChange('firstName', v)} error={errors.firstName} autoFocus />
+            <InputField label="Last Name" placeholder="Last name" value={form.lastName} onChange={(v) => handleChange('lastName', v)} />
+            <InputField
+              label="Date of Birth" type="date" value={form.dateOfBirth}
+              onChange={(v) => {
+                handleChange('dateOfBirth', v);
+                if (v) {
+                  const age = Math.floor((Date.now() - new Date(v).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+                  handleChange('ageYears', String(Math.max(0, age)));
+                }
+              }}
+              error={errors.dateOfBirth} hint="Or enter age if DOB unknown"
+            />
+            <InputField label="Age (years)" type="number" placeholder="e.g. 30" value={form.ageYears} onChange={(v) => handleChange('ageYears', v)} suffix="years" />
+            <FormField label="Gender" required error={errors.gender}>
+              <Select value={form.gender} onValueChange={(v) => handleChange('gender', v)}>
+                <SelectTrigger className={cn('h-10 text-sm border-gray-200', errors.gender && 'border-red-300')}>
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormField>
+            <FormField label="Blood Group" hint="Optional">
+              <div className="flex flex-wrap gap-1.5">
+                {BLOOD_GROUPS.map((bg) => (
+                  <button key={bg} type="button" onClick={() => handleChange('bloodGroup', bg)}
+                    className={cn('px-2.5 py-1 text-xs font-medium rounded-lg border transition-all', form.bloodGroup === bg ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300')}>
+                    {bg}
+                  </button>
+                ))}
+              </div>
+            </FormField>
+            <InputField label="Mobile Number" required type="tel" placeholder="10-digit number" value={form.phone} onChange={(v) => handleChange('phone', v.replace(/\D/g, '').slice(0, 10))} error={errors.phone} success={phoneValid} prefix="+91" />
+            <InputField label="Email" type="email" placeholder="patient@example.com" value={form.email} onChange={(v) => handleChange('email', v)} error={errors.email} hint="Optional" />
+            <InputField label="Aadhar Number" placeholder="12-digit Aadhar" value={form.aadharNumber} onChange={(v) => handleChange('aadharNumber', v.replace(/\D/g, '').slice(0, 12))} error={errors.aadharNumber} hint="Optional" />
+          </div>
+        </section>
+
+        {/* ─── ADDRESS ─── */}
+        <section>
+          <div className="flex items-center gap-3 pb-3 border-b border-gray-100 mb-4">
+            <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <MapPin className="w-4 h-4 text-emerald-600" />
+            </div>
+            <h3 className="text-base font-semibold text-gray-900">Address</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="sm:col-span-2 lg:col-span-3">
+              <FormField label="Address">
+                <Textarea placeholder="House no, street, locality…" value={form.address} onChange={(e) => handleChange('address', e.target.value)} rows={2} className="text-sm border-gray-200 resize-none" />
+              </FormField>
+            </div>
+            <InputField label="City" placeholder="City name" value={form.city} onChange={(v) => handleChange('city', v)} />
+            <FormField label="State">
+              <Select value={form.state} onValueChange={(v) => handleChange('state', v)}>
+                <SelectTrigger className="h-10 text-sm border-gray-200"><SelectValue placeholder="Select state" /></SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {INDIAN_STATES.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </FormField>
+            <InputField label="Pin Code" placeholder="6-digit" value={form.pincode} onChange={(v) => handleChange('pincode', v.replace(/\D/g, '').slice(0, 6))} error={errors.pincode} />
+          </div>
+        </section>
+
+        {/* ─── GUARDIAN / EMERGENCY ─── */}
+        <section>
+          <div className="flex items-center gap-3 pb-3 border-b border-gray-100 mb-4">
+            <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+              <Users className="w-4 h-4 text-amber-600" />
+            </div>
+            <h3 className="text-base font-semibold text-gray-900">Guardian / Emergency Contact</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <InputField label="Guardian Name" placeholder="Full name" value={form.guardianName} onChange={(v) => handleChange('guardianName', v)} />
+            <InputField label="Guardian Phone" type="tel" placeholder="10-digit" value={form.guardianPhone} onChange={(v) => handleChange('guardianPhone', v.replace(/\D/g, '').slice(0, 10))} error={errors.guardianPhone} />
+            <FormField label="Relationship">
+              <Select value={form.guardianRelation} onValueChange={(v) => handleChange('guardianRelation', v)}>
+                <SelectTrigger className="h-10 text-sm border-gray-200"><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                  {RELATIONSHIP_OPTIONS.map((r) => (<SelectItem key={r} value={r}>{r}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </FormField>
+            <InputField label="Emergency Contact Name" placeholder="Full name" value={form.emergencyContactName} onChange={(v) => handleChange('emergencyContactName', v)} />
+            <InputField label="Emergency Contact Phone" type="tel" placeholder="10-digit" value={form.emergencyContactPhone} onChange={(v) => handleChange('emergencyContactPhone', v.replace(/\D/g, '').slice(0, 10))} />
+            <InputField label="Referred By" placeholder="Doctor or facility" value={form.referredBy} onChange={(v) => handleChange('referredBy', v)} />
+          </div>
+        </section>
+
+        {/* ─── MEDICAL HISTORY ─── */}
+        <section>
+          <div className="flex items-center gap-3 pb-3 border-b border-gray-100 mb-4">
+            <div className="w-8 h-8 bg-rose-100 rounded-lg flex items-center justify-center">
+              <ClipboardList className="w-4 h-4 text-rose-600" />
+            </div>
+            <h3 className="text-base font-semibold text-gray-900">Medical History</h3>
+          </div>
+          <div className="space-y-4">
+            <FormField label="Known Allergies" hint="Type and press Add">
+              <div className="flex gap-2">
+                <Input value={allergyInput} onChange={(e) => setAllergyInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAllergy(); } }} placeholder="e.g. Penicillin" className="h-9 text-sm flex-1" />
+                <Button type="button" variant="outline" size="sm" onClick={addAllergy} className="h-9 px-3 shrink-0"><Plus className="w-4 h-4" /> Add</Button>
+              </div>
+              {form.allergies.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {form.allergies.map((a) => (
+                    <Badge key={a} className="bg-red-100 text-red-700 border-0 gap-1 px-2 py-0.5">
+                      {a} <button type="button" onClick={() => handleChange('allergies', form.allergies.filter((x) => x !== a))}><X className="w-3 h-3" /></button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </FormField>
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Pre-existing Conditions</p>
+              <div className="flex flex-wrap gap-2">
+                {PRE_EXISTING_CONDITIONS.map((c) => {
+                  const selected = form.preExistingConditions.includes(c);
+                  return (
+                    <button key={c} type="button" onClick={() => handleChange('preExistingConditions', selected ? form.preExistingConditions.filter((x) => x !== c) : [...form.preExistingConditions, c])}
+                      className={`text-xs px-3 py-1.5 rounded-full border font-medium ${selected ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'}`}>
+                      {c}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <FormField label="Current Medications" hint="Optional">
+              <Textarea placeholder="e.g. Metformin 500mg twice daily…" value={form.currentMedications} onChange={(e) => handleChange('currentMedications', e.target.value)} rows={2} className="text-sm resize-none" />
+            </FormField>
+          </div>
+        </section>
+
+        {/* ─── BILLING ─── */}
+        <section>
+          <div className="flex items-center gap-3 pb-3 border-b border-gray-100 mb-4">
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <CreditCard className="w-4 h-4 text-green-600" />
+            </div>
+            <h3 className="text-base font-semibold text-gray-900">Billing Information</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            {BILLING_OPTIONS.map((opt) => {
+              const active = form.billingCategory === opt.value;
+              return (
+                <button key={opt.value} type="button" onClick={() => handleChange('billingCategory', opt.value)}
+                  className={`relative p-3 rounded-xl border-2 text-left transition-all ${active ? `${opt.color} border-current` : 'bg-white border-gray-200 hover:border-gray-300'}`}>
+                  {active && <CheckCircle className="absolute top-2 right-2 w-4 h-4" />}
+                  <p className={`font-semibold text-sm ${active ? '' : 'text-gray-800'}`}>{opt.label}</p>
+                  <p className={`text-xs mt-0.5 ${active ? 'opacity-80' : 'text-gray-400'}`}>{opt.desc}</p>
+                </button>
+              );
+            })}
+          </div>
+          {(form.billingCategory === 'insurance' || form.billingCategory === 'tpa') && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <InputField label={form.billingCategory === 'insurance' ? 'Insurance Company' : 'TPA Company'} required placeholder="Company name" value={form.insuranceCompany} onChange={(v) => handleChange('insuranceCompany', v)} error={errors.insuranceCompany} />
+              <InputField label={form.billingCategory === 'insurance' ? 'Policy Number' : 'TPA ID'} required placeholder="Policy / ID" value={form.policyNumber} onChange={(v) => handleChange('policyNumber', v)} error={errors.policyNumber} />
+            </div>
+          )}
+        </section>
       </div>
 
+      {/* Footer */}
       <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          {onCancel && (
-            <Button variant="ghost" size="sm" onClick={onCancel} className="text-gray-500">
-              Cancel
-            </Button>
-          )}
-          {step > 0 && (
-            <Button variant="outline" size="sm" onClick={goPrev} className="gap-1.5 border-gray-200">
-              <ChevronLeft className="w-4 h-4" /> Previous
-            </Button>
-          )}
+          {onCancel && <Button variant="ghost" size="sm" onClick={onCancel} className="text-gray-500">Cancel</Button>}
+          {hasDraft && <span className="text-xs text-gray-400 flex items-center gap-1"><Save className="w-3 h-3" /> Draft saved</span>}
         </div>
-
-        <div className="flex items-center gap-2">
-          {hasDraft && step < STEPS.length - 1 && (
-            <span className="text-xs text-gray-400 flex items-center gap-1 hidden sm:flex">
-              <Save className="w-3 h-3" /> Draft saved
-            </span>
-          )}
-          {step < STEPS.length - 1 ? (
-            <Button size="sm" onClick={goNext} disabled={checkingDuplicates} className="gap-1.5 bg-blue-600 hover:bg-blue-700">
-              {checkingDuplicates ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Next <ChevronRight className="w-4 h-4" /></>}
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 min-w-[140px]"
-            >
-              {submitting ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Registering…</>
-              ) : (
-                'Register Patient'
-              )}
-            </Button>
-          )}
-        </div>
+        <Button size="sm" onClick={handleSubmit} disabled={submitting} className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 min-w-[140px]">
+          {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Registering…</> : 'Register Patient'}
+        </Button>
       </div>
     </div>
   );
