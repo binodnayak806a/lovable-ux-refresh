@@ -508,6 +508,7 @@ export default function SettingsPage() {
               <OpdRoomConfig hospitalId={effectiveHospitalId} />
             </TabsContent>
 
+            <TabsContent value="whatsapp" className="mt-0 space-y-1">
               <SectionHeading>WhatsApp Message Templates</SectionHeading>
               <p className="text-sm text-gray-500 mb-4">
                 Customize messages sent via WhatsApp. Available variables:
