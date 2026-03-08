@@ -80,8 +80,6 @@ export default function IPDPage() {
 
   // Selection
   const [selectedAdmission, setSelectedAdmission] = useState<Admission | null>(null);
-  const [showAdmitDialog, setShowAdmitDialog] = useState(false);
-  const [selectedBedForAdmit, setSelectedBedForAdmit] = useState<Bed | null>(null);
 
   // Doctors for filter
   const [doctors, setDoctors] = useState<{ id: string; full_name: string; department: string | null }[]>([]);
