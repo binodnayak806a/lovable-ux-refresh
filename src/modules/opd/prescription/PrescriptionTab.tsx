@@ -5,7 +5,7 @@ import { Card, CardContent } from '../../../components/ui/card';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import prescriptionService from '../../../services/prescription.service';
-import { supabase } from '../../../lib/supabase';
+import { mockStore } from '../../../lib/mockStore';
 import DrugItemCard from './DrugItemCard';
 import PrescriptionPrintPreview from './PrescriptionPrintPreview';
 import type { PrescriptionItem, PrescriptionFormData, PrescriptionRecord } from './types';
