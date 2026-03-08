@@ -1,4 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
+import { Input } from '../../../../components/ui/input';
 import { PAGE_SIZES } from './types';
 
 interface Props {
@@ -14,9 +15,9 @@ export default function PageSizeSelector({
   onPageSizeChange, onCustomDimensionsChange,
 }: Props) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <label className="text-xs text-gray-500 font-medium">Page Size</label>
-      <div className="w-48">
+    <div className="flex items-center gap-3 flex-wrap">
+      <label className="text-xs text-muted-foreground font-medium">Page Size</label>
+      <div className="w-52">
         <Select value={pageSize} onValueChange={onPageSizeChange}>
           <SelectTrigger className="h-8 text-xs">
             <SelectValue />
@@ -30,24 +31,24 @@ export default function PageSizeSelector({
       </div>
       {pageSize === 'custom' && (
         <div className="flex items-center gap-1.5">
-          <input
+          <Input
             type="number"
             value={pageWidthMm}
             onChange={(e) => onCustomDimensionsChange(Number(e.target.value), pageHeightMm)}
-            className="w-16 h-8 px-2 rounded-md border border-gray-200 text-xs text-center"
+            className="w-16 h-8 text-xs text-center"
             min={20}
             max={500}
           />
-          <span className="text-xs text-gray-400">x</span>
-          <input
+          <span className="text-xs text-muted-foreground">×</span>
+          <Input
             type="number"
             value={pageHeightMm}
             onChange={(e) => onCustomDimensionsChange(pageWidthMm, Number(e.target.value))}
-            className="w-16 h-8 px-2 rounded-md border border-gray-200 text-xs text-center"
+            className="w-16 h-8 text-xs text-center"
             min={20}
             max={1000}
           />
-          <span className="text-xs text-gray-400">mm</span>
+          <span className="text-xs text-muted-foreground">mm</span>
         </div>
       )}
     </div>
