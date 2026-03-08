@@ -34,7 +34,7 @@ import RevenueKPIStrip from './components/RevenueKPIStrip';
 import PaymentModePieChart from './components/PaymentModePieChart';
 import TodayActivityFeed from './components/TodayActivityFeed';
 import DoctorQueueMonitor from './components/DoctorQueueMonitor';
-import QuickActionButtons from './components/QuickActionButtons';
+
 import { cn } from '../../lib/utils';
 
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
@@ -266,9 +266,6 @@ function DashboardHeader({
 function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, recentAppointments, revenueSummary, navigate, isAdmin, isReceptionist }: any) {
   return (
     <>
-      {/* Quick Action Buttons */}
-      {isAdmin && <QuickActionButtons />}
-
       {/* ── Section 1: KPI Cards (6 cards) ── */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 stagger-children">
         <div className="cursor-pointer" onClick={() => navigate('/patients')}>
