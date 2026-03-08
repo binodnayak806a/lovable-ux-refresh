@@ -108,6 +108,17 @@ export default function CreateAppointmentDialog({
   const debouncedSearch = useDebounce(patientSearch, 150);
   const patientSearchRef = useRef<HTMLInputElement>(null);
 
+  // Auto-focus patient search when dialog opens
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => patientSearchRef.current?.focus(), 100);
+      // Auto-select doctor if only one available
+      if (doctors.length === 1 && !doctorId) {
+        setDoctorId(doctors[0].id);
+      }
+    }
+  }, [open, doctors]);
+
   useEffect(() => {
     if (prefillDate) setAppointmentDate(format(prefillDate, 'yyyy-MM-dd'));
     if (prefillTime) setAppointmentTime(prefillTime);
