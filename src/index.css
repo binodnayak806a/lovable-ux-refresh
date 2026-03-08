@@ -275,6 +275,31 @@
   .metric-gradient-green {
     background: linear-gradient(135deg, hsl(142 76% 97%), hsl(142 76% 93%));
   }
+
+  /* Dark mode metric gradients */
+  .dark .metric-gradient-blue {
+    background: linear-gradient(135deg, hsl(204 50% 14%), hsl(204 50% 18%));
+  }
+  .dark .metric-gradient-amber {
+    background: linear-gradient(135deg, hsl(38 50% 14%), hsl(38 50% 18%));
+  }
+  .dark .metric-gradient-teal {
+    background: linear-gradient(135deg, hsl(172 40% 14%), hsl(172 40% 18%));
+  }
+  .dark .metric-gradient-rose {
+    background: linear-gradient(135deg, hsl(0 40% 14%), hsl(0 40% 18%));
+  }
+  .dark .metric-gradient-green {
+    background: linear-gradient(135deg, hsl(142 40% 14%), hsl(142 40% 18%));
+  }
+
+  /* Dark mode accent borders */
+  .dark .accent-border-blue { border-left-color: hsl(204 80% 55%); }
+  .dark .accent-border-green { border-left-color: hsl(142 76% 50%); }
+  .dark .accent-border-amber { border-left-color: hsl(38 92% 55%); }
+  .dark .accent-border-rose { border-left-color: hsl(0 84% 55%); }
+  .dark .accent-border-teal { border-left-color: hsl(172 66% 50%); }
+  .dark .accent-border-violet { border-left-color: hsl(262 83% 65%); }
 }
 
 @keyframes countUp {
