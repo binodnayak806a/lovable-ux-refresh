@@ -21,6 +21,7 @@ import {
   Heart,
   Sparkles,
   Building2,
+  Receipt,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store';

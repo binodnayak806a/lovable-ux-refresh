@@ -61,6 +61,11 @@ export default function WardBoard({ hospitalId }: Props) {
 
   useEffect(() => {
     loadData();
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      loadData();
+    }, 30_000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleRefresh = () => {

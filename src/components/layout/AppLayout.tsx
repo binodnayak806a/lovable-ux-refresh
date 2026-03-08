@@ -82,6 +82,8 @@ export default function AppLayout() {
       </SidebarInset>
       <GlobalSearch />
       <ContextualPatientBar />
+      <KeyboardShortcuts />
+      <BarcodeScannerInput onScan={handleBarcodeScan} />
     </SidebarProvider>
   );
 }
