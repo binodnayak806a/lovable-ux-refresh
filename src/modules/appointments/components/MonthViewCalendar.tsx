@@ -41,78 +41,67 @@ export default function MonthViewCalendar({ appointments, currentDate, onDayClic
   }, [appointments]);
 
   const weeks: Date[][] = [];
-  for (let i = 0; i < calDays.length; i += 7) {
-    weeks.push(calDays.slice(i, i + 7));
-  }
+  for (let i = 0; i < calDays.length; i += 7) weeks.push(calDays.slice(i, i + 7));
 
   return (
-    <div className="glass-card overflow-hidden">
-      {/* Header row */}
-      <div className="grid grid-cols-7 border-b border-border/50">
+    <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+      {/* Header */}
+      <div className="grid grid-cols-7 border-b border-border/30">
         {DAY_NAMES.map(day => (
-          <div key={day} className="px-3 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider bg-muted/30">
+          <div key={day} className="px-2 py-2.5 text-center text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
             {day}
           </div>
         ))}
       </div>
 
-      {/* Calendar grid */}
-      <div>
-        {weeks.map((week, wi) => (
-          <div key={wi} className="grid grid-cols-7 border-b border-border/20 last:border-b-0">
-            {week.map(day => {
-              const dateStr = format(day, 'yyyy-MM-dd');
-              const dayAppts = appointmentsByDate[dateStr] ?? [];
-              const inMonth = isSameMonth(day, currentDate);
-              const today = isToday(day);
+      {/* Grid */}
+      {weeks.map((week, wi) => (
+        <div key={wi} className="grid grid-cols-7 border-b border-border/10 last:border-b-0">
+          {week.map(day => {
+            const dateStr = format(day, 'yyyy-MM-dd');
+            const dayAppts = appointmentsByDate[dateStr] ?? [];
+            const inMonth = isSameMonth(day, currentDate);
+            const td = isToday(day);
 
-              return (
-                <div
-                  key={dateStr}
-                  onClick={() => onDayClick(day)}
-                  className={cn(
-                    'min-h-[100px] p-2 border-r border-border/20 last:border-r-0 cursor-pointer transition-colors hover:bg-accent/30',
-                    !inMonth && 'opacity-40 bg-muted/10',
-                    today && 'bg-primary/5'
+            return (
+              <div
+                key={dateStr}
+                onClick={() => onDayClick(day)}
+                className={cn(
+                  'min-h-[88px] p-1.5 border-r border-border/10 last:border-r-0 cursor-pointer transition-colors hover:bg-muted/20',
+                  !inMonth && 'opacity-30',
+                  td && 'bg-primary/[0.04]'
+                )}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className={cn(
+                    'text-xs leading-none',
+                    td ? 'w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-bold' :
+                    inMonth ? 'text-foreground font-medium' : 'text-muted-foreground'
+                  )}>
+                    {format(day, 'd')}
+                  </span>
+                  {dayAppts.length > 0 && (
+                    <span className="text-[9px] text-muted-foreground/60 font-medium">{dayAppts.length}</span>
                   )}
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className={cn(
-                      'text-sm font-medium leading-none',
-                      today ? 'w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold' :
-                      inMonth ? 'text-foreground' : 'text-muted-foreground'
-                    )}>
-                      {format(day, 'd')}
-                    </span>
-                    {dayAppts.length > 0 && (
-                      <span className="text-[10px] font-medium text-muted-foreground bg-muted rounded-full px-1.5 py-0.5">
-                        {dayAppts.length}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="space-y-0.5">
-                    {dayAppts.slice(0, 3).map(appt => (
-                      <div
-                        key={appt.id}
-                        className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] truncate bg-card/80 border border-border/30"
-                      >
-                        <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', STATUS_DOT[appt.status] ?? 'bg-gray-300')} />
-                        <span className="truncate font-medium text-foreground/80">{appt.patient_name}</span>
-                      </div>
-                    ))}
-                    {dayAppts.length > 3 && (
-                      <div className="text-[10px] text-muted-foreground font-medium px-1.5">
-                        +{dayAppts.length - 3} more
-                      </div>
-                    )}
-                  </div>
                 </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+
+                <div className="space-y-px">
+                  {dayAppts.slice(0, 3).map(appt => (
+                    <div key={appt.id} className="flex items-center gap-1 px-1 py-0.5 rounded text-[9px] truncate">
+                      <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', STATUS_DOT[appt.status] ?? 'bg-gray-300')} />
+                      <span className="truncate text-foreground/70">{appt.patient_name}</span>
+                    </div>
+                  ))}
+                  {dayAppts.length > 3 && (
+                    <div className="text-[9px] text-muted-foreground/50 px-1">+{dayAppts.length - 3} more</div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }

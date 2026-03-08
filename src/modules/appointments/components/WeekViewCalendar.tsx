@@ -17,7 +17,7 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }
   in_progress: { bg: 'bg-amber-50',   border: 'border-l-amber-500',   text: 'text-amber-700' },
   completed:   { bg: 'bg-emerald-50', border: 'border-l-emerald-500', text: 'text-emerald-700' },
   cancelled:   { bg: 'bg-red-50',     border: 'border-l-red-400',     text: 'text-red-600' },
-  no_show:     { bg: 'bg-gray-50',    border: 'border-l-gray-400',    text: 'text-gray-600' },
+  no_show:     { bg: 'bg-gray-100',   border: 'border-l-gray-400',    text: 'text-gray-500' },
   qr_booked:   { bg: 'bg-teal-50',    border: 'border-l-teal-500',    text: 'text-teal-700' },
 };
 
@@ -40,6 +40,8 @@ function formatTime12(time: string): string {
 
 export default function WeekViewCalendar({ appointments, weekDays, slotInterval, onSlotClick, onAppointmentClick }: Props) {
   const timeSlots = useMemo(() => generateTimeSlots(slotInterval), [slotInterval]);
+  const nowH = new Date().getHours();
+  const nowM = new Date().getMinutes();
 
   const appointmentsByDaySlot = useMemo(() => {
     const map: Record<string, WeekAppointment[]> = {};
@@ -54,100 +56,70 @@ export default function WeekViewCalendar({ appointments, weekDays, slotInterval,
     return map;
   }, [appointments, slotInterval]);
 
-  const now = new Date();
-  const nowH = now.getHours();
-  const nowM = now.getMinutes();
-
   return (
-    <div className="glass-card overflow-hidden">
+    <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
       {/* Day headers */}
-      <div className="grid grid-cols-[72px_repeat(7,1fr)] border-b border-border/50 sticky top-0 z-10 bg-card">
-        <div className="bg-muted/30 border-r border-border/30" />
+      <div className="grid grid-cols-[64px_repeat(7,1fr)] border-b border-border/40 sticky top-0 z-10 bg-card">
+        <div className="border-r border-border/20" />
         {weekDays.map(day => {
-          const today = isToday(day);
+          const td = isToday(day);
           return (
-            <div
-              key={day.toISOString()}
-              className={cn(
-                'px-2 py-3 text-center border-r border-border/20 last:border-r-0',
-                today ? 'bg-primary/5' : 'bg-muted/30'
-              )}
-            >
-              <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                {format(day, 'EEE')}
-              </div>
+            <div key={day.toISOString()} className={cn('py-2.5 text-center border-r border-border/10 last:border-r-0', td && 'bg-primary/[0.04]')}>
+              <div className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">{format(day, 'EEE')}</div>
               <div className={cn(
-                'text-sm font-bold mt-0.5',
-                today ? 'w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto' : 'text-foreground'
+                'text-sm font-bold mt-0.5 leading-none',
+                td ? 'w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto text-xs' : 'text-foreground'
               )}>
                 {format(day, 'd')}
               </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">
-                {format(day, 'MMM')}
-              </div>
+              <div className="text-[9px] text-muted-foreground/50 mt-0.5">{format(day, 'MMM')}</div>
             </div>
           );
         })}
       </div>
 
       {/* Time grid */}
-      <div className="max-h-[calc(100vh-280px)] overflow-y-auto scrollbar-thin">
-        {timeSlots.map((slot, idx) => {
+      <div className="max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin">
+        {timeSlots.map((slot) => {
           const [slotH, slotM] = slot.split(':').map(Number);
           return (
-            <div
-              key={slot}
-              className={cn(
-                'grid grid-cols-[72px_repeat(7,1fr)] border-b border-border/20 last:border-b-0 min-h-[52px]',
-                idx % 2 === 0 && 'bg-muted/10'
-              )}
-            >
-              <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-medium border-r border-border/30 flex items-start justify-end pr-3 pt-1.5 select-none bg-muted/20">
+            <div key={slot} className="grid grid-cols-[64px_repeat(7,1fr)] border-b border-border/10 last:border-b-0 min-h-[44px]">
+              <div className="px-1 py-1 text-[10px] text-muted-foreground/60 font-medium border-r border-border/15 flex items-start justify-end pr-2 pt-1 select-none">
                 {formatTime12(slot)}
               </div>
               {weekDays.map(day => {
                 const dateStr = format(day, 'yyyy-MM-dd');
                 const key = `${dateStr}-${slot}`;
                 const cellAppts = appointmentsByDaySlot[key] ?? [];
-                const today = isToday(day);
-                const isCurrentSlot = today && slotH === nowH && nowM >= slotM && nowM < slotM + slotInterval;
+                const td = isToday(day);
+                const isCurrent = td && slotH === nowH && nowM >= slotM && nowM < slotM + slotInterval;
 
                 return (
                   <div
                     key={day.toISOString() + slot}
                     className={cn(
-                      'border-r border-border/20 last:border-r-0 p-0.5 cursor-pointer hover:bg-accent/30 transition-colors relative group min-h-[52px]',
-                      today && 'bg-primary/[0.02]',
-                      isCurrentSlot && 'bg-primary/5 ring-1 ring-inset ring-primary/20'
+                      'border-r border-border/10 last:border-r-0 p-0.5 cursor-pointer hover:bg-muted/20 transition-colors relative group min-h-[44px]',
+                      td && 'bg-primary/[0.015]',
+                      isCurrent && 'bg-primary/[0.05]'
                     )}
-                    onClick={() => {
-                      if (cellAppts.length === 0) onSlotClick(day, slot);
-                    }}
+                    onClick={() => { if (cellAppts.length === 0) onSlotClick(day, slot); }}
                   >
                     {cellAppts.map(appt => {
-                      const colors = STATUS_COLORS[appt.status] ?? STATUS_COLORS.scheduled;
+                      const c = STATUS_COLORS[appt.status] ?? STATUS_COLORS.scheduled;
                       return (
                         <button
                           key={appt.id}
                           onClick={(e) => { e.stopPropagation(); onAppointmentClick(appt); }}
-                          className={cn(
-                            'w-full text-left px-1.5 py-1 rounded border-l-[3px] mb-0.5 transition-all hover:shadow-sm',
-                            colors.bg, colors.border
-                          )}
+                          className={cn('w-full text-left px-1.5 py-1 rounded border-l-[2px] mb-0.5 transition-all hover:shadow-sm', c.bg, c.border)}
                         >
-                          <div className={cn('text-[10px] font-semibold truncate leading-tight', colors.text)}>
-                            {appt.patient_name}
-                          </div>
-                          <div className="text-[9px] text-muted-foreground truncate leading-tight">
-                            {appt.appointment_time?.slice(0, 5)}
-                          </div>
+                          <div className={cn('text-[10px] font-semibold truncate leading-tight', c.text)}>{appt.patient_name}</div>
+                          <div className="text-[9px] text-muted-foreground/50 truncate leading-tight">{appt.appointment_time?.slice(0, 5)}</div>
                         </button>
                       );
                     })}
-
                     {cellAppts.length === 0 && (
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                        <span className="text-[10px] text-muted-foreground/50 font-medium">+</span>
+                        <span className="text-[9px] text-muted-foreground/30">+</span>
                       </div>
                     )}
                   </div>
