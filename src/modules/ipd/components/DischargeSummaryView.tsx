@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   X, Printer, Loader2, FileText, Calendar, User, BedDouble,
   Stethoscope, Pill, ClipboardList, Activity, Utensils,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
-import { useReactToPrint } from 'react-to-print';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { useToast } from '../../../hooks/useToast';
 import ipdService from '../../../services/ipd.service';
 import type { Admission, DischargeSummary } from '../types';
 import { DISCHARGE_TYPE_CONFIG, CONDITION_CONFIG } from '../types';
+import { printDischargeSummary } from './DischargeSummaryPrint';
 
 interface Props {
   admission: Admission;
