@@ -2,35 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
-
 @layer base {
   :root {
-    --background: 228 25% 97%;
-    --foreground: 224 20% 15%;
+    --background: 210 20% 98%;
+    --foreground: 220 13% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 224 20% 15%;
+    --card-foreground: 220 13% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 20% 15%;
+    --popover-foreground: 220 13% 13%;
 
-    --primary: 234 62% 55%;
+    --primary: 204 80% 42%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 234 62% 96%;
-    --primary-dark: 234 62% 42%;
+    --primary-light: 204 80% 95%;
+    --primary-dark: 204 80% 35%;
 
-    --secondary: 228 20% 96%;
-    --secondary-foreground: 224 14% 38%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 9% 34%;
 
-    --muted: 228 20% 96%;
-    --muted-foreground: 224 10% 52%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 234 50% 96%;
-    --accent-foreground: 234 50% 42%;
+    --accent: 204 60% 96%;
+    --accent-foreground: 204 70% 38%;
 
-    --destructive: 0 72% 56%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 60% 42%;
+    --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
@@ -39,28 +37,28 @@
     --info: 217 91% 60%;
     --info-foreground: 0 0% 100%;
 
-    --border: 228 16% 92%;
-    --input: 228 16% 90%;
-    --ring: 234 62% 55%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 204 80% 42%;
     --radius: 0.75rem;
 
-    --chart-1: 234 62% 55%;
-    --chart-2: 152 60% 42%;
+    --chart-1: 204 80% 42%;
+    --chart-2: 142 76% 36%;
     --chart-3: 38 92% 50%;
-    --chart-4: 340 72% 52%;
-    --chart-5: 262 72% 58%;
+    --chart-4: 340 82% 52%;
+    --chart-5: 262 83% 58%;
 
-    --sidebar-width: 264px;
-    --sidebar-collapsed-width: 72px;
-    --navbar-height: 64px;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+    --navbar-height: 72px;
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 224 14% 38%;
-    --sidebar-primary: 234 62% 55%;
+    --sidebar-foreground: 220 13% 26%;
+    --sidebar-primary: 204 80% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 234 50% 96%;
-    --sidebar-accent-foreground: 234 62% 48%;
-    --sidebar-border: 228 16% 93%;
-    --sidebar-ring: 234 62% 55%;
+    --sidebar-accent: 204 60% 96%;
+    --sidebar-accent-foreground: 204 70% 38%;
+    --sidebar-border: 220 13% 93%;
+    --sidebar-ring: 204 80% 42%;
   }
 
   * {
@@ -77,15 +75,15 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
-    line-height: 1.6;
+    line-height: 1.5;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
-    line-height: 1.25;
+    line-height: 1.2;
   }
 
   h1 { @apply text-2xl; }
@@ -96,57 +94,57 @@
   .dark {
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 234 62% 55%;
+    --sidebar-primary: 204 80% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 234 62% 55%;
+    --sidebar-ring: 204 80% 48%;
   }
 }
 
 @layer components {
-  /* Sidebar active state - Zendenta style */
+  /* Sidebar active state */
   [data-sidebar="menu-button"][data-active="true"] {
     @apply font-semibold;
     background: hsl(var(--sidebar-accent));
-    color: hsl(var(--sidebar-primary));
-    border-radius: 0.625rem;
+    color: hsl(var(--sidebar-accent-foreground));
+    box-shadow: inset 3px 0 0 0 hsl(var(--sidebar-primary));
   }
 
   [data-sidebar="group-label"] {
-    @apply text-[10px] font-semibold uppercase tracking-[0.12em];
-    color: hsl(var(--sidebar-foreground) / 0.4);
+    @apply text-[10px] font-semibold uppercase tracking-widest;
+    color: hsl(var(--sidebar-foreground) / 0.45);
   }
 
   /* Glass card effect */
   .glass-card {
-    @apply bg-card border border-border/60 rounded-2xl;
-    box-shadow: 0 1px 3px 0 hsl(var(--foreground) / 0.03), 0 1px 2px -1px hsl(var(--foreground) / 0.02);
+    @apply bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl;
+    box-shadow: 0 1px 3px 0 hsl(var(--foreground) / 0.04);
   }
 
   .glass-card:hover {
-    box-shadow: 0 4px 16px -3px hsl(var(--foreground) / 0.06);
+    box-shadow: 0 4px 12px -2px hsl(var(--foreground) / 0.08);
   }
 
   /* Accent border variants */
   .accent-border-blue {
-    border-left: 3px solid hsl(234 62% 55%);
+    border-left: 3px solid hsl(204 80% 42%);
   }
   .accent-border-green {
-    border-left: 3px solid hsl(152 60% 42%);
+    border-left: 3px solid hsl(142 76% 36%);
   }
   .accent-border-amber {
     border-left: 3px solid hsl(38 92% 50%);
   }
   .accent-border-rose {
-    border-left: 3px solid hsl(0 72% 56%);
+    border-left: 3px solid hsl(0 84% 60%);
   }
   .accent-border-teal {
-    border-left: 3px solid hsl(172 60% 40%);
+    border-left: 3px solid hsl(172 66% 40%);
   }
   .accent-border-violet {
-    border-left: 3px solid hsl(262 72% 58%);
+    border-left: 3px solid hsl(262 83% 58%);
   }
 
   /* Premium metric value */
@@ -176,11 +174,10 @@
     background-clip: text;
   }
 
-  /* Hero greeting banner - Zendenta style */
+  /* Hero greeting banner */
   .hero-banner {
-    @apply rounded-none p-0;
-    background: transparent;
-    border: none;
+    background: linear-gradient(135deg, hsl(var(--primary-light)), hsl(var(--accent)));
+    @apply rounded-2xl p-6 border border-border/30;
   }
 }
 
@@ -191,8 +188,8 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {

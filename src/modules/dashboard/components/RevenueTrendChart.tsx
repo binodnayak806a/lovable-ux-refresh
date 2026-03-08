@@ -30,13 +30,13 @@ const CustomTooltip = ({ active, payload, label }: {
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-card rounded-xl px-3 py-2 text-sm shadow-elevated border border-border">
-      <p className="font-semibold mb-1 text-foreground">{label}</p>
+    <div className="bg-gray-900 rounded-lg px-3 py-2 text-sm text-white shadow-xl border border-gray-800">
+      <p className="font-semibold mb-1">{label}</p>
       {payload.map((p) => (
         <p key={p.dataKey} className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
-          <span className="text-muted-foreground">{p.name}:</span>
-          <span className="font-medium text-foreground">Rs. {p.value.toLocaleString('en-IN')}</span>
+          <span className="text-gray-300">{p.name}:</span>
+          <span className="font-medium">Rs. {p.value.toLocaleString('en-IN')}</span>
         </p>
       ))}
     </div>
@@ -122,7 +122,7 @@ export default function RevenueTrendChart() {
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(228 16% 92%)" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
             <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={formatCurrency} />
             <Tooltip content={<CustomTooltip />} />
@@ -135,7 +135,7 @@ export default function RevenueTrendChart() {
               type="monotone"
               dataKey="opd"
               name="OPD"
-              stroke="hsl(234, 62%, 55%)"
+              stroke="#3b82f6"
               strokeWidth={2.5}
               dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
               activeDot={{ r: 6 }}
@@ -144,7 +144,7 @@ export default function RevenueTrendChart() {
               type="monotone"
               dataKey="ipd"
               name="IPD"
-              stroke="hsl(152, 60%, 42%)"
+              stroke="#10b981"
               strokeWidth={2.5}
               dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
               activeDot={{ r: 6 }}
