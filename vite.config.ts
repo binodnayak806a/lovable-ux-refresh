@@ -10,7 +10,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ['lucide-react'],
+    include: ['react', 'react-dom', 'react-redux', '@reduxjs/toolkit'],
   },
   build: {
     target: 'es2020',
