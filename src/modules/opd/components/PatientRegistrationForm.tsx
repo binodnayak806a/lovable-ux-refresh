@@ -181,8 +181,8 @@ export default function PatientRegistrationForm({ onSuccess, onCancel, editPatie
       {/* Header */}
       <div className="px-6 pt-5 pb-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">New Patient Registration</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Fill all required details in a single form</p>
+          <h2 className="text-xl font-bold text-gray-900">{isEditMode ? 'Edit Patient Details' : 'New Patient Registration'}</h2>
+          <p className="text-sm text-gray-500 mt-0.5">{isEditMode ? 'Update patient information' : 'Fill all required details in a single form'}</p>
         </div>
         <div className="flex items-center gap-2">
           {hasDraft && (
