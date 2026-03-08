@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { mockStore } from '../lib/mockStore';
 
 export interface PatientDetail {
   id: string;
@@ -105,232 +105,127 @@ export interface PatientPrescription {
 }
 
 const patientService = {
-  async generateUHID(hospitalId: string): Promise<string> {
-    const { data, error } = await supabase.rpc('generate_uhid' as never, {
-      p_hospital_id: hospitalId,
-    } as never);
-    if (error) {
-      const today = new Date();
-      const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
-      const rand = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-      return `UHID-${dateStr}-${rand}`;
-    }
-    return data as string;
+  async generateUHID(_hospitalId: string): Promise<string> {
+    return mockStore.generateUHID();
   },
 
   async getPatientById(patientId: string): Promise<PatientDetail | null> {
-    const { data, error } = await supabase
-      .from('patients')
-      .select('*')
-      .eq('id', patientId)
-      .maybeSingle();
-    if (error) throw error;
-    return data as PatientDetail | null;
+    const p = mockStore.getPatientById(patientId);
+    if (!p) return null;
+    return {
+      id: p.id,
+      uhid: p.uhid,
+      hospital_id: p.hospital_id,
+      full_name: p.full_name,
+      date_of_birth: p.date_of_birth || '',
+      age: p.age,
+      gender: p.gender,
+      blood_group: p.blood_group,
+      phone: p.phone,
+      email: p.email,
+      address: p.address,
+      city: p.city,
+      state: p.state,
+      pincode: p.pincode,
+      nationality: 'Indian',
+      marital_status: null,
+      occupation: null,
+      referred_by: null,
+      emergency_contact_name: null,
+      emergency_contact_phone: null,
+      emergency_contact_relation: null,
+      aadhar_number: null,
+      aadhaar_url: null,
+      insurance_provider: null,
+      insurance_number: null,
+      insurance_expiry: null,
+      registration_type: p.registration_type,
+      billing_category: p.billing_category,
+      custom_field_values: null,
+      is_active: p.is_active,
+      created_at: p.created_at,
+      updated_at: p.created_at,
+    };
   },
 
-  async uploadAadhaar(patientId: string, file: File): Promise<string> {
-    const ext = file.name.split('.').pop() || 'jpg';
-    const path = `aadhaar/${patientId}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('patient-docs')
-      .upload(path, file, { upsert: true });
-    if (uploadError) throw uploadError;
-
-    const { data: urlData } = supabase.storage
-      .from('patient-docs')
-      .getPublicUrl(path);
-
-    const url = urlData.publicUrl;
-
-    const { error: updateError } = await supabase
-      .from('patients')
-      .update({ aadhaar_url: url } as never)
-      .eq('id', patientId);
-    if (updateError) throw updateError;
-
-    return url;
+  async uploadAadhaar(_patientId: string, _file: File): Promise<string> {
+    return 'mock-aadhaar-url';
   },
 
-  async getCustomFieldsConfig(hospitalId: string, formName = 'patient'): Promise<CustomFieldConfig[]> {
-    const { data, error } = await supabase
-      .from('custom_fields_config')
-      .select('*')
-      .eq('hospital_id', hospitalId)
-      .eq('form_name', formName)
-      .eq('is_active', true)
-      .order('sort_order');
-    if (error) throw error;
-    return (data ?? []) as CustomFieldConfig[];
+  async getCustomFieldsConfig(_hospitalId: string, _formName = 'patient'): Promise<CustomFieldConfig[]> {
+    return [];
   },
 
-  async saveCustomFieldConfig(
-    hospitalId: string,
-    config: Omit<CustomFieldConfig, 'id' | 'hospital_id' | 'created_at'>
-  ): Promise<CustomFieldConfig> {
-    const { data, error } = await supabase
-      .from('custom_fields_config')
-      .insert({
-        hospital_id: hospitalId,
-        form_name: config.form_name,
-        field_label: config.field_label,
-        field_type: config.field_type,
-        is_mandatory: config.is_mandatory,
-        options: config.options,
-        sort_order: config.sort_order,
-        is_active: config.is_active,
-      } as never)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as CustomFieldConfig;
+  async saveCustomFieldConfig(_hospitalId: string, config: Omit<CustomFieldConfig, 'id' | 'hospital_id' | 'created_at'>): Promise<CustomFieldConfig> {
+    return { id: mockStore.uuid(), hospital_id: '11111111-1111-1111-1111-111111111111', created_at: new Date().toISOString(), ...config };
   },
 
-  async updateCustomFieldConfig(
-    id: string,
-    updates: Partial<CustomFieldConfig>
-  ): Promise<void> {
-    const { error } = await supabase
-      .from('custom_fields_config')
-      .update(updates as never)
-      .eq('id', id);
-    if (error) throw error;
-  },
-
-  async deleteCustomFieldConfig(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('custom_fields_config')
-      .update({ is_active: false } as never)
-      .eq('id', id);
-    if (error) throw error;
-  },
-
-  async updatePatientCustomFields(
-    patientId: string,
-    values: Record<string, unknown>
-  ): Promise<void> {
-    const { error } = await supabase
-      .from('patients')
-      .update({ custom_field_values: values } as never)
-      .eq('id', patientId);
-    if (error) throw error;
-  },
+  async updateCustomFieldConfig(_id: string, _updates: Partial<CustomFieldConfig>): Promise<void> {},
+  async deleteCustomFieldConfig(_id: string): Promise<void> {},
+  async updatePatientCustomFields(_patientId: string, _values: Record<string, unknown>): Promise<void> {},
 
   async getOPDVisits(patientId: string): Promise<OPDVisit[]> {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('id, appointment_date, appointment_time, type, status, chief_complaint, doctor:profiles!doctor_id(full_name)')
-      .eq('patient_id', patientId)
-      .order('appointment_date', { ascending: false })
-      .order('appointment_time', { ascending: false })
-      .limit(50);
-    if (error) throw error;
-    return (data ?? []).map((row: Record<string, unknown>) => ({
-      id: row.id as string,
-      appointment_date: row.appointment_date as string,
-      appointment_time: row.appointment_time as string,
-      type: row.type as string,
-      status: row.status as string,
-      chief_complaint: row.chief_complaint as string | null,
-      doctor_name: ((row.doctor as Record<string, unknown>)?.full_name as string) ?? 'Unknown',
-    }));
+    const store = mockStore.get();
+    return store.appointments
+      .filter(a => a.patient_id === patientId)
+      .sort((a, b) => b.appointment_date.localeCompare(a.appointment_date))
+      .slice(0, 50)
+      .map(a => ({
+        id: a.id,
+        appointment_date: a.appointment_date,
+        appointment_time: a.appointment_time,
+        type: a.type,
+        status: a.status,
+        chief_complaint: a.chief_complaint,
+        doctor_name: mockStore.getDoctorName(a.doctor_id),
+      }));
   },
 
-  async getIPDAdmissions(patientId: string): Promise<IPDAdmission[]> {
-    const { data, error } = await supabase
-      .from('admissions')
-      .select('id, admission_number, admission_date, discharge_date, status, primary_diagnosis, ward:wards!ward_id(name)')
-      .eq('patient_id', patientId)
-      .order('admission_date', { ascending: false })
-      .limit(50);
-    if (error) throw error;
-    return (data ?? []).map((row: Record<string, unknown>) => ({
-      id: row.id as string,
-      admission_number: row.admission_number as string,
-      admission_date: row.admission_date as string,
-      discharge_date: row.discharge_date as string | null,
-      status: row.status as string,
-      primary_diagnosis: row.primary_diagnosis as string | null,
-      ward_name: ((row.ward as Record<string, unknown>)?.name as string) ?? 'Unknown',
-    }));
+  async getIPDAdmissions(_patientId: string): Promise<IPDAdmission[]> {
+    return [];
   },
 
   async getPatientPayments(patientId: string): Promise<PatientPayment[]> {
-    const { data: bills, error: billsErr } = await supabase
-      .from('bills')
-      .select('id, bill_number')
-      .eq('patient_id', patientId);
-    if (billsErr) throw billsErr;
-
-    if (!bills || bills.length === 0) return [];
-
-    const billIds = (bills as { id: string; bill_number: string }[]).map((b) => b.id);
-    const billMap = new Map((bills as { id: string; bill_number: string }[]).map((b) => [b.id, b.bill_number]));
-
-    const { data, error } = await supabase
-      .from('payments')
-      .select('id, payment_date, amount, payment_mode, payment_reference, bill_id')
-      .in('bill_id', billIds)
-      .order('payment_date', { ascending: false })
-      .limit(50);
-    if (error) throw error;
-
-    return (data ?? []).map((row: Record<string, unknown>) => ({
-      id: row.id as string,
-      payment_date: row.payment_date as string,
-      amount: Number(row.amount) || 0,
-      payment_mode: row.payment_mode as string,
-      payment_reference: row.payment_reference as string | null,
-      bill_number: billMap.get(row.bill_id as string) ?? null,
-    }));
+    const store = mockStore.get();
+    return store.bills
+      .filter(b => b.patient_id === patientId)
+      .map(b => ({
+        id: b.id,
+        payment_date: b.bill_date,
+        amount: b.amount_paid,
+        payment_mode: b.payment_mode,
+        payment_reference: null,
+        bill_number: b.bill_number,
+      }));
   },
 
   async getPatientVitals(patientId: string): Promise<PatientVitalRecord[]> {
-    const { data, error } = await supabase
-      .from('vitals')
-      .select('id, recorded_at, systolic_bp, diastolic_bp, heart_rate, temperature, spo2, weight, height, respiratory_rate')
-      .eq('patient_id', patientId)
-      .order('recorded_at', { ascending: false })
-      .limit(20);
-    if (error) throw error;
-    return (data ?? []) as PatientVitalRecord[];
+    return mockStore.getPatientVitals(patientId, 20).map(v => ({
+      id: v.id,
+      recorded_at: v.recorded_at,
+      systolic_bp: v.systolic_bp,
+      diastolic_bp: v.diastolic_bp,
+      heart_rate: v.heart_rate,
+      temperature: v.temperature,
+      spo2: v.spo2,
+      weight: v.weight,
+      height: v.height,
+      respiratory_rate: v.respiratory_rate,
+    }));
   },
 
   async getPatientPrescriptions(patientId: string): Promise<PatientPrescription[]> {
-    const { data, error } = await supabase
-      .from('prescriptions')
-      .select('id, prescription_number, prescription_date, diagnosis, doctor_id, doctor:profiles!doctor_id(full_name)')
-      .eq('patient_id', patientId)
-      .order('prescription_date', { ascending: false })
-      .limit(20);
-    if (error) throw error;
-
-    const prescriptions = (data ?? []) as Array<Record<string, unknown>>;
-    const results: PatientPrescription[] = [];
-
-    for (const rx of prescriptions) {
-      const { data: items } = await supabase
-        .from('prescription_items')
-        .select('drug_name, dosage, frequency, duration_days')
-        .eq('prescription_id', rx.id as string)
-        .order('sort_order');
-
-      results.push({
-        id: rx.id as string,
-        prescription_number: rx.prescription_number as string,
-        prescription_date: rx.prescription_date as string,
-        diagnosis: rx.diagnosis as string | null,
-        doctor_name: ((rx.doctor as Record<string, unknown>)?.full_name as string) ?? 'Unknown',
-        items: (items ?? []) as Array<{
-          drug_name: string;
-          dosage: string | null;
-          frequency: string | null;
-          duration_days: number | null;
-        }>,
-      });
-    }
-
-    return results;
+    const store = mockStore.get();
+    return store.prescriptions
+      .filter(r => r.patient_id === patientId)
+      .map(r => ({
+        id: r.id,
+        prescription_number: r.prescription_number,
+        prescription_date: r.prescription_date,
+        diagnosis: r.diagnosis,
+        doctor_name: mockStore.getDoctorName(r.doctor_id),
+        items: [],
+      }));
   },
 };
 

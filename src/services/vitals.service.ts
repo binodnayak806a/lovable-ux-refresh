@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { mockStore } from '../lib/mockStore';
 import type { VitalsFormData, VitalsRecord } from '../modules/opd/vitals/types';
 import { getVitalStatus } from '../modules/opd/vitals/types';
 
@@ -49,92 +49,49 @@ export function getCriticalAlerts(form: VitalsFormData): CriticalVitalAlert[] {
     }));
 }
 
-async function createCriticalVitalNotification(
-  _patientId: string,
-  patientName: string,
-  alerts: CriticalVitalAlert[],
-  notifyUserId: string
-): Promise<void> {
-  if (alerts.length === 0) return;
-  const alertText = alerts.map((a) => `${a.label}: ${a.value}${a.unit}`).join(', ');
-  const message = `CRITICAL VITALS — ${patientName}: ${alertText}. Immediate attention required.`;
-  await supabase.from('notifications').insert({
-    user_id: notifyUserId,
-    title: 'Critical Vitals Alert',
-    message,
-    type: 'error',
-    source: 'system',
-    is_read: false,
-  } as never);
-}
-
 const vitalsService = {
   async saveVitals(
     patientId: string,
     appointmentId: string | null,
     recordedBy: string,
     form: VitalsFormData,
-    patientName?: string
+    _patientName?: string
   ): Promise<VitalsRecord> {
-    const payload: Record<string, unknown> = {
-      patient_id:           patientId,
-      appointment_id:       appointmentId || null,
-      recorded_by:          recordedBy,
-      is_abnormal:          hasAbnormal(form),
-      pain_scale:           form.painScale,
-      notes:                form.notes || null,
+    const id = mockStore.uuid();
+    const now = new Date().toISOString();
+
+    const record = {
+      id,
+      patient_id: patientId,
+      appointment_id: appointmentId,
+      systolic_bp: form.systolicBp ? parseInt(form.systolicBp) : null,
+      diastolic_bp: form.diastolicBp ? parseInt(form.diastolicBp) : null,
+      heart_rate: form.heartRate ? parseInt(form.heartRate) : null,
+      respiratory_rate: form.respiratoryRate ? parseInt(form.respiratoryRate) : null,
+      temperature: form.temperature ? parseFloat(form.temperature) : null,
+      spo2: form.spo2 ? parseInt(form.spo2) : null,
+      height: form.height ? parseFloat(form.height) : null,
+      weight: form.weight ? parseFloat(form.weight) : null,
+      bmi: form.bmi ? parseFloat(form.bmi) : null,
+      blood_glucose_level: form.bloodGlucoseLevel ? parseFloat(form.bloodGlucoseLevel) : null,
+      pain_scale: form.painScale,
+      is_abnormal: hasAbnormal(form),
+      notes: form.notes || null,
+      recorded_by: recordedBy,
+      recorded_at: now,
     };
 
-    if (form.systolicBp)         payload.systolic_bp          = parseInt(form.systolicBp);
-    if (form.diastolicBp)        payload.diastolic_bp         = parseInt(form.diastolicBp);
-    if (form.heartRate)          payload.heart_rate           = parseInt(form.heartRate);
-    if (form.respiratoryRate)    payload.respiratory_rate     = parseInt(form.respiratoryRate);
-    if (form.temperature)        payload.temperature          = parseFloat(form.temperature);
-    if (form.spo2)               payload.spo2                 = parseInt(form.spo2);
-    if (form.height)             payload.height               = parseFloat(form.height);
-    if (form.weight)             payload.weight               = parseFloat(form.weight);
-    if (form.bmi)                payload.bmi                  = parseFloat(form.bmi);
-    if (form.bloodGlucoseLevel)  payload.blood_glucose_level  = parseFloat(form.bloodGlucoseLevel);
-
-    const { data, error } = await supabase
-      .from('vitals')
-      .insert(payload as never)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    if (recordedBy && patientName) {
-      const criticals = getCriticalAlerts(form);
-      if (criticals.length > 0) {
-        createCriticalVitalNotification(patientId, patientName, criticals, recordedBy).catch(() => {});
-      }
-    }
-
-    return data as VitalsRecord;
+    mockStore.addVitals(record);
+    return record as VitalsRecord;
   },
 
   async getPatientVitals(patientId: string, limit = 10): Promise<VitalsRecord[]> {
-    const { data, error } = await supabase
-      .from('vitals')
-      .select('*')
-      .eq('patient_id', patientId)
-      .order('recorded_at', { ascending: false })
-      .limit(limit);
-
-    if (error) throw error;
-    return (data ?? []) as VitalsRecord[];
+    return mockStore.getPatientVitals(patientId, limit) as VitalsRecord[];
   },
 
   async getVitalsById(vitalsId: string): Promise<VitalsRecord | null> {
-    const { data, error } = await supabase
-      .from('vitals')
-      .select('*')
-      .eq('id', vitalsId)
-      .maybeSingle();
-
-    if (error) throw error;
-    return data as VitalsRecord | null;
+    const store = mockStore.get();
+    return (store.vitals.find(v => v.id === vitalsId) as VitalsRecord) ?? null;
   },
 };
 
