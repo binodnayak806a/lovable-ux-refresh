@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Save, Eye, Printer, Loader2, FileText, LayoutTemplate, Plus,
+  Save, Eye, Printer, Loader2, FileText, LayoutTemplate,
 } from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
