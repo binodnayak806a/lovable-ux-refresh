@@ -17,6 +17,7 @@ import { useSmartNavigation } from '../../hooks/useSmartNavigation';
 import { loadPatientContext } from '../../store/slices/globalSlice';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';
+import SharedStatCard from '../../components/shared/StatCard';
 import dashboardService from '../../services/dashboard.service';
 import PatientCard from './components/PatientCard';
 import PatientDetailSidebar from './components/PatientDetailSidebar';
