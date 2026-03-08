@@ -145,7 +145,7 @@ export default function PatientsPage() {
   const endNum = Math.min(page * limit, total);
 
   return (
-    <div className="flex flex-col h-full p-4 md:p-6 space-y-4">
+    <div className="flex flex-col h-full p-2 md:p-3 space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
