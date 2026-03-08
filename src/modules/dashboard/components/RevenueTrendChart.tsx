@@ -35,7 +35,7 @@ const CustomTooltip = ({ active, payload, label }: {
       {payload.map((p) => (
         <p key={p.dataKey} className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
-          <span className="text-gray-300">{p.name}:</span>
+          <span className="text-muted-foreground">{p.name}:</span>
           <span className="font-medium">Rs. {p.value.toLocaleString('en-IN')}</span>
         </p>
       ))}
