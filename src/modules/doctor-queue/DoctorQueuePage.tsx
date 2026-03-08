@@ -187,9 +187,6 @@ export default function DoctorQueuePage() {
     if (prescriptionItems.length > 0) setShowPrint(true);
   };
 
-  const waiting = appointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed');
-  const engaged = appointments.filter(a => a.status === 'in_progress');
-  const completed = appointments.filter(a => a.status === 'completed');
   const todayAppts = appointments;
 
   const filteredQueue = appointments.filter(a => {
