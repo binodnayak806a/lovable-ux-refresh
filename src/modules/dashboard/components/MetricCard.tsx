@@ -11,6 +11,7 @@ interface MetricCardProps {
   icon: React.ElementType;
   loading?: boolean;
   gradient?: string;
+  compact?: boolean;
 }
 
 const GRADIENT_MAP: Record<string, string> = {
