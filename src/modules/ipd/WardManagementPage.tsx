@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Building2, Plus, Edit2, Trash2, Loader2, BedDouble, ChevronDown, ChevronUp,
+  Building2, Plus, Edit2, Trash2, Loader2, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
