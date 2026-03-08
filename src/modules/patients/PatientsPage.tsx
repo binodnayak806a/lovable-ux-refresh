@@ -361,6 +361,19 @@ export default function PatientsPage() {
           onClose={() => setShowCustomFields(false)}
         />
       )}
+
+      {bookingPatient && (
+        <QuickBookAppointment
+          open={!!bookingPatient}
+          onClose={() => setBookingPatient(null)}
+          hospitalId={hospitalId}
+          userId={user?.id ?? ''}
+          patientId={bookingPatient.id}
+          patientName={bookingPatient.full_name}
+          patientUhid={bookingPatient.uhid}
+          onSuccess={loadPatients}
+        />
+      )}
     </TooltipProvider>
   );
 }
