@@ -36,7 +36,7 @@ export default function LoadingSpinner({ fullScreen, size = 'md', label = 'Loadi
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[200px]">
+    <div className="flex items-center justify-center min-h-[120px]">
       {spinner}
     </div>
   );

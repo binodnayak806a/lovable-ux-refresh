@@ -268,9 +268,10 @@ export default function AppointmentsPage() {
 
           <div className="w-px h-5 bg-border/50" />
 
-          <Button size="sm" onClick={handleNewAppointment} className="h-7 gap-1.5 text-[11px] px-3 rounded-lg">
+          <Button size="sm" onClick={handleNewAppointment} className="h-7 gap-1.5 text-[11px] px-3 rounded-lg" title="New Appointment (N)">
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">New</span>
+            <kbd className="hidden lg:inline ml-1 text-[9px] opacity-60 font-mono">N</kbd>
           </Button>
         </div>
       </div>

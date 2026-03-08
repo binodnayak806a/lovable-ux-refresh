@@ -13,7 +13,7 @@ export function useDebounce<T>(value: T, delay = 200): T {
 
 export function useDebouncedCallback<T extends unknown[]>(
   callback: (...args: T) => void,
-  delay = 400
+  delay = 200
 ): (...args: T) => void {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

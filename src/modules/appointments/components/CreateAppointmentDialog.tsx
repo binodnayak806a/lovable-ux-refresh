@@ -582,7 +582,7 @@ export default function CreateAppointmentDialog({
                 Walk-in appointments are auto-set to Waiting status
               </Badge>
             )}
-          </div>
+          </form>
 
           <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex items-center justify-between rounded-b-2xl">
             <p className="text-[10px] text-muted-foreground">Press <kbd className="px-1 py-0.5 bg-muted rounded text-[9px] font-mono">Enter</kbd> to create</p>
