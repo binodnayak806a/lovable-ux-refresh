@@ -135,7 +135,7 @@ export default function RevenueTrendChart() {
               type="monotone"
               dataKey="opd"
               name="OPD"
-              stroke="#3b82f6"
+              stroke="hsl(234, 62%, 55%)"
               strokeWidth={2.5}
               dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
               activeDot={{ r: 6 }}
