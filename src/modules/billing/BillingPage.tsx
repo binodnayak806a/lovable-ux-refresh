@@ -173,58 +173,10 @@ export default function BillingPage() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-blue-50/30">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Total Bills</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{stats.totalBills}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-emerald-50/30">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Total Revenue</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{formatCurrency(stats.totalRevenue)}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-emerald-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-amber-50/30">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Pending Amount</p>
-                <p className="text-2xl font-bold text-amber-600 mt-1">{formatCurrency(stats.pendingAmount)}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-amber-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-cyan-50/30">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Collected Today</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{formatCurrency(stats.collectedToday)}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-cyan-100 flex items-center justify-center">
-                <IndianRupee className="w-6 h-6 text-cyan-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <BillingStatCard label="Total Bills" value={stats.totalBills.toString()} icon={FileText} iconClassName="bg-blue-100 text-blue-600" />
+        <BillingStatCard label="Total Revenue" value={formatCurrency(stats.totalRevenue)} icon={TrendingUp} iconClassName="bg-emerald-100 text-emerald-600" />
+        <BillingStatCard label="Pending Amount" value={formatCurrency(stats.pendingAmount)} icon={Clock} iconClassName="bg-amber-100 text-amber-600" />
+        <BillingStatCard label="Collected Today" value={formatCurrency(stats.collectedToday)} icon={IndianRupee} iconClassName="bg-cyan-100 text-cyan-600" />
       </div>
 
       <Card>
