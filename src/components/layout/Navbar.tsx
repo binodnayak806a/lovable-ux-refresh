@@ -19,6 +19,7 @@ const PATH_LABELS: Record<string, string> = {
   dashboard: 'Dashboard',
   patients: 'Patients',
   'add-patient': 'Add Patient',
+  'edit-patient': 'Edit Patient',
   appointments: 'Appointments',
   opd: 'OPD',
   ipd: 'IPD',

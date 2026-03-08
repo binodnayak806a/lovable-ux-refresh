@@ -5,7 +5,7 @@ import {
   User, ChevronLeft, ChevronRight, Settings2,
   MoreHorizontal,
   Stethoscope, Receipt, BedDouble, History, Printer, CalendarCheck,
-  Eye,
+  Eye, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
@@ -310,6 +310,9 @@ export default function PatientsPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-44">
+                              <DropdownMenuItem onClick={() => navigate(`/edit-patient?id=${p.id}`)} className="text-xs gap-2">
+                                <Pencil className="w-3.5 h-3.5" /> Edit Patient
+                              </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => setBookingPatient(p)} className="text-xs gap-2">
                                 <CalendarCheck className="w-3.5 h-3.5" /> Book Appointment
                               </DropdownMenuItem>

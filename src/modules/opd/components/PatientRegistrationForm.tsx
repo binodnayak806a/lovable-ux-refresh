@@ -57,15 +57,21 @@ interface DuplicatePatient {
 interface Props {
   onSuccess?: (patientId: string) => void;
   onCancel?: () => void;
+  /** Pass patient data for edit mode */
+  editPatientId?: string;
+  initialData?: Partial<RegistrationFormData>;
 }
 
-export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) {
+export default function PatientRegistrationForm({ onSuccess, onCancel, editPatientId, initialData }: Props) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAppSelector((s) => s.auth);
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
+  const isEditMode = !!editPatientId;
 
   const [form, setForm] = useState<RegistrationFormData>(() => {
+    if (initialData) return { ...EMPTY_FORM, ...initialData };
+    if (isEditMode) return EMPTY_FORM;
     try {
       const saved = localStorage.getItem(DRAFT_KEY);
       if (saved) return { ...EMPTY_FORM, ...JSON.parse(saved) };
@@ -121,6 +127,20 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
     const errs = validate(form);
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
+    if (isEditMode) {
+      setSubmitting(true);
+      try {
+        await opdService.updatePatient(editPatientId, form);
+        toast('Patient Updated!', { description: 'Patient details saved successfully.', type: 'success' });
+        if (onSuccess) onSuccess(editPatientId);
+      } catch (err: unknown) {
+        toast('Update Failed', { description: err instanceof Error ? err.message : 'Something went wrong.', type: 'error' });
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     // Check duplicates
     if (!dismissedDuplicates) {
       try {
@@ -145,7 +165,6 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
       const p = patient as { id: string; uhid: string };
       localStorage.removeItem(DRAFT_KEY);
       toast('Patient Registered!', { description: `UHID: ${p.uhid}`, type: 'success' });
-      // Show quick book appointment dialog
       const patientName = `${form.firstName} ${form.lastName}`.trim();
       setRegisteredPatient({ id: p.id, uhid: p.uhid, name: patientName });
     } catch (err: unknown) {
@@ -162,8 +181,8 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
       {/* Header */}
       <div className="px-6 pt-5 pb-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">New Patient Registration</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Fill all required details in a single form</p>
+          <h2 className="text-xl font-bold text-gray-900">{isEditMode ? 'Edit Patient Details' : 'New Patient Registration'}</h2>
+          <p className="text-sm text-gray-500 mt-0.5">{isEditMode ? 'Update patient information' : 'Fill all required details in a single form'}</p>
         </div>
         <div className="flex items-center gap-2">
           {hasDraft && (
@@ -397,7 +416,7 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
           {hasDraft && <span className="text-xs text-gray-400 flex items-center gap-1"><Save className="w-3 h-3" /> Draft saved</span>}
         </div>
         <Button size="sm" onClick={handleSubmit} disabled={submitting} className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 min-w-[140px]">
-          {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Registering…</> : 'Register Patient'}
+          {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> {isEditMode ? 'Saving…' : 'Registering…'}</> : isEditMode ? 'Save Changes' : 'Register Patient'}
         </Button>
       </div>
 

@@ -201,6 +201,48 @@ const opdService = {
 
     return { patient, appointment };
   },
+
+  async updatePatient(
+    patientId: string,
+    form: RegistrationFormData
+  ) {
+    let dob = form.dateOfBirth;
+    if (!dob && form.ageYears) {
+      const year = new Date().getFullYear() - parseInt(form.ageYears, 10);
+      dob = `${year}-01-01`;
+    }
+
+    const { data, error } = await supabase
+      .from('patients')
+      .update({
+        full_name: `${form.firstName} ${form.lastName}`.trim(),
+        date_of_birth: dob,
+        gender: form.gender,
+        blood_group: form.bloodGroup || null,
+        phone: form.phone,
+        email: form.email || null,
+        address: form.address || '',
+        city: form.city || '',
+        state: form.state || '',
+        pincode: form.pincode || null,
+        aadhar_number: form.aadharNumber || null,
+        referred_by: form.referredBy || null,
+        guardian_name: form.guardianName || null,
+        guardian_phone: form.guardianPhone || null,
+        guardian_relation: form.guardianRelation || null,
+        emergency_contact_name: form.emergencyContactName || null,
+        emergency_contact_phone: form.emergencyContactPhone || null,
+        insurance_provider: form.billingCategory === 'insurance' ? form.insuranceCompany : null,
+        insurance_number: form.billingCategory === 'insurance' ? form.policyNumber : null,
+        billing_category: form.billingCategory || 'cash',
+      } as never)
+      .eq('id', patientId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
 };
 
 export default opdService;
