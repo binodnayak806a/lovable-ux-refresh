@@ -70,6 +70,8 @@ export default function PatientRegistrationForm({ onSuccess, onCancel, editPatie
   const isEditMode = !!editPatientId;
 
   const [form, setForm] = useState<RegistrationFormData>(() => {
+    if (initialData) return { ...EMPTY_FORM, ...initialData };
+    if (isEditMode) return EMPTY_FORM;
     try {
       const saved = localStorage.getItem(DRAFT_KEY);
       if (saved) return { ...EMPTY_FORM, ...JSON.parse(saved) };
