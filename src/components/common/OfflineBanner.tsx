@@ -29,7 +29,7 @@ export default function OfflineBanner() {
       className={`px-4 py-2 text-sm font-medium flex items-center justify-between ${
         !isOnline
           ? 'bg-amber-500 text-white'
-          : 'bg-blue-500 text-white'
+          : 'bg-primary text-primary-foreground'
       }`}
     >
       <div className="flex items-center gap-2">

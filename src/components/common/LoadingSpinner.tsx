@@ -20,16 +20,16 @@ export default function LoadingSpinner({ fullScreen, size = 'md', label = 'Loadi
     >
       <div
         aria-hidden="true"
-        className={`${SIZES[size]} rounded-full border-slate-200 border-t-blue-600 animate-spin`}
+        className={`${SIZES[size]} rounded-full border-border border-t-primary animate-spin`}
       />
       <span className="sr-only">{label}</span>
-      {label && <p className="text-sm text-slate-600">{label}</p>}
+      {label && <p className="text-sm text-muted-foreground">{label}</p>}
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-50">
+      <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
         {spinner}
       </div>
     );

@@ -103,18 +103,18 @@ export default function RevenueTrendChart() {
   const totalWeek = data.reduce((s, d) => s + d.total, 0);
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl p-5 h-full">
+    <section className="bg-card border border-border rounded-xl p-5 h-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <IndianRupee className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900">Revenue Trend</h2>
+          <IndianRupee className="w-4 h-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold text-foreground">Revenue Trend</h2>
         </div>
-        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md">Last 7 days</span>
+        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">Last 7 days</span>
       </div>
 
       <div className="mb-4">
-        <span className="text-3xl font-bold text-gray-900">Rs. {totalWeek.toLocaleString('en-IN')}</span>
-        <p className="text-sm text-gray-500 mt-0.5">Total this week</p>
+        <span className="text-3xl font-bold text-foreground">Rs. {totalWeek.toLocaleString('en-IN')}</span>
+        <p className="text-sm text-muted-foreground mt-0.5">Total this week</p>
       </div>
 
       {loading ? (

@@ -71,13 +71,13 @@ export default function UpcomingAppointments({ showQuickAdd = false }: { showQui
   }
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl overflow-hidden h-full">
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+    <section className="bg-card border border-border rounded-xl overflow-hidden h-full">
+      <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <Calendar className="w-4 h-4 text-blue-500" />
-          <h2 className="text-sm font-semibold text-gray-900">Today's Appointments</h2>
+          <Calendar className="w-4 h-4 text-primary" />
+          <h2 className="text-sm font-semibold text-foreground">Today's Appointments</h2>
           {!loading && (
-            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+            <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
               {appointments.length}
             </Badge>
           )}
@@ -96,7 +96,7 @@ export default function UpcomingAppointments({ showQuickAdd = false }: { showQui
           )}
           <button
             onClick={() => navigate('/appointments')}
-            className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-0.5"
+            className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-0.5"
           >
             All <ChevronRight className="w-3.5 h-3.5" />
           </button>
@@ -119,24 +119,24 @@ export default function UpcomingAppointments({ showQuickAdd = false }: { showQui
           </div>
         ) : appointments.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Calendar className="w-8 h-8 text-gray-300 mb-2" />
-            <p className="text-sm text-gray-500">No upcoming appointments</p>
+            <Calendar className="w-8 h-8 text-muted-foreground/50 mb-2" />
+            <p className="text-sm text-muted-foreground">No upcoming appointments</p>
           </div>
         ) : (
           <div className="space-y-1.5">
             {appointments.map((appt, i) => (
               <div
                 key={appt.id}
-                className={`flex items-center gap-3 px-2 py-2 rounded-lg transition-colors ${i === 0 ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                className={`flex items-center gap-3 px-2 py-2 rounded-lg transition-colors ${i === 0 ? 'bg-primary/5' : 'hover:bg-muted/50'}`}
               >
-                <div className={`w-1.5 h-8 rounded-full ${STATUS_DOT[appt.status] ?? 'bg-gray-300'}`} />
+                <div className={`w-1.5 h-8 rounded-full ${STATUS_DOT[appt.status] ?? 'bg-muted-foreground/30'}`} />
                 <div className="flex-1 min-w-0">
                   <PatientNameLink
                     patientId={appt.patient_id}
                     name={appt.patient_name}
-                    className="text-sm font-medium text-gray-900 truncate hover:text-blue-600 hover:underline transition-colors cursor-pointer text-left"
+                    className="text-sm font-medium text-foreground truncate hover:text-primary hover:underline transition-colors cursor-pointer text-left"
                   />
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
                     {formatTime(appt.appointment_time)}
                     {appt.doctor_name && (

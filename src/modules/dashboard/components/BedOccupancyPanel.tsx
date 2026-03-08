@@ -18,7 +18,7 @@ const WARD_TYPE_COLORS: Record<string, string> = {
   private:      'bg-teal-500',
   semi_private: 'bg-cyan-500',
   emergency:    'bg-orange-500',
-  ot:           'bg-gray-500',
+  ot:           'bg-muted-foreground',
   hdu:          'bg-amber-500',
 };
 
@@ -36,17 +36,17 @@ export default function BedOccupancyPanel({ wards, loading }: Props) {
   return (
     <section
       aria-labelledby="bed-occupancy-heading"
-      className="bg-white border border-gray-200 rounded-xl p-5 h-full"
+      className="bg-card border border-border rounded-xl p-5 h-full"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <BedDouble aria-hidden="true" className="w-4 h-4 text-gray-400" />
-          <h2 id="bed-occupancy-heading" className="text-sm font-semibold text-gray-900">
+          <BedDouble aria-hidden="true" className="w-4 h-4 text-muted-foreground" />
+          <h2 id="bed-occupancy-heading" className="text-sm font-semibold text-foreground">
             Bed Occupancy
           </h2>
         </div>
         {!loading && totalBeds > 0 && (
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
             {totalOccupied}/{totalBeds} beds
           </span>
         )}
@@ -63,29 +63,29 @@ export default function BedOccupancyPanel({ wards, loading }: Props) {
         </div>
       ) : wards.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-            <BedDouble aria-hidden="true" className="w-6 h-6 text-gray-400" />
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+            <BedDouble aria-hidden="true" className="w-6 h-6 text-muted-foreground" />
           </div>
-          <p className="text-sm font-medium text-gray-600">No ward data available</p>
-          <p className="text-xs text-gray-400 mt-1">Ward information will appear here</p>
+          <p className="text-sm font-medium text-muted-foreground">No ward data available</p>
+          <p className="text-xs text-muted-foreground mt-1">Ward information will appear here</p>
         </div>
       ) : (
         <>
           <div className="mb-5">
             <div
-              className="text-4xl font-bold text-gray-900"
+              className="text-4xl font-bold text-foreground"
               aria-label={`${occupancyRate}% overall occupancy rate`}
             >
               {occupancyRate}%
             </div>
-            <p className="text-sm text-gray-500 mt-1">Overall occupancy rate</p>
+            <p className="text-sm text-muted-foreground mt-1">Overall occupancy rate</p>
           </div>
 
           <div className="space-y-4" role="list" aria-label="Ward occupancy breakdown">
             {wards.slice(0, 4).map((ward) => {
               const occupied = ward.total_beds - ward.available_beds;
               const pct = ward.total_beds > 0 ? Math.round((occupied / ward.total_beds) * 100) : 0;
-              const barColor = WARD_TYPE_COLORS[ward.ward_type] ?? 'bg-gray-500';
+              const barColor = WARD_TYPE_COLORS[ward.ward_type] ?? 'bg-muted-foreground';
 
               return (
                 <div
@@ -100,11 +100,11 @@ export default function BedOccupancyPanel({ wards, loading }: Props) {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm font-medium text-gray-700 truncate">{ward.name}</span>
-                      <span className="text-sm font-semibold text-gray-900 ml-2">{pct}%</span>
+                      <span className="text-sm font-medium text-foreground/80 truncate">{ward.name}</span>
+                      <span className="text-sm font-semibold text-foreground ml-2">{pct}%</span>
                     </div>
                     <div
-                      className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden"
+                      className="w-full bg-muted rounded-full h-1.5 overflow-hidden"
                       role="progressbar"
                       aria-valuenow={pct}
                       aria-valuemin={0}
@@ -117,8 +117,8 @@ export default function BedOccupancyPanel({ wards, loading }: Props) {
                       />
                     </div>
                     <div className="flex items-center justify-between mt-1">
-                      <span className="text-xs text-gray-400">{occupied} occupied</span>
-                      <span className="text-xs text-gray-400">{ward.available_beds} available</span>
+                      <span className="text-xs text-muted-foreground">{occupied} occupied</span>
+                      <span className="text-xs text-muted-foreground">{ward.available_beds} available</span>
                     </div>
                   </div>
                 </div>

@@ -61,11 +61,11 @@ export default function BedOccupancyDonut({ wards, loading }: Props) {
   ];
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl p-5 h-full">
+    <section className="bg-card border border-border rounded-xl p-5 h-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <BedDouble className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900">Bed Occupancy</h2>
+          <BedDouble className="w-4 h-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold text-foreground">Bed Occupancy</h2>
         </div>
       </div>
 
@@ -73,8 +73,8 @@ export default function BedOccupancyDonut({ wards, loading }: Props) {
         <Skeleton className="h-[220px] w-full rounded-lg" />
       ) : totalBeds === 0 ? (
         <div className="flex flex-col items-center justify-center h-[220px] text-center">
-          <BedDouble className="w-8 h-8 text-gray-300 mb-2" />
-          <p className="text-sm text-gray-500">No bed data available</p>
+          <BedDouble className="w-8 h-8 text-muted-foreground/50 mb-2" />
+          <p className="text-sm text-muted-foreground">No bed data available</p>
         </div>
       ) : (
         <>
@@ -100,8 +100,8 @@ export default function BedOccupancyDonut({ wards, loading }: Props) {
             </ResponsiveContainer>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
-                <span className="text-2xl font-bold text-gray-900">{totalOccupied}</span>
-                <p className="text-xs text-gray-500">/ {totalBeds}</p>
+                <span className="text-2xl font-bold text-foreground">{totalOccupied}</span>
+                <p className="text-xs text-muted-foreground">/ {totalBeds}</p>
               </div>
             </div>
           </div>
@@ -111,9 +111,9 @@ export default function BedOccupancyDonut({ wards, loading }: Props) {
               <div key={w.name} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: w.color }} />
-                  <span className="text-gray-600 truncate max-w-[120px]">{w.name}</span>
+                  <span className="text-muted-foreground truncate max-w-[120px]">{w.name}</span>
                 </div>
-                <span className="text-gray-900 font-medium">{w.occupied}/{w.total}</span>
+                <span className="text-foreground font-medium">{w.occupied}/{w.total}</span>
               </div>
             ))}
           </div>

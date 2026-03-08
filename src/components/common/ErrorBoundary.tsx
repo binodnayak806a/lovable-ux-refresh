@@ -33,17 +33,17 @@ export default class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-8 text-center">
-          <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
-            <AlertTriangle className="w-7 h-7 text-red-500" />
+          <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertTriangle className="w-7 h-7 text-destructive" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-slate-800">Something went wrong</h3>
-            <p className="text-sm text-slate-500 max-w-sm">
+            <h3 className="text-lg font-semibold text-foreground">Something went wrong</h3>
+            <p className="text-sm text-muted-foreground max-w-sm">
               An unexpected error occurred while loading this page. Try refreshing or contact support if the problem persists.
             </p>
           </div>
           {this.state.error && (
-            <code className="text-xs text-red-600 bg-red-50 px-3 py-1.5 rounded-md max-w-sm truncate block">
+            <code className="text-xs text-destructive bg-destructive/10 px-3 py-1.5 rounded-md max-w-sm truncate block">
               {this.state.error.message}
             </code>
           )}

@@ -35,21 +35,21 @@ export default function OPDByDoctorChart({ doctors, loading }: Props) {
   }));
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl p-5 h-full">
+    <section className="bg-card border border-border rounded-xl p-5 h-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <Stethoscope className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900">OPD by Doctor</h2>
+          <Stethoscope className="w-4 h-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold text-foreground">OPD by Doctor</h2>
         </div>
-        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md">Today</span>
+        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">Today</span>
       </div>
 
       {loading ? (
         <Skeleton className="h-[220px] w-full rounded-lg" />
       ) : chartData.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-[220px] text-center">
-          <Stethoscope className="w-8 h-8 text-gray-300 mb-2" />
-          <p className="text-sm text-gray-500">No doctor activity today</p>
+          <Stethoscope className="w-8 h-8 text-muted-foreground/50 mb-2" />
+          <p className="text-sm text-muted-foreground">No doctor activity today</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={220}>

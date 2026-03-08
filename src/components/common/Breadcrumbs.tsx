@@ -80,7 +80,7 @@ export default function Breadcrumbs({ items, className }: BreadcrumbsProps) {
     <nav aria-label="Breadcrumb" className={cn('flex items-center text-sm', className)}>
       <Link
         to="/dashboard"
-        className="text-gray-500 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+        className="text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
         aria-label="Home"
       >
         <Home className="w-4 h-4" />
@@ -89,11 +89,11 @@ export default function Breadcrumbs({ items, className }: BreadcrumbsProps) {
         const isLast = index === breadcrumbItems.length - 1;
         return (
           <div key={index} className="flex items-center">
-            <ChevronRight className="w-4 h-4 mx-2 text-gray-400" aria-hidden="true" />
+            <ChevronRight className="w-4 h-4 mx-2 text-muted-foreground" aria-hidden="true" />
             {item.path && !isLast ? (
               <Link
                 to={item.path}
-                className="text-gray-500 hover:text-gray-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1"
+                className="text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-1"
               >
                 {item.label}
               </Link>
@@ -101,7 +101,7 @@ export default function Breadcrumbs({ items, className }: BreadcrumbsProps) {
               <span
                 className={cn(
                   'px-1',
-                  isLast ? 'text-gray-900 font-medium' : 'text-gray-500'
+                  isLast ? 'text-foreground font-medium' : 'text-muted-foreground'
                 )}
                 aria-current={isLast ? 'page' : undefined}
               >

@@ -140,7 +140,7 @@ export default function NotificationDropdown() {
         >
           <Bell className="w-[18px] h-[18px]" />
           {totalCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
           )}
         </Button>
       </DropdownMenuTrigger>
@@ -155,8 +155,8 @@ export default function NotificationDropdown() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {notifications.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-gray-500">
-            <Bell className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+          <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+            <Bell className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
             <p>No new notifications</p>
           </div>
         ) : (
@@ -167,12 +167,12 @@ export default function NotificationDropdown() {
                 className="flex items-start gap-3 p-3 cursor-pointer"
                 onClick={() => handleNotificationClick(notification.link)}
               >
-                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                   {getIcon(notification.type)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-foreground">
                       {notification.title}
                     </p>
                     {notification.count && notification.count > 0 && (
@@ -181,7 +181,7 @@ export default function NotificationDropdown() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {notification.description}
                   </p>
                 </div>
@@ -189,7 +189,7 @@ export default function NotificationDropdown() {
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="justify-center text-sm font-medium text-blue-600 cursor-pointer"
+              className="justify-center text-sm font-medium text-primary cursor-pointer"
               onClick={() => {
                 setOpen(false);
                 navigate('/notifications');
