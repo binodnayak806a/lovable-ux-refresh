@@ -29,11 +29,11 @@ export default function HourlyTrendChart({ data, loading }: Props) {
   const peakHour = data.reduce((max, d) => d.count > max.count ? d : max, data[0] ?? { count: 0, label: '', hour: 0 });
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl p-5 h-full">
+    <section className="bg-card border border-border rounded-xl p-5 h-full">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <Clock className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900">
+          <Clock className="w-4 h-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold text-foreground">
             Today's Appointment Activity
           </h2>
           <span className="relative flex h-2 w-2">
@@ -45,13 +45,13 @@ export default function HourlyTrendChart({ data, loading }: Props) {
 
       <div className="flex items-baseline gap-4 mb-5">
         <div>
-          <span className="text-4xl font-bold text-gray-900">{totalToday}</span>
-          <p className="text-sm text-gray-500 mt-0.5">Total appointments today</p>
+          <span className="text-4xl font-bold text-foreground">{totalToday}</span>
+          <p className="text-sm text-muted-foreground mt-0.5">Total appointments today</p>
         </div>
         {peakHour && peakHour.count > 0 && (
-          <div className="ml-6 pl-6 border-l border-gray-200">
-            <span className="text-lg font-bold text-gray-900">{peakHour.label}</span>
-            <p className="text-sm text-gray-500">Peak hour ({peakHour.count})</p>
+          <div className="ml-6 pl-6 border-l border-border">
+            <span className="text-lg font-bold text-foreground">{peakHour.label}</span>
+            <p className="text-sm text-muted-foreground">Peak hour ({peakHour.count})</p>
           </div>
         )}
       </div>
@@ -88,12 +88,12 @@ export default function HourlyTrendChart({ data, loading }: Props) {
         </ResponsiveContainer>
       )}
 
-      <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-6">
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+      <div className="mt-3 pt-3 border-t border-border flex items-center gap-6">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="w-3 h-3 rounded bg-emerald-500" />
           Peak hour
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="w-3 h-3 rounded bg-emerald-100" />
           Regular
         </div>
