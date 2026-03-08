@@ -74,8 +74,6 @@ const consultationService = {
       follow_up_date: form.followUpDate || null,
       is_completed: false,
       consultation_date: new Date().toISOString().split('T')[0],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     };
 
     mockStore.addConsultation({
