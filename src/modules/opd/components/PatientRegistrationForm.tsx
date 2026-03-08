@@ -145,8 +145,9 @@ export default function PatientRegistrationForm({ onSuccess, onCancel }: Props) 
       const p = patient as { id: string; uhid: string };
       localStorage.removeItem(DRAFT_KEY);
       toast('Patient Registered!', { description: `UHID: ${p.uhid}`, type: 'success' });
-      if (onSuccess) onSuccess(p.id);
-      else navigate(`/opd?registered=${p.uhid}`);
+      // Show quick book appointment dialog
+      const patientName = `${form.firstName} ${form.lastName}`.trim();
+      setRegisteredPatient({ id: p.id, uhid: p.uhid, name: patientName });
     } catch (err: unknown) {
       toast('Registration Failed', { description: err instanceof Error ? err.message : 'Something went wrong.', type: 'error' });
     } finally {
