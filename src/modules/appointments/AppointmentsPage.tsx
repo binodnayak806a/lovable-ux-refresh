@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ChevronLeft, ChevronRight, Plus, Filter, RefreshCw,
-  CalendarDays, Users, Clock, LayoutGrid, CalendarRange,
+  CalendarDays, LayoutGrid,
   Calendar as CalendarIcon, Columns3, Grid3X3,
 } from 'lucide-react';
 import {
