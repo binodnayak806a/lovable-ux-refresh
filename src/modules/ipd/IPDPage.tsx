@@ -51,7 +51,7 @@ function formatStayDuration(admDate: string): string {
 
 export default function IPDPage() {
   usePageTitle('IPD');
-  const { hospitalId, user } = useAppSelector((s) => s.auth);
+  const { hospitalId } = useAppSelector((s) => s.auth);
   const effectiveHospitalId = hospitalId ?? SAMPLE_HOSPITAL_ID;
 
   // View mode
