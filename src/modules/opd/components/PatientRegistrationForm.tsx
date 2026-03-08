@@ -127,6 +127,20 @@ export default function PatientRegistrationForm({ onSuccess, onCancel, editPatie
     const errs = validate(form);
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
+    if (isEditMode) {
+      setSubmitting(true);
+      try {
+        await opdService.updatePatient(editPatientId, form);
+        toast('Patient Updated!', { description: 'Patient details saved successfully.', type: 'success' });
+        if (onSuccess) onSuccess(editPatientId);
+      } catch (err: unknown) {
+        toast('Update Failed', { description: err instanceof Error ? err.message : 'Something went wrong.', type: 'error' });
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     // Check duplicates
     if (!dismissedDuplicates) {
       try {
@@ -151,7 +165,6 @@ export default function PatientRegistrationForm({ onSuccess, onCancel, editPatie
       const p = patient as { id: string; uhid: string };
       localStorage.removeItem(DRAFT_KEY);
       toast('Patient Registered!', { description: `UHID: ${p.uhid}`, type: 'success' });
-      // Show quick book appointment dialog
       const patientName = `${form.firstName} ${form.lastName}`.trim();
       setRegisteredPatient({ id: p.id, uhid: p.uhid, name: patientName });
     } catch (err: unknown) {
