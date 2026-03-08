@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BedDouble, Building2, Receipt, Tag, Printer } from 'lucide-react';
+import { BedDouble, Building2, Receipt, Printer } from 'lucide-react';
 import { useAppSelector } from '../../store';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';

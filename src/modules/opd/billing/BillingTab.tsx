@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import {
   Plus, Receipt, Banknote, CreditCard, Smartphone,
   Globe, Shield, Printer, Save, Loader2, CheckCircle2, Percent,
-  Building2, Split,
+  Building2,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent } from '../../../components/ui/card';

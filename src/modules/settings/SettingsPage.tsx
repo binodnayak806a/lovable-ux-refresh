@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Save, Building2, Receipt, Stethoscope, Bell, ShieldCheck, RefreshCw,
-  Printer, MessageSquare, Palette, Download, Loader2, Moon, Sun, Upload, DoorOpen,
+  Printer, MessageSquare, Palette, Download, Loader2, Moon, Sun, Upload,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
