@@ -53,7 +53,7 @@ export default function MetricCard({
   if (loading) {
     return (
       <div
-        className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm"
+        className="bg-card border border-border rounded-xl p-5 shadow-sm"
         role="status"
         aria-label={`Loading ${title}`}
       >
