@@ -15,6 +15,7 @@ import {
   Database,
   Shield,
   LogOut,
+  Landmark,
   ChevronsUpDown,
   ClipboardList,
   Heart,
