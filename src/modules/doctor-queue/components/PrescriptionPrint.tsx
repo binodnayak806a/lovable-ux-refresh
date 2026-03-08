@@ -1,9 +1,22 @@
 import { useRef, forwardRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import { Printer, X } from 'lucide-react';
+import { Printer, X, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '../../../components/ui/button';
-import type { PrescriptionDrug } from '../../../services/doctor-queue.service';
+import type { PrescriptionDrug, InvestigationItem } from '../../../services/doctor-queue.service';
+
+interface SelectedDiagnosis {
+  diagnosis_id: string;
+  name: string;
+  icd10_code: string | null;
+  type: string;
+}
+
+interface SelectedSymptom {
+  symptom_id: string;
+  name: string;
+  severity: string;
+}
 
 interface Props {
   patientName: string;
@@ -15,9 +28,13 @@ interface Props {
   hospitalAddress: string;
   hospitalPhone: string;
   diagnosis: string;
+  selectedDiagnoses?: SelectedDiagnosis[];
+  symptoms?: SelectedSymptom[];
+  investigations?: InvestigationItem[];
   prescriptionItems: PrescriptionDrug[];
   advice: string;
   followupDate: string;
+  vitals?: { weight: string; height: string; bp: string; pulse: string; temperature: string; spo2: string };
   onClose: () => void;
 }
 
@@ -25,85 +42,134 @@ const RxContent = forwardRef<HTMLDivElement, Omit<Props, 'onClose'>>((props, ref
   const {
     patientName, patientUhid, patientAge, patientGender,
     doctorName, hospitalName, hospitalAddress, hospitalPhone,
-    diagnosis, prescriptionItems, advice, followupDate,
+    diagnosis, selectedDiagnoses, symptoms, investigations,
+    prescriptionItems, advice, followupDate, vitals,
   } = props;
 
-  const today = format(new Date(), 'dd-MMM-yyyy');
+  const today = format(new Date(), 'dd-MMM-yyyy hh:mm a');
 
   return (
-    <div ref={ref} className="bg-white" style={{ width: '700px', padding: '32px', fontFamily: 'Arial, sans-serif', color: '#1e293b' }}>
-      <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '12px', marginBottom: '16px' }}>
-        <div style={{ fontSize: '22px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
+    <div ref={ref} className="bg-white" style={{ width: '700px', padding: '28px 32px', fontFamily: "'Segoe UI', Arial, sans-serif", color: '#1e293b', fontSize: '12px' }}>
+      {/* Hospital Header */}
+      <div style={{ textAlign: 'center', borderBottom: '2px solid #0f4c75', paddingBottom: '10px', marginBottom: '14px' }}>
+        <div style={{ fontSize: '20px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.5px', color: '#0f4c75' }}>
           {hospitalName}
         </div>
         {hospitalAddress && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>{hospitalAddress}</div>}
-        {hospitalPhone && <div style={{ fontSize: '11px', color: '#64748b' }}>Phone: {hospitalPhone}</div>}
+        {hospitalPhone && <div style={{ fontSize: '11px', color: '#64748b' }}>Ph: {hospitalPhone}</div>}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '16px' }}>
-        <div style={{ lineHeight: 1.8 }}>
-          <div><span style={{ fontWeight: 600, width: '80px', display: 'inline-block' }}>Patient:</span> <strong>{patientName}</strong></div>
-          <div><span style={{ fontWeight: 600, width: '80px', display: 'inline-block' }}>UHID:</span> <span style={{ fontFamily: 'monospace' }}>{patientUhid}</span></div>
-          {(patientAge || patientGender) && (
-            <div><span style={{ fontWeight: 600, width: '80px', display: 'inline-block' }}>Age/Sex:</span> {[patientAge, patientGender].filter(Boolean).join('/')}</div>
-          )}
+      {/* Patient + Doctor Info */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
+        <div style={{ lineHeight: 1.7 }}>
+          <div><strong>Patient:</strong> {patientName}</div>
+          <div><strong>UHID:</strong> <span style={{ fontFamily: 'monospace' }}>{patientUhid}</span></div>
+          {(patientAge || patientGender) && <div><strong>Age/Sex:</strong> {[patientAge, patientGender].filter(Boolean).join(' / ')}</div>}
         </div>
-        <div style={{ lineHeight: 1.8, textAlign: 'right' }}>
-          <div><span style={{ fontWeight: 600 }}>Date:</span> {today}</div>
-          <div><span style={{ fontWeight: 600 }}>Doctor:</span> Dr. {doctorName}</div>
+        <div style={{ textAlign: 'right', lineHeight: 1.7 }}>
+          <div><strong>Date:</strong> {today}</div>
+          <div><strong>Doctor:</strong> Dr. {doctorName}</div>
         </div>
       </div>
 
-      {diagnosis && (
-        <div style={{ fontSize: '12px', marginBottom: '12px', padding: '8px', background: '#f8fafc', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
-          <span style={{ fontWeight: 700 }}>Diagnosis: </span>{diagnosis}
+      {/* Vitals */}
+      {vitals && (vitals.weight || vitals.height || vitals.bp || vitals.pulse || vitals.temperature || vitals.spo2) && (
+        <div style={{ marginBottom: '10px', padding: '6px 10px', background: '#f8fafc', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
+          <strong>Vitals: </strong>
+          {[
+            vitals.weight && `Wt: ${vitals.weight}kg`,
+            vitals.height && `Ht: ${vitals.height}cm`,
+            vitals.bp && `BP: ${vitals.bp}`,
+            vitals.pulse && `Pulse: ${vitals.pulse}bpm`,
+            vitals.temperature && `Temp: ${vitals.temperature}°F`,
+            vitals.spo2 && `SpO₂: ${vitals.spo2}%`,
+          ].filter(Boolean).join(' | ')}
         </div>
       )}
 
-      <div style={{ borderTop: '2px solid #0f172a', paddingTop: '12px', marginBottom: '16px' }}>
-        <div style={{ fontSize: '22px', fontWeight: 800, fontFamily: 'serif', marginBottom: '12px' }}>Rx</div>
-        <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
-              <th style={{ padding: '6px 0', fontWeight: 600, width: '30px' }}>#</th>
-              <th style={{ padding: '6px 0', fontWeight: 600 }}>Medicine</th>
-              <th style={{ padding: '6px 0', fontWeight: 600, width: '80px' }}>Dose</th>
-              <th style={{ padding: '6px 0', fontWeight: 600, width: '100px' }}>Frequency</th>
-              <th style={{ padding: '6px 0', fontWeight: 600, width: '60px' }}>Duration</th>
-              <th style={{ padding: '6px 0', fontWeight: 600, width: '120px' }}>Instructions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {prescriptionItems.map((item, idx) => (
-              <tr key={item.id} style={{ borderBottom: '1px dotted #e2e8f0' }}>
-                <td style={{ padding: '8px 0', color: '#64748b' }}>{idx + 1}</td>
-                <td style={{ padding: '8px 0', fontWeight: 600 }}>{item.medicine_name}</td>
-                <td style={{ padding: '8px 0' }}>{item.dose}</td>
-                <td style={{ padding: '8px 0' }}>{item.frequency}</td>
-                <td style={{ padding: '8px 0' }}>{item.duration ? `${item.duration} days` : ''}</td>
-                <td style={{ padding: '8px 0', color: '#64748b', fontSize: '11px' }}>{item.instructions}</td>
-              </tr>
+      {/* Symptoms */}
+      {symptoms && symptoms.length > 0 && (
+        <div style={{ marginBottom: '10px' }}>
+          <strong>Symptoms: </strong>
+          {symptoms.map(s => `${s.name} (${s.severity})`).join(', ')}
+        </div>
+      )}
+
+      {/* Diagnosis */}
+      {(selectedDiagnoses && selectedDiagnoses.length > 0) || diagnosis ? (
+        <div style={{ marginBottom: '10px', padding: '6px 10px', background: '#f0f9ff', borderRadius: '4px', border: '1px solid #bae6fd' }}>
+          <strong>Diagnosis: </strong>
+          {selectedDiagnoses && selectedDiagnoses.length > 0
+            ? selectedDiagnoses.map(d => `${d.name}${d.icd10_code ? ` [${d.icd10_code}]` : ''}`).join('; ')
+            : ''}
+          {diagnosis && selectedDiagnoses && selectedDiagnoses.length > 0 ? ` — ${diagnosis}` : diagnosis}
+        </div>
+      ) : null}
+
+      {/* Investigations */}
+      {investigations && investigations.length > 0 && (
+        <div style={{ marginBottom: '12px' }}>
+          <strong>Investigations Ordered:</strong>
+          <div style={{ marginTop: '4px' }}>
+            {investigations.map((inv, i) => (
+              <span key={inv.test_id} style={{ display: 'inline-block', margin: '2px 4px 2px 0', padding: '2px 8px', background: '#f1f5f9', borderRadius: '3px', border: '1px solid #e2e8f0' }}>
+                {inv.test_name} <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '10px' }}>({inv.test_code})</span>
+              </span>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </div>
+      )}
 
+      {/* Rx Section */}
+      {prescriptionItems.length > 0 && (
+        <div style={{ borderTop: '2px solid #0f4c75', paddingTop: '10px', marginBottom: '14px' }}>
+          <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'serif', marginBottom: '10px', color: '#0f4c75' }}>℞</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #cbd5e1', textAlign: 'left' }}>
+                <th style={{ padding: '5px 0', fontWeight: 700, width: '28px', color: '#64748b' }}>#</th>
+                <th style={{ padding: '5px 0', fontWeight: 700 }}>Medicine</th>
+                <th style={{ padding: '5px 0', fontWeight: 700, width: '70px' }}>Dose</th>
+                <th style={{ padding: '5px 0', fontWeight: 700, width: '90px' }}>Frequency</th>
+                <th style={{ padding: '5px 0', fontWeight: 700, width: '55px' }}>Days</th>
+                <th style={{ padding: '5px 0', fontWeight: 700, width: '110px' }}>Instructions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {prescriptionItems.map((item, idx) => (
+                <tr key={item.id} style={{ borderBottom: '1px dotted #e2e8f0' }}>
+                  <td style={{ padding: '7px 0', color: '#64748b' }}>{idx + 1}</td>
+                  <td style={{ padding: '7px 0', fontWeight: 600 }}>{item.medicine_name}</td>
+                  <td style={{ padding: '7px 0' }}>{item.dose}</td>
+                  <td style={{ padding: '7px 0' }}>{item.frequency}</td>
+                  <td style={{ padding: '7px 0' }}>{item.duration || ''}</td>
+                  <td style={{ padding: '7px 0', color: '#64748b', fontSize: '11px' }}>{item.instructions}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Advice */}
       {advice && (
-        <div style={{ fontSize: '12px', marginBottom: '12px', borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
-          <div style={{ fontWeight: 700, marginBottom: '4px' }}>Advice:</div>
-          <div style={{ color: '#475569', whiteSpace: 'pre-wrap' }}>{advice}</div>
+        <div style={{ marginBottom: '10px', borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}>
+          <strong>Advice:</strong>
+          <div style={{ color: '#475569', whiteSpace: 'pre-wrap', marginTop: '3px' }}>{advice}</div>
         </div>
       )}
 
+      {/* Follow-up */}
       {followupDate && (
-        <div style={{ fontSize: '12px', marginBottom: '20px', padding: '8px', background: '#f0fdf4', borderRadius: '4px', border: '1px solid #bbf7d0' }}>
-          <span style={{ fontWeight: 700 }}>Follow-up: </span>{format(new Date(followupDate), 'dd-MMM-yyyy')}
+        <div style={{ marginBottom: '16px', padding: '6px 10px', background: '#f0fdf4', borderRadius: '4px', border: '1px solid #bbf7d0' }}>
+          <strong>Follow-up: </strong>{format(new Date(followupDate), 'dd-MMM-yyyy (EEEE)')}
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '48px' }}>
+      {/* Doctor signature */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '40px' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ borderTop: '1px solid #334155', width: '180px', paddingTop: '4px', fontSize: '11px', color: '#64748b' }}>
+          <div style={{ borderTop: '1px solid #334155', width: '180px', paddingTop: '4px', fontSize: '12px', fontWeight: 600 }}>
             Dr. {doctorName}
           </div>
           <div style={{ fontSize: '10px', color: '#94a3b8' }}>Signature / Stamp</div>
@@ -126,17 +192,13 @@ export default function PrescriptionPrint(props: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={props.onClose} />
       <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100 shrink-0">
           <div>
             <h3 className="text-base font-semibold text-gray-900">Prescription Preview</h3>
             <p className="text-xs text-gray-500 mt-0.5">{props.patientName} | {props.patientUhid}</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              className="h-8 gap-1.5 bg-teal-600 hover:bg-teal-700 text-white"
-              onClick={() => handlePrint()}
-            >
+            <Button size="sm" className="h-8 gap-1.5" onClick={() => handlePrint()}>
               <Printer className="w-3.5 h-3.5" />
               Print
             </Button>
