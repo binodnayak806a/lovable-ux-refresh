@@ -8,11 +8,8 @@ import type {
   LabStats,
   OrderStatus,
   TestCategory,
-  LabOrderItem,
 } from '../modules/lab/types';
 import { startOfDay, endOfDay } from 'date-fns';
-
-const H = '11111111-1111-1111-1111-111111111111';
 
 const labService = {
   async getTests(hospitalId: string, category?: TestCategory): Promise<LabTest[]> {
