@@ -38,6 +38,12 @@ interface MasterStore {
   ipd_bill_items: Record<string, unknown>[];
   ipd_payments: Record<string, unknown>[];
   discharge_summaries: Record<string, unknown>[];
+  lab_orders: Record<string, unknown>[];
+  lab_order_items: Record<string, unknown>[];
+  pharmacy_inventory: Record<string, unknown>[];
+  pharmacy_transactions: Record<string, unknown>[];
+  pharmacy_purchases: Record<string, unknown>[];
+  pharmacy_sales: Record<string, unknown>[];
   hospital_config: Record<string, unknown>;
   _seeded: boolean;
 }
