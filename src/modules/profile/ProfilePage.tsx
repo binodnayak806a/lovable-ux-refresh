@@ -273,8 +273,8 @@ export default function ProfilePage() {
               </Button>
             </div>
             <div className="text-center sm:text-left">
-              <h2 className="text-xl font-semibold text-gray-900">{user?.full_name || 'User'}</h2>
-              <p className="text-sm text-gray-500">{user?.email}</p>
+              <h2 className="text-xl font-semibold text-foreground">{user?.full_name || 'User'}</h2>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
               <div className="flex items-center gap-2 mt-2 justify-center sm:justify-start">
                 <Badge variant="secondary" className="capitalize">
                   {user?.role || 'User'}
@@ -289,7 +289,7 @@ export default function ProfilePage() {
       </Card>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-gray-100/50 p-1">
+        <TabsList className="bg-muted p-1">
           <TabsTrigger value="profile" className="gap-2">
             <User className="w-4 h-4" />
             Profile

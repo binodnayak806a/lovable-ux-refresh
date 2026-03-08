@@ -72,25 +72,7 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function BillingStatCard({ label, value, icon: Icon, iconClassName }: {
-  label: string; value: string; icon: React.ElementType; iconClassName: string;
-}) {
-  return (
-    <Card className="border shadow-card">
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="text-2xl font-bold text-foreground mt-1">{value}</p>
-          </div>
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconClassName}`}>
-            <Icon className="w-6 h-6" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+import SharedStatCard from '../../components/shared/StatCard';
 
 export default function BillingPage() {
   usePageTitle('Billing');
@@ -193,10 +175,10 @@ export default function BillingPage() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <BillingStatCard label="Total Bills" value={stats.totalBills.toString()} icon={FileText} iconClassName="bg-blue-100 text-blue-600" />
-        <BillingStatCard label="Total Revenue" value={formatCurrency(stats.totalRevenue)} icon={TrendingUp} iconClassName="bg-emerald-100 text-emerald-600" />
-        <BillingStatCard label="Pending Amount" value={formatCurrency(stats.pendingAmount)} icon={Clock} iconClassName="bg-amber-100 text-amber-600" />
-        <BillingStatCard label="Collected Today" value={formatCurrency(stats.collectedToday)} icon={IndianRupee} iconClassName="bg-cyan-100 text-cyan-600" />
+        <SharedStatCard label="Total Bills" value={stats.totalBills.toString()} icon={FileText} iconClassName="bg-blue-100 text-blue-600" />
+        <SharedStatCard label="Total Revenue" value={formatCurrency(stats.totalRevenue)} icon={TrendingUp} iconClassName="bg-emerald-100 text-emerald-600" />
+        <SharedStatCard label="Pending Amount" value={formatCurrency(stats.pendingAmount)} icon={Clock} iconClassName="bg-amber-100 text-amber-600" />
+        <SharedStatCard label="Collected Today" value={formatCurrency(stats.collectedToday)} icon={IndianRupee} iconClassName="bg-cyan-100 text-cyan-600" />
       </div>
 
       <Card>

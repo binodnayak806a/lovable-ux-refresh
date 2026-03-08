@@ -23,7 +23,7 @@ export default function PharmacyPage() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-gray-100/80">
+        <TabsList className="bg-muted">
           <TabsTrigger value="billing" className="gap-1.5">
             <ShoppingCart className="w-3.5 h-3.5" />
             Sale Billing

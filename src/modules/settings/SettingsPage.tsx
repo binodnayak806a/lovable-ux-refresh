@@ -112,14 +112,14 @@ const DEFAULT_SETTINGS: SettingsState = {
 };
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 mt-6 first:mt-0">{children}</h3>;
+  return <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 mt-6 first:mt-0">{children}</h3>;
 }
 
 function SettingRow({ label, description, children }: { label: string; description?: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between py-4 border-b border-slate-100 last:border-0">
+    <div className="flex items-start justify-between py-4 border-b border-border last:border-0">
       <div className="flex-1 pr-8">
-        <Label className="text-sm font-medium text-slate-800">{label}</Label>
+        <Label className="text-sm font-medium text-foreground">{label}</Label>
         {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
       </div>
       <div className="flex-shrink-0">{children}</div>
@@ -332,13 +332,13 @@ export default function SettingsPage() {
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="border-b border-slate-200">
+          <div className="border-b border-border">
             <TabsList className="bg-transparent p-0 h-auto w-full justify-start rounded-none overflow-x-auto">
               {TABS.map(tab => (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="flex items-center gap-2 px-4 py-3.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-700 data-[state=active]:bg-blue-50/50 text-slate-600 font-medium text-sm"
+                  className="flex items-center gap-2 px-4 py-3.5 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-accent text-muted-foreground font-medium text-sm"
                 >
                   <tab.icon className="h-4 w-4" />
                   <span className="hidden sm:inline">{tab.label}</span>

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';
+import SharedStatCard from '../../components/shared/StatCard';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { useAppSelector } from '../../store';
@@ -172,19 +173,10 @@ export default function OPDPage() {
       {tab === 'queue' && (
         <div className="space-y-5">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Today's Total", value: stats.total, color: 'text-blue-700', bg: 'bg-blue-50' },
-              { label: 'In Progress', value: stats.inProgress, color: 'text-amber-700', bg: 'bg-amber-50' },
-              { label: 'Completed', value: stats.completed, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-              { label: 'Pending', value: stats.total - stats.completed - stats.inProgress, color: 'text-gray-700', bg: 'bg-gray-100' },
-            ].map((s) => (
-              <Card key={s.label} className="border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <p className="text-xs text-gray-500 font-medium">{s.label}</p>
-                  <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
-                </CardContent>
-              </Card>
-            ))}
+            <SharedStatCard label="Today's Total" value={stats.total} icon={CalendarClock} iconClassName="bg-blue-50 text-blue-600" />
+            <SharedStatCard label="In Progress" value={stats.inProgress} icon={Stethoscope} iconClassName="bg-amber-50 text-amber-600" />
+            <SharedStatCard label="Completed" value={stats.completed} icon={CheckCircle2} iconClassName="bg-emerald-50 text-emerald-600" />
+            <SharedStatCard label="Pending" value={stats.total - stats.completed - stats.inProgress} icon={Clock} iconClassName="bg-muted text-muted-foreground" />
           </div>
 
           <Card className="border-0 shadow-sm">

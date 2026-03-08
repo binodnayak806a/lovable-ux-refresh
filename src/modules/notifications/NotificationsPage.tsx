@@ -3,9 +3,11 @@ import { Bell, Check, CheckCheck, Filter, AlertCircle, Calendar, FileText, Pill,
 import { useAppSelector, useAppDispatch } from '../../store';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';
+import SharedStatCard from '../../components/shared/StatCard';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../store/slices/notificationsSlice';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+// Card still needed for the notifications list card below
 import { Badge } from '../../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -147,60 +149,10 @@ export default function NotificationsPage() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{items.length}</p>
-                <p className="text-sm text-gray-500">Total</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                <AlertCircle className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{unreadCount}</p>
-                <p className="text-sm text-gray-500">Unread</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Check className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{items.length - unreadCount}</p>
-                <p className="text-sm text-gray-500">Read</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertCircle className="w-5 h-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {items.filter((n) => n.type === 'error' || n.type === 'warning').length}
-                </p>
-                <p className="text-sm text-gray-500">Alerts</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <SharedStatCard label="Total" value={items.length} icon={Bell} iconClassName="bg-blue-100 text-blue-600" />
+        <SharedStatCard label="Unread" value={unreadCount} icon={AlertCircle} iconClassName="bg-amber-100 text-amber-600" />
+        <SharedStatCard label="Read" value={items.length - unreadCount} icon={Check} iconClassName="bg-emerald-100 text-emerald-600" />
+        <SharedStatCard label="Alerts" value={items.filter((n) => n.type === 'error' || n.type === 'warning').length} icon={AlertCircle} iconClassName="bg-red-100 text-red-600" />
       </div>
 
       <Card>

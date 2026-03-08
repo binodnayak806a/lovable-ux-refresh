@@ -32,7 +32,7 @@ export default function LabPage() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-gray-100/80">
+        <TabsList className="bg-muted">
           <TabsTrigger value="orders" className="gap-1.5">
             <ClipboardList className="w-3.5 h-3.5" />
             Lab Orders

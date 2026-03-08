@@ -18,6 +18,7 @@ import appointmentsService, {
   type WeekAppointment,
   type DoctorOption,
 } from '../../services/appointments.service';
+import PageHeader from '../../components/shared/PageHeader';
 import WeekViewCalendar from './components/WeekViewCalendar';
 import PatientQueueSidebar from './components/PatientQueueSidebar';
 import QueueKanban from './components/QueueKanban';
@@ -147,19 +148,11 @@ export default function AppointmentsPage() {
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="flex items-center justify-between py-2 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary/10 text-primary">
-            <CalendarDays className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground tracking-tight">Appointments</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {viewMode === 'calendar' ? weekLabel : `Today's Queue`}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
+        <PageHeader
+          title="Appointments"
+          subtitle={viewMode === 'calendar' ? weekLabel : `Today's Queue`}
+          icon={CalendarDays}
+          actions={<div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 mr-2">
             <Badge variant="outline" className="border-gray-200 text-gray-600 text-xs font-medium">
               <Users className="w-3 h-3 mr-1" />
@@ -296,7 +289,8 @@ export default function AppointmentsPage() {
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Appointment</span>
           </Button>
-        </div>
+        </div>}
+        />
       </div>
 
       {viewMode === 'calendar' ? (
@@ -314,7 +308,7 @@ export default function AppointmentsPage() {
             )}
           </div>
 
-          <div className="hidden lg:block w-80 border-l border-gray-100 p-4 overflow-hidden">
+          <div className="hidden lg:block w-80 border-l border-border p-4 overflow-hidden">
             {loading ? (
               <QueueSkeleton />
             ) : (
