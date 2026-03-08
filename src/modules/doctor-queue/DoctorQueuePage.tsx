@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Stethoscope, Clock, UserCheck, CheckCircle2, AlertTriangle, RefreshCw,
+  Stethoscope, Clock, UserCheck, CheckCircle2, RefreshCw,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
