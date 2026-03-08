@@ -31,7 +31,7 @@ const CustomTooltip = ({ active, payload, label }: {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-card rounded-xl px-3 py-2 text-sm shadow-elevated border border-border">
-      <p className="font-semibold mb-1">{label}</p>
+      <p className="font-semibold mb-1 text-foreground">{label}</p>
       {payload.map((p) => (
         <p key={p.dataKey} className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
