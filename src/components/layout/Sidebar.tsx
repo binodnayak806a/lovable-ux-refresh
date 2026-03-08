@@ -262,7 +262,6 @@ function SidebarUserFooter() {
 
 export default function AppSidebar() {
   const { canAccessModule } = usePermissions();
-  const { user } = useAppSelector((state) => state.auth);
 
   const filteredGroups = useMemo(() => {
     return NAV_GROUPS
