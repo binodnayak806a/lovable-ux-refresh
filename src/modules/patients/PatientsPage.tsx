@@ -165,7 +165,7 @@ export default function PatientsPage() {
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Export</span>
           </Button>
-          <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={() => navigate('/opd?tab=register')}>
+          <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={() => navigate('/add-patient')}>
             <UserPlus className="w-3.5 h-3.5" />
             Register New
           </Button>
