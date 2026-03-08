@@ -10,7 +10,7 @@ import {
   subDays,
 } from 'date-fns';
 import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
+
 import { Skeleton } from '../../components/ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
 import { Checkbox } from '../../components/ui/checkbox';

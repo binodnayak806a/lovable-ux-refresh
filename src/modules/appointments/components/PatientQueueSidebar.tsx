@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Clock, UserCheck, CheckCircle2, Play, XCircle, Search, X } from 'lucide-react';
-import { Badge } from '../../../components/ui/badge';
+
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import type { WeekAppointment } from '../../../services/appointments.service';
