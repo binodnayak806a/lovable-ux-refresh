@@ -31,10 +31,10 @@ const ACCENT_MAP: Record<string, string> = {
 
 const ICON_BG_MAP: Record<string, string> = {
   blue: 'bg-primary/10 text-primary',
-  amber: 'bg-amber-50 text-amber-600',
-  teal: 'bg-teal-50 text-teal-600',
-  rose: 'bg-rose-50 text-rose-600',
-  green: 'bg-emerald-50 text-emerald-600',
+  amber: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
+  teal: 'bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400',
+  rose: 'bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400',
+  green: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
 };
 
 export default function MetricCard({
