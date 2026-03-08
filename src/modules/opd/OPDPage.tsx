@@ -179,10 +179,10 @@ export default function OPDPage() {
             <SharedStatCard label="Pending" value={stats.total - stats.completed - stats.inProgress} icon={Clock} iconClassName="bg-muted text-muted-foreground" />
           </div>
 
-          <Card className="border-0 shadow-sm">
+          <Card>
             <CardHeader className="pb-3">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <CardTitle className="text-base font-semibold text-gray-900">Today's Appointments</CardTitle>
+                <CardTitle className="text-base font-semibold">Today's Appointments</CardTitle>
                 <div className="flex items-center gap-2 sm:ml-auto flex-wrap">
                   <div className="relative">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
