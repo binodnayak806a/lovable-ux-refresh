@@ -178,7 +178,9 @@ export default function OPDPage() {
     setTab('consultation');
   };
 
-  const handleRecordVitals = (_appt: AppointmentRow) => {
+  const handleRecordVitals = (appt: AppointmentRow) => {
+    setSelectedPatientId(appt.patient_id);
+    setSelectedAppointmentId(appt.id);
     setTab('vitals');
   };
 
