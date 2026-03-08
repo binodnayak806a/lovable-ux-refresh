@@ -6,7 +6,6 @@ import {
   BedDouble,
   FlaskConical,
   Pill,
-  Ambulance,
   AlertTriangle,
   Stethoscope,
   BarChart3,
