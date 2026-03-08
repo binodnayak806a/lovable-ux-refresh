@@ -117,6 +117,18 @@ export default function AppointmentsPage() {
   const handleSlotClick = (date: Date, time: string) => { setPrefillDate(date); setPrefillTime(time); setDialogOpen(true); };
   const handleNewAppointment = () => { setPrefillDate(undefined); setPrefillTime(undefined); setDialogOpen(true); };
 
+  // Keyboard shortcut: N to create new appointment (when no input is focused)
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'n' && !dialogOpen && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement)) {
+        e.preventDefault();
+        handleNewAppointment();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [dialogOpen]);
+
   const handleStatusChange = async (id: string, status: string) => {
     try { await appointmentsService.updateStatus(id, status); setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a)); } catch { /* */ }
   };
