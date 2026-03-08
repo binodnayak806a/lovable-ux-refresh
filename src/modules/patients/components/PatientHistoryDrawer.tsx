@@ -319,9 +319,18 @@ export default function PatientHistoryDrawer({ patientId, onClose }: Props) {
               </p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose}>
-            <X className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            {patient && !loading && (
+              <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5"
+                onClick={() => downloadCompleteRecord(patient, opdVisits, ipdAdmissions, payments, vitals, prescriptions)}>
+                <Download className="w-3.5 h-3.5" />
+                Download Record
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         <div className="flex items-center gap-1 px-4 pt-3 pb-0 overflow-x-auto">
