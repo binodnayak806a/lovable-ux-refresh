@@ -20,6 +20,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import OpdRoomConfig from './components/OpdRoomConfig';
 import PageHeader from '../../components/shared/PageHeader';
 import { toast } from 'sonner';
 
@@ -302,6 +303,7 @@ export default function SettingsPage() {
     { id: 'general', label: 'General', icon: Building2 },
     { id: 'billing', label: 'Billing', icon: Receipt },
     { id: 'clinical', label: 'Clinical', icon: Stethoscope },
+    { id: 'opd-rooms', label: 'OPD Rooms', icon: Stethoscope },
     { id: 'printing', label: 'Printing', icon: Printer },
     { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare },
     { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -498,6 +500,12 @@ export default function SettingsPage() {
               <SettingRow label="IPD Label" description="Auto-print bed label on admission">
                 <Switch checked={bool('auto_print_ipd_label')} onCheckedChange={v => setBool('auto_print_ipd_label', v)} />
               </SettingRow>
+            </TabsContent>
+
+            <TabsContent value="opd-rooms" className="mt-0 space-y-1">
+              <SectionHeading>OPD Room — Doctor Assignment</SectionHeading>
+              <p className="text-sm text-muted-foreground mb-4">Configure OPD rooms and assign doctors to specific consultation rooms.</p>
+              <OpdRoomConfig hospitalId={effectiveHospitalId} />
             </TabsContent>
 
             <TabsContent value="whatsapp" className="mt-0 space-y-1">

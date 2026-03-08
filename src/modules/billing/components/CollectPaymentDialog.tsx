@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import {
   X, IndianRupee, Calculator, Banknote, CreditCard,
-  Smartphone, Globe, Shield, Loader2,
+  Smartphone, Globe, Shield, Loader2, Building2,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
@@ -25,13 +25,14 @@ interface Props {
   onSuccess: () => void;
 }
 
-type PaymentMode = 'cash' | 'card' | 'upi' | 'online' | 'insurance';
+type PaymentMode = 'cash' | 'card' | 'upi' | 'online' | 'insurance' | 'rtgs';
 
 const PAYMENT_MODES: Array<{ value: PaymentMode; label: string; icon: typeof Banknote }> = [
   { value: 'cash', label: 'Cash', icon: Banknote },
   { value: 'card', label: 'Card', icon: CreditCard },
   { value: 'upi', label: 'UPI', icon: Smartphone },
   { value: 'online', label: 'Online', icon: Globe },
+  { value: 'rtgs', label: 'RTGS/NEFT', icon: Building2 },
   { value: 'insurance', label: 'Insurance', icon: Shield },
 ];
 
@@ -164,10 +165,10 @@ export default function CollectPaymentDialog({ open, bill, onClose, onSuccess }:
             </div>
           </div>
 
-          {(paymentMode === 'card' || paymentMode === 'upi' || paymentMode === 'online') && (
+          {(paymentMode === 'card' || paymentMode === 'upi' || paymentMode === 'online' || paymentMode === 'rtgs') && (
             <div>
               <Label className="text-xs text-gray-500 mb-1 block">Transaction Reference</Label>
-              <Input value={paymentRef} onChange={e => setPaymentRef(e.target.value)} placeholder="Txn ID / Ref number" className="h-9" />
+              <Input value={paymentRef} onChange={e => setPaymentRef(e.target.value)} placeholder="Txn ID / Ref number / UTR" className="h-9" />
             </div>
           )}
 

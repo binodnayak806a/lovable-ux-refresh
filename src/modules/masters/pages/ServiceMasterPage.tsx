@@ -11,9 +11,9 @@ import MasterPageShell from '../components/MasterPageShell';
 import MasterTable, { StatusBadge } from '../components/MasterTable';
 import { exportToCSV } from '../utils/csv';
 import type { ServiceMasterRow } from '../types';
-import { SERVICE_CATEGORIES, GST_SLABS } from '../types';
+import { SERVICE_CATEGORIES, GST_SLABS, SERVICE_TYPE_OPTIONS } from '../types';
 
-const EMPTY: Partial<ServiceMasterRow> = { service_name: '', category: '', price: 0, gst_rate: 0, hsn_code: '', is_active: true };
+const EMPTY: Partial<ServiceMasterRow> = { service_name: '', category: '', service_type: 'BOTH', price: 0, gst_rate: 0, hsn_code: '', ward_prices: null, is_active: true };
 
 export default function ServiceMasterPage() {
   const hospitalId = useHospitalId();
@@ -80,6 +80,12 @@ export default function ServiceMasterPage() {
         columns={[
           { key: 'service_name', label: 'Service', sortable: true, render: d => <span className="font-medium">{d.service_name}</span> },
           { key: 'category', label: 'Category', sortable: true },
+          { key: 'service_type', label: 'Type', sortable: true, render: d => (
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+              d.service_type === 'OPD' ? 'bg-blue-100 text-blue-700' :
+              d.service_type === 'IPD' ? 'bg-teal-100 text-teal-700' : 'bg-purple-100 text-purple-700'
+            }`}>{d.service_type || 'BOTH'}</span>
+          )},
           { key: 'price', label: 'Price', sortable: true, render: d => `Rs. ${Number(d.price).toLocaleString('en-IN')}` },
           { key: 'gst_rate', label: 'GST', render: d => `${d.gst_rate}%` },
           { key: 'hsn_code', label: 'HSN' },
@@ -99,14 +105,25 @@ export default function ServiceMasterPage() {
               <input type="text" value={form.service_name || ''} onChange={e => setForm({ ...form, service_name: e.target.value })}
                 className="w-full h-9 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-blue-400" />
             </div>
-            <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Category</label>
-              <Select value={form.category || ''} onValueChange={v => setForm({ ...form, category: v })}>
-                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                <SelectContent>
-                  {SERVICE_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Category</label>
+                <Select value={form.category || ''} onValueChange={v => setForm({ ...form, category: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1.5">Service Type</label>
+                <Select value={form.service_type || 'BOTH'} onValueChange={v => setForm({ ...form, service_type: v as 'OPD' | 'IPD' | 'BOTH' })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_TYPE_OPTIONS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

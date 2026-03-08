@@ -203,6 +203,8 @@ export default function CreateBillDialog({ open, onClose, onSuccess, hospitalId,
           paymentMode,
           paymentReference: paymentRef,
           notes,
+          isSplitPayment: false,
+          splitEntries: [],
         },
         {
           subtotal: totals.subtotal,

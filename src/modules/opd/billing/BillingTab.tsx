@@ -2,16 +2,19 @@ import { useState, useCallback, useMemo } from 'react';
 import {
   Plus, Receipt, Banknote, CreditCard, Smartphone,
   Globe, Shield, Printer, Save, Loader2, CheckCircle2, Percent,
+  Building2,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent } from '../../../components/ui/card';
+import { Switch } from '../../../components/ui/switch';
 import { useAppSelector } from '../../../store';
 import { useToast } from '../../../hooks/useToast';
 import { billingService } from '../../../services/billing.service';
 import BillItemRow from './BillItemRow';
 import ReceiptPrintPreview from './ReceiptPrintPreview';
+import SplitPaymentPanel from './SplitPaymentPanel';
 import type { BillItem, BillFormData, BillRecord, PaymentMode } from './types';
-import { createEmptyBillItem, EMPTY_BILL_FORM, PAYMENT_MODES, COMMON_SERVICES } from './types';
+import { createEmptyBillItem, createEmptySplitEntry, EMPTY_BILL_FORM, PAYMENT_MODES, COMMON_SERVICES } from './types';
 
 interface PatientInfo {
   id: string;
@@ -29,18 +32,13 @@ interface Props {
 
 const PaymentModeIcon = ({ mode }: { mode: PaymentMode }) => {
   switch (mode) {
-    case 'cash':
-      return <Banknote className="w-4 h-4" />;
-    case 'card':
-      return <CreditCard className="w-4 h-4" />;
-    case 'upi':
-      return <Smartphone className="w-4 h-4" />;
-    case 'online':
-      return <Globe className="w-4 h-4" />;
-    case 'insurance':
-      return <Shield className="w-4 h-4" />;
-    default:
-      return null;
+    case 'cash': return <Banknote className="w-4 h-4" />;
+    case 'card': return <CreditCard className="w-4 h-4" />;
+    case 'upi': return <Smartphone className="w-4 h-4" />;
+    case 'online': return <Globe className="w-4 h-4" />;
+    case 'rtgs': return <Building2 className="w-4 h-4" />;
+    case 'insurance': return <Shield className="w-4 h-4" />;
+    default: return null;
   }
 };
 
@@ -267,35 +265,65 @@ export default function BillingTab({ patient, consultationId, prescriptionId }: 
         <Card className="border border-gray-100 shadow-sm">
           <CardContent className="p-4 space-y-4">
             <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Payment Mode</h4>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-              {PAYMENT_MODES.map((mode) => (
-                <button
-                  key={mode.value}
-                  type="button"
-                  onClick={() => handleFormChange('paymentMode', mode.value)}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all ${
-                    form.paymentMode === mode.value
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  <PaymentModeIcon mode={mode.value} />
-                  <span className="text-xs font-medium">{mode.label}</span>
-                </button>
-              ))}
+            
+            <div className="flex items-center gap-2 mb-3">
+              <Switch
+                checked={form.isSplitPayment}
+                onCheckedChange={(v) => {
+                  setForm(prev => ({
+                    ...prev,
+                    isSplitPayment: v,
+                    ...(v && prev.splitEntries.length === 0 ? {
+                      splitEntries: [
+                        createEmptySplitEntry('cash'),
+                        createEmptySplitEntry('upi'),
+                      ],
+                    } : {}),
+                  }));
+                }}
+              />
+              <span className="text-xs text-gray-600 font-medium">Split Payment</span>
             </div>
 
-            {(form.paymentMode === 'card' || form.paymentMode === 'upi' || form.paymentMode === 'online') && (
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Reference / Transaction ID</label>
-                <input
-                  type="text"
-                  value={form.paymentReference}
-                  onChange={(e) => handleFormChange('paymentReference', e.target.value)}
-                  placeholder="Enter transaction reference"
-                  className="w-full h-9 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
-                />
-              </div>
+            {form.isSplitPayment ? (
+              <SplitPaymentPanel
+                entries={form.splitEntries}
+                totalAmount={totals.totalAmount}
+                onChange={(entries) => setForm(prev => ({ ...prev, splitEntries: entries }))}
+              />
+            ) : (
+              <>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {PAYMENT_MODES.map((mode) => (
+                    <button
+                      key={mode.value}
+                      type="button"
+                      onClick={() => handleFormChange('paymentMode', mode.value)}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all ${
+                        form.paymentMode === mode.value
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <PaymentModeIcon mode={mode.value} />
+                      <span className="text-xs font-medium">{mode.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {(form.paymentMode === 'card' || form.paymentMode === 'upi' || form.paymentMode === 'online' || form.paymentMode === 'rtgs') && (
+                  <div className="mt-3">
+                    <label className="text-xs text-gray-500 mb-1 block">Reference / Transaction ID</label>
+                    <input
+                      type="text"
+                      value={form.paymentReference}
+                      onChange={(e) => handleFormChange('paymentReference', e.target.value)}
+                      placeholder="Enter transaction reference"
+                      className="w-full h-9 px-3 rounded-lg border border-gray-200 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+                    />
+                  </div>
+                )}
+              </>
             )}
 
             <div>
