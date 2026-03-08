@@ -64,7 +64,7 @@ export default function PrescriptionTab({ patient, consultationId, diagnosisSumm
     setSavedPrescription(null);
   };
 
-  const checkAllergyConflicts = async (drugNames: string[]): Promise<string[]> => {
+  const checkAllergyConflicts = async (_drugNames: string[]): Promise<string[]> => {
     if (!patient) return [];
     // Check allergies from mock patient data
     const p = mockStore.getPatientById(patient.id);
