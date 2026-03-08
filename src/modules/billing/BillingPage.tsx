@@ -72,25 +72,7 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function BillingStatCard({ label, value, icon: Icon, iconClassName }: {
-  label: string; value: string; icon: React.ElementType; iconClassName: string;
-}) {
-  return (
-    <Card className="border shadow-card">
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="text-2xl font-bold text-foreground mt-1">{value}</p>
-          </div>
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconClassName}`}>
-            <Icon className="w-6 h-6" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+import SharedStatCard from '../../components/shared/StatCard';
 
 export default function BillingPage() {
   usePageTitle('Billing');
