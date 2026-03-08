@@ -32,6 +32,7 @@ const PAYMENT_MODES: Array<{ value: PaymentMode; label: string; icon: typeof Ban
   { value: 'card', label: 'Card', icon: CreditCard },
   { value: 'upi', label: 'UPI', icon: Smartphone },
   { value: 'online', label: 'Online', icon: Globe },
+  { value: 'rtgs', label: 'RTGS/NEFT', icon: Building2 },
   { value: 'insurance', label: 'Insurance', icon: Shield },
 ];
 
