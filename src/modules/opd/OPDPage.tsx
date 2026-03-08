@@ -77,7 +77,7 @@ export default function OPDPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [_doctorFilter, setDoctorFilter] = useState('all');
+  const [doctorFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ scheduled: 0, inProgress: 0, completed: 0, total: 0 });
