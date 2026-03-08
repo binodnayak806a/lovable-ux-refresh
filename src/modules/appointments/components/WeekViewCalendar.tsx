@@ -6,11 +6,10 @@ import { cn } from '../../../lib/utils';
 interface Props {
   appointments: WeekAppointment[];
   weekDays: Date[];
+  slotInterval: number;
   onSlotClick: (date: Date, time: string) => void;
   onAppointmentClick: (appointment: WeekAppointment) => void;
 }
-
-const HOURS = Array.from({ length: 14 }, (_, i) => i + 7);
 
 const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }> = {
   scheduled:   { bg: 'bg-blue-50',    border: 'border-l-blue-500',    text: 'text-blue-700' },
@@ -19,118 +18,144 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }
   completed:   { bg: 'bg-emerald-50', border: 'border-l-emerald-500', text: 'text-emerald-700' },
   cancelled:   { bg: 'bg-red-50',     border: 'border-l-red-400',     text: 'text-red-600' },
   no_show:     { bg: 'bg-gray-50',    border: 'border-l-gray-400',    text: 'text-gray-600' },
-  qr_booked:  { bg: 'bg-teal-50',    border: 'border-l-teal-500',    text: 'text-teal-700' },
+  qr_booked:   { bg: 'bg-teal-50',    border: 'border-l-teal-500',    text: 'text-teal-700' },
 };
 
-function formatHour(h: number): string {
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12 = h % 12 || 12;
-  return `${h12} ${ampm}`;
+function generateTimeSlots(interval: number): string[] {
+  const slots: string[] = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += interval) {
+      slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+    }
+  }
+  return slots;
 }
 
-export default function WeekViewCalendar({ appointments, weekDays, onSlotClick, onAppointmentClick }: Props) {
-  const appointmentsByDayHour = useMemo(() => {
+function formatTime12(time: string): string {
+  const [h, m] = time.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
+}
+
+export default function WeekViewCalendar({ appointments, weekDays, slotInterval, onSlotClick, onAppointmentClick }: Props) {
+  const timeSlots = useMemo(() => generateTimeSlots(slotInterval), [slotInterval]);
+
+  const appointmentsByDaySlot = useMemo(() => {
     const map: Record<string, WeekAppointment[]> = {};
     for (const appt of appointments) {
       if (!appt.appointment_time) continue;
-      const hour = parseInt(appt.appointment_time.split(':')[0], 10);
-      const key = `${appt.appointment_date}-${hour}`;
+      const [h, m] = appt.appointment_time.split(':').map(Number);
+      const slotM = Math.floor(m / slotInterval) * slotInterval;
+      const key = `${appt.appointment_date}-${String(h).padStart(2, '0')}:${String(slotM).padStart(2, '0')}`;
       if (!map[key]) map[key] = [];
       map[key].push(appt);
     }
     return map;
-  }, [appointments]);
+  }, [appointments, slotInterval]);
+
+  const now = new Date();
+  const nowH = now.getHours();
+  const nowM = now.getMinutes();
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-      <div className="grid grid-cols-[64px_repeat(7,1fr)] border-b border-gray-200">
-        <div className="bg-gray-50 border-r border-gray-200" />
-        {weekDays.map(day => (
-          <div
-            key={day.toISOString()}
-            className={cn(
-              'px-2 py-3 text-center border-r border-gray-100 last:border-r-0',
-              isToday(day) ? 'bg-blue-50' : 'bg-gray-50'
-            )}
-          >
-            <div className="text-xs font-medium text-gray-500 uppercase">
-              {format(day, 'EEE')}
+    <div className="glass-card overflow-hidden">
+      {/* Day headers */}
+      <div className="grid grid-cols-[72px_repeat(7,1fr)] border-b border-border/50 sticky top-0 z-10 bg-card">
+        <div className="bg-muted/30 border-r border-border/30" />
+        {weekDays.map(day => {
+          const today = isToday(day);
+          return (
+            <div
+              key={day.toISOString()}
+              className={cn(
+                'px-2 py-3 text-center border-r border-border/20 last:border-r-0',
+                today ? 'bg-primary/5' : 'bg-muted/30'
+              )}
+            >
+              <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                {format(day, 'EEE')}
+              </div>
+              <div className={cn(
+                'text-sm font-bold mt-0.5',
+                today ? 'w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto' : 'text-foreground'
+              )}>
+                {format(day, 'd')}
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                {format(day, 'MMM')}
+              </div>
             </div>
-            <div className={cn(
-              'text-lg font-bold mt-0.5',
-              isToday(day) ? 'text-blue-600' : 'text-gray-900'
-            )}>
-              {format(day, 'd')}
-            </div>
-            {isToday(day) && (
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mx-auto mt-1" />
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      <div className="max-h-[600px] overflow-y-auto">
-        {HOURS.map(hour => (
-          <div key={hour} className="grid grid-cols-[64px_repeat(7,1fr)] border-b border-gray-100 last:border-b-0 min-h-[72px]">
-            <div className="px-2 py-2 text-xs text-gray-400 font-medium border-r border-gray-200 bg-gray-50/50 flex items-start justify-end pr-3 pt-1">
-              {formatHour(hour)}
-            </div>
-            {weekDays.map(day => {
-              const dateStr = format(day, 'yyyy-MM-dd');
-              const key = `${dateStr}-${hour}`;
-              const cellAppts = appointmentsByDayHour[key] ?? [];
+      {/* Time grid */}
+      <div className="max-h-[calc(100vh-280px)] overflow-y-auto scrollbar-thin">
+        {timeSlots.map((slot, idx) => {
+          const [slotH, slotM] = slot.split(':').map(Number);
+          return (
+            <div
+              key={slot}
+              className={cn(
+                'grid grid-cols-[72px_repeat(7,1fr)] border-b border-border/20 last:border-b-0 min-h-[52px]',
+                idx % 2 === 0 && 'bg-muted/10'
+              )}
+            >
+              <div className="px-2 py-1.5 text-[11px] text-muted-foreground font-medium border-r border-border/30 flex items-start justify-end pr-3 pt-1.5 select-none bg-muted/20">
+                {formatTime12(slot)}
+              </div>
+              {weekDays.map(day => {
+                const dateStr = format(day, 'yyyy-MM-dd');
+                const key = `${dateStr}-${slot}`;
+                const cellAppts = appointmentsByDaySlot[key] ?? [];
+                const today = isToday(day);
+                const isCurrentSlot = today && slotH === nowH && nowM >= slotM && nowM < slotM + slotInterval;
 
-              return (
-                <div
-                  key={day.toISOString() + hour}
-                  className={cn(
-                    'border-r border-gray-100 last:border-r-0 p-1 cursor-pointer hover:bg-gray-50/50 transition-colors relative group min-h-[72px]',
-                    isToday(day) && 'bg-blue-50/30',
-                    isSameDay(day, new Date()) && hour === new Date().getHours() && 'bg-blue-50/50'
-                  )}
-                  onClick={() => {
-                    if (cellAppts.length === 0) {
-                      onSlotClick(day, `${String(hour).padStart(2, '0')}:00`);
-                    }
-                  }}
-                >
-                  {cellAppts.map(appt => {
-                    const colors = STATUS_COLORS[appt.status] ?? STATUS_COLORS.scheduled;
-                    return (
-                      <button
-                        key={appt.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onAppointmentClick(appt);
-                        }}
-                        className={cn(
-                          'w-full text-left px-2 py-1.5 rounded-md border-l-[3px] mb-1 transition-all hover:shadow-sm',
-                          colors.bg, colors.border
-                        )}
-                      >
-                        <div className={cn('text-xs font-semibold truncate', colors.text)}>
-                          {appt.patient_name}
-                        </div>
-                        <div className="text-[10px] text-gray-500 truncate flex items-center gap-1">
-                          {appt.appointment_time?.slice(0, 5)} {appt.type === 'follow_up' ? 'FU' : ''}
-                          {appt.status === 'qr_booked' && (
-                            <span className="inline-flex items-center px-1 py-0.5 rounded text-[8px] font-bold bg-teal-100 text-teal-700 leading-none">QR</span>
+                return (
+                  <div
+                    key={day.toISOString() + slot}
+                    className={cn(
+                      'border-r border-border/20 last:border-r-0 p-0.5 cursor-pointer hover:bg-accent/30 transition-colors relative group min-h-[52px]',
+                      today && 'bg-primary/[0.02]',
+                      isCurrentSlot && 'bg-primary/5 ring-1 ring-inset ring-primary/20'
+                    )}
+                    onClick={() => {
+                      if (cellAppts.length === 0) onSlotClick(day, slot);
+                    }}
+                  >
+                    {cellAppts.map(appt => {
+                      const colors = STATUS_COLORS[appt.status] ?? STATUS_COLORS.scheduled;
+                      return (
+                        <button
+                          key={appt.id}
+                          onClick={(e) => { e.stopPropagation(); onAppointmentClick(appt); }}
+                          className={cn(
+                            'w-full text-left px-1.5 py-1 rounded border-l-[3px] mb-0.5 transition-all hover:shadow-sm',
+                            colors.bg, colors.border
                           )}
-                        </div>
-                      </button>
-                    );
-                  })}
+                        >
+                          <div className={cn('text-[10px] font-semibold truncate leading-tight', colors.text)}>
+                            {appt.patient_name}
+                          </div>
+                          <div className="text-[9px] text-muted-foreground truncate leading-tight">
+                            {appt.appointment_time?.slice(0, 5)}
+                          </div>
+                        </button>
+                      );
+                    })}
 
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                     {cellAppts.length === 0 && (
-                      <span className="text-xs text-gray-400 font-medium">+</span>
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <span className="text-[10px] text-muted-foreground/50 font-medium">+</span>
+                      </div>
                     )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        ))}
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
