@@ -55,11 +55,8 @@ export default function UpcomingAppointments({ showQuickAdd = false }: { showQui
           type: row.type as string,
         }));
         setAppointments(mapped);
-      } catch {
-        /* ignore */
-      } finally {
-        setLoading(false);
-      }
+      } catch { /* ignore */ }
+      finally { setLoading(false); }
     })();
   }, [hospitalId]);
 
@@ -71,10 +68,12 @@ export default function UpcomingAppointments({ showQuickAdd = false }: { showQui
   }
 
   return (
-    <section className="bg-card border border-border rounded-xl overflow-hidden h-full">
+    <section className="bg-card border border-border/50 rounded-2xl overflow-hidden h-full shadow-card">
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <Calendar className="w-4 h-4 text-primary" />
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-primary" />
+          </div>
           <h2 className="text-sm font-semibold text-foreground">Today's Appointments</h2>
           {!loading && (
             <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
@@ -84,20 +83,12 @@ export default function UpcomingAppointments({ showQuickAdd = false }: { showQui
         </div>
         <div className="flex items-center gap-2">
           {showQuickAdd && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs gap-1"
-              onClick={() => navigate('/appointments')}
-            >
+            <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => navigate('/appointments')}>
               <UserPlus className="w-3 h-3" />
               Add
             </Button>
           )}
-          <button
-            onClick={() => navigate('/appointments')}
-            className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-0.5"
-          >
+          <button onClick={() => navigate('/appointments')} className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-0.5">
             All <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -123,11 +114,11 @@ export default function UpcomingAppointments({ showQuickAdd = false }: { showQui
             <p className="text-sm text-muted-foreground">No upcoming appointments</p>
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             {appointments.map((appt, i) => (
               <div
                 key={appt.id}
-                className={`flex items-center gap-3 px-2 py-2 rounded-lg transition-colors ${i === 0 ? 'bg-primary/5' : 'hover:bg-muted/50'}`}
+                className={`flex items-center gap-3 px-2.5 py-2.5 rounded-xl transition-colors ${i === 0 ? 'bg-primary/5' : 'hover:bg-muted/50'}`}
               >
                 <div className={`w-1.5 h-8 rounded-full ${STATUS_DOT[appt.status] ?? 'bg-muted-foreground/30'}`} />
                 <div className="flex-1 min-w-0">
@@ -138,9 +129,9 @@ export default function UpcomingAppointments({ showQuickAdd = false }: { showQui
                   />
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
-                    {formatTime(appt.appointment_time)}
+                    <span className="font-medium text-foreground/70">{formatTime(appt.appointment_time)}</span>
                     {appt.doctor_name && (
-                      <span className="truncate ml-1">- {appt.doctor_name}</span>
+                      <span className="truncate ml-1">· {appt.doctor_name}</span>
                     )}
                   </div>
                 </div>

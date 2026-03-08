@@ -174,10 +174,85 @@
     background-clip: text;
   }
 
-  /* Hero greeting banner */
+  /* Hero greeting banner — revamped */
   .hero-banner {
-    background: linear-gradient(135deg, hsl(var(--primary-light)), hsl(var(--accent)));
-    @apply rounded-2xl p-6 border border-border/30;
+    @apply rounded-2xl p-6 border border-border/30 relative overflow-hidden;
+    background: linear-gradient(135deg, hsl(var(--primary-light)), hsl(var(--accent)), hsl(var(--primary-light)));
+  }
+
+  .hero-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(hsl(var(--primary) / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+  }
+
+  .hero-banner::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, hsl(var(--primary) / 0.06), transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Dashboard section spacing */
+  .dashboard-section {
+    @apply space-y-4;
+  }
+
+  .dashboard-section-header {
+    @apply flex items-center justify-between pb-1;
+  }
+
+  .dashboard-section-title {
+    @apply flex items-center gap-2 text-sm font-semibold text-foreground;
+  }
+
+  /* Metric card gradient overlays */
+  .metric-gradient-blue {
+    background: linear-gradient(135deg, hsl(204 80% 97%), hsl(204 80% 93%));
+  }
+  .metric-gradient-amber {
+    background: linear-gradient(135deg, hsl(38 92% 97%), hsl(38 92% 93%));
+  }
+  .metric-gradient-teal {
+    background: linear-gradient(135deg, hsl(172 66% 97%), hsl(172 66% 93%));
+  }
+  .metric-gradient-rose {
+    background: linear-gradient(135deg, hsl(0 84% 97%), hsl(0 84% 94%));
+  }
+  .metric-gradient-green {
+    background: linear-gradient(135deg, hsl(142 76% 97%), hsl(142 76% 93%));
+  }
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

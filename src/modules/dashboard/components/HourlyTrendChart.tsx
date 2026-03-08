@@ -17,9 +17,9 @@ const CustomTooltip = ({ active, payload, label }: {
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-gray-900 rounded-lg px-3 py-2 text-sm text-white shadow-xl border border-gray-800">
-      <span className="font-semibold">{label}</span>
-      <span className="text-gray-300 ml-1">: {payload[0].value} patients</span>
+    <div className="bg-foreground/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm shadow-xl border border-border/20">
+      <span className="font-semibold text-primary-foreground">{label}</span>
+      <span className="text-muted-foreground/70 ml-1">: {payload[0].value} patients</span>
     </div>
   );
 };
@@ -29,12 +29,14 @@ export default function HourlyTrendChart({ data, loading }: Props) {
   const peakHour = data.reduce((max, d) => d.count > max.count ? d : max, data[0] ?? { count: 0, label: '', hour: 0 });
 
   return (
-    <section className="bg-card border border-border rounded-xl p-5 h-full">
+    <section className="bg-card border border-border/50 rounded-2xl p-5 h-full shadow-card">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <Clock className="w-4 h-4 text-muted-foreground" />
+          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <Clock className="w-4 h-4 text-emerald-600" />
+          </div>
           <h2 className="text-sm font-semibold text-foreground">
-            Today's Appointment Activity
+            Today's Activity
           </h2>
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -61,27 +63,23 @@ export default function HourlyTrendChart({ data, loading }: Props) {
       ) : (
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
-            <XAxis
-              dataKey="label"
-              tick={{ fontSize: 11, fill: '#9ca3af' }}
-              axisLine={false}
-              tickLine={false}
-              interval={1}
-            />
-            <YAxis
-              tick={{ fontSize: 11, fill: '#9ca3af' }}
-              axisLine={false}
-              tickLine={false}
-              allowDecimals={false}
-            />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(16, 185, 129, 0.08)' }} />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={32}>
+            <defs>
+              <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.9} />
+                <stop offset="100%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.5} />
+              </linearGradient>
+              <linearGradient id="barGradientLight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(142, 76%, 80%)" stopOpacity={0.7} />
+                <stop offset="100%" stopColor="hsl(142, 76%, 80%)" stopOpacity={0.3} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 13%, 91%)" vertical={false} />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'hsl(220, 9%, 46%)' }} axisLine={false} tickLine={false} interval={1} />
+            <YAxis tick={{ fontSize: 11, fill: 'hsl(220, 9%, 46%)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(142, 76%, 36%, 0.06)' }} />
+            <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={32}>
               {data.map((entry) => (
-                <Cell
-                  key={`cell-${entry.hour}`}
-                  fill={entry.hour === peakHour?.hour ? '#10b981' : '#d1fae5'}
-                />
+                <Cell key={`cell-${entry.hour}`} fill={entry.hour === peakHour?.hour ? 'url(#barGradient)' : 'url(#barGradientLight)'} />
               ))}
             </Bar>
           </BarChart>
@@ -94,7 +92,7 @@ export default function HourlyTrendChart({ data, loading }: Props) {
           Peak hour
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="w-3 h-3 rounded bg-emerald-100" />
+          <span className="w-3 h-3 rounded bg-emerald-200" />
           Regular
         </div>
       </div>

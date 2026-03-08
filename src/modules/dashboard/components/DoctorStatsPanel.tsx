@@ -10,16 +10,16 @@ interface Props {
 
 export default function DoctorStatsPanel({ doctors, loading }: Props) {
   return (
-    <section className="bg-card border border-border rounded-xl overflow-hidden">
+    <section className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-card">
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <Stethoscope className="w-4 h-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold text-foreground">
-            Doctor-wise OPD Summary
-          </h2>
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Stethoscope className="w-4 h-4 text-primary" />
+          </div>
+          <h2 className="text-sm font-semibold text-foreground">Doctor-wise OPD Summary</h2>
         </div>
         {!loading && doctors.length > 0 && (
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
+          <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-medium">
             {doctors.length} active today
           </span>
         )}
@@ -57,6 +57,7 @@ export default function DoctorStatsPanel({ doctors, loading }: Props) {
                 <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden sm:table-cell">Engaged</th>
                 <th className="px-4 py-3 text-center font-medium text-muted-foreground">Done</th>
                 <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden md:table-cell">Cancelled</th>
+                <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden lg:table-cell">Completion</th>
               </tr>
             </thead>
             <tbody>
@@ -67,11 +68,12 @@ export default function DoctorStatsPanel({ doctors, loading }: Props) {
                   .map(n => n[0])
                   .join('')
                   .toUpperCase();
+                const completionRate = doc.total > 0 ? Math.round((doc.completed / doc.total) * 100) : 0;
 
                 return (
                   <tr
                     key={doc.doctor_id}
-                    className="border-b border-border/50 hover:bg-muted/50 transition-colors"
+                    className="border-b border-border/50 hover:bg-primary/5 transition-colors"
                   >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
@@ -119,6 +121,17 @@ export default function DoctorStatsPanel({ doctors, loading }: Props) {
                       )}>
                         {doc.cancelled}
                       </span>
+                    </td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 rounded-full bg-muted">
+                          <div
+                            className="h-full rounded-full bg-primary transition-all duration-500"
+                            style={{ width: `${completionRate}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground font-medium w-8 text-right">{completionRate}%</span>
+                      </div>
                     </td>
                   </tr>
                 );

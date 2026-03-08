@@ -53,11 +53,8 @@ export default function PendingLabOrders() {
           setOrders(mapped);
           setTotalPending(count ?? 0);
         }
-      } catch {
-        /* ignore */
-      } finally {
-        setLoading(false);
-      }
+      } catch { /* ignore */ }
+      finally { setLoading(false); }
     })();
   }, [hospitalId]);
 
@@ -71,21 +68,18 @@ export default function PendingLabOrders() {
   }
 
   return (
-    <section className="bg-card border border-border rounded-xl overflow-hidden h-full">
+    <section className="bg-card border border-border/50 rounded-2xl overflow-hidden h-full shadow-card">
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <TestTube className="w-4 h-4 text-orange-500" />
-          <h2 className="text-sm font-semibold text-foreground">Pending Lab Orders</h2>
+          <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+            <TestTube className="w-4 h-4 text-orange-500" />
+          </div>
+          <h2 className="text-sm font-semibold text-foreground">Pending Lab</h2>
           {!loading && totalPending > 0 && (
-            <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
-              {totalPending}
-            </Badge>
+            <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">{totalPending}</Badge>
           )}
         </div>
-        <button
-          onClick={() => navigate('/lab')}
-          className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-0.5"
-        >
+        <button onClick={() => navigate('/lab')} className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-0.5">
           View All <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -96,10 +90,7 @@ export default function PendingLabOrders() {
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center gap-3">
                 <Skeleton className="w-8 h-8 rounded-lg" />
-                <div className="flex-1">
-                  <Skeleton className="h-3.5 w-32 mb-1" />
-                  <Skeleton className="h-3 w-20" />
-                </div>
+                <div className="flex-1"><Skeleton className="h-3.5 w-32 mb-1" /><Skeleton className="h-3 w-20" /></div>
               </div>
             ))}
           </div>
@@ -109,14 +100,14 @@ export default function PendingLabOrders() {
             <p className="text-sm text-muted-foreground">No pending lab orders</p>
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {orders.map((order) => (
-              <div key={order.id} className="flex items-center gap-3">
+              <div key={order.id} className="flex items-center gap-3 py-1 hover:bg-muted/30 rounded-lg px-1 -mx-1 transition-colors">
                 <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
                   <TestTube className="w-4 h-4 text-orange-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{order.patient_name || 'Unknown'}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{order.patient_name}</p>
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
                     {timeAgo(order.created_at)}

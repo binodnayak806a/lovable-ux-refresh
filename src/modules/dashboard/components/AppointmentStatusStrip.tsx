@@ -2,6 +2,7 @@ import { Clock, UserCheck, CheckCircle2, XCircle } from 'lucide-react';
 import { Skeleton } from '../../../components/ui/skeleton';
 import type { AppointmentsByStatus } from '../../../services/dashboard.service';
 import { cn } from '../../../lib/utils';
+import { useCountUp } from '../../../hooks/useCountUp';
 
 interface Props {
   data: AppointmentsByStatus[];
@@ -15,10 +16,11 @@ const STATUS_CONFIG = [
     label: 'Waiting',
     icon: Clock,
     bgColor: 'bg-amber-50',
-    borderColor: 'border-amber-200',
+    borderColor: 'border-amber-200/60',
     textColor: 'text-amber-700',
     iconColor: 'text-amber-500',
     dotColor: 'bg-amber-400',
+    progressColor: 'bg-amber-400',
   },
   {
     key: 'engaged',
@@ -26,10 +28,11 @@ const STATUS_CONFIG = [
     label: 'Engaged',
     icon: UserCheck,
     bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
+    borderColor: 'border-blue-200/60',
     textColor: 'text-blue-700',
     iconColor: 'text-blue-500',
     dotColor: 'bg-blue-400',
+    progressColor: 'bg-blue-400',
   },
   {
     key: 'done',
@@ -37,10 +40,11 @@ const STATUS_CONFIG = [
     label: 'Done',
     icon: CheckCircle2,
     bgColor: 'bg-emerald-50',
-    borderColor: 'border-emerald-200',
+    borderColor: 'border-emerald-200/60',
     textColor: 'text-emerald-700',
     iconColor: 'text-emerald-500',
     dotColor: 'bg-emerald-400',
+    progressColor: 'bg-emerald-400',
   },
   {
     key: 'cancelled',
@@ -48,10 +52,11 @@ const STATUS_CONFIG = [
     label: 'Cancelled',
     icon: XCircle,
     bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
+    borderColor: 'border-red-200/60',
     textColor: 'text-red-700',
     iconColor: 'text-red-400',
     dotColor: 'bg-red-400',
+    progressColor: 'bg-red-400',
   },
 ] as const;
 
@@ -61,16 +66,24 @@ function getCount(data: AppointmentsByStatus[], statuses: readonly string[]): nu
     .reduce((sum, d) => sum + d.count, 0);
 }
 
+function AnimatedCount({ value, className }: { value: number; className: string }) {
+  const animated = useCountUp(value);
+  return <span className={className}>{animated}</span>;
+}
+
 export default function AppointmentStatusStrip({ data, loading }: Props) {
+  const total = data.reduce((sum, d) => sum + d.count, 0) || 1;
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {STATUS_CONFIG.map(config => {
         const count = getCount(data, config.statuses);
         const Icon = config.icon;
+        const pct = Math.round((count / total) * 100);
 
         if (loading) {
           return (
-            <div key={config.key} className="bg-card border border-border rounded-xl p-4">
+            <div key={config.key} className="bg-card border border-border/50 rounded-2xl p-4">
               <Skeleton className="h-8 w-12 mb-2" />
               <Skeleton className="h-4 w-16" />
             </div>
@@ -81,21 +94,26 @@ export default function AppointmentStatusStrip({ data, loading }: Props) {
           <div
             key={config.key}
             className={cn(
-              'rounded-xl p-4 border transition-all duration-200 hover:shadow-sm cursor-default',
+              'rounded-2xl p-4 border transition-all duration-300 hover:shadow-sm hover:scale-[1.01] cursor-default',
               config.bgColor, config.borderColor
             )}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className={cn('text-2xl font-bold', config.textColor)}>
-                {count}
-              </span>
+              <AnimatedCount value={count} className={cn('text-2xl font-bold', config.textColor)} />
               <Icon className={cn('w-5 h-5', config.iconColor)} />
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 mb-2">
               <span className={cn('w-1.5 h-1.5 rounded-full', config.dotColor)} />
               <span className={cn('text-xs font-medium', config.textColor)}>
                 {config.label}
               </span>
+            </div>
+            {/* Mini progress bar */}
+            <div className="w-full h-1 rounded-full bg-black/5">
+              <div
+                className={cn('h-full rounded-full transition-all duration-700', config.progressColor)}
+                style={{ width: `${pct}%` }}
+              />
             </div>
           </div>
         );

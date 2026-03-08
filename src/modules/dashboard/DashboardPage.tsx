@@ -55,6 +55,15 @@ function formatCurrency(value: number): string {
   return `₹${value.toLocaleString('en-IN')}`;
 }
 
+function useLiveClock() {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+}
+
 export default function DashboardPage() {
   usePageTitle('Dashboard');
   const dispatch = useAppDispatch();
@@ -78,9 +87,11 @@ export default function DashboardPage() {
   const prevDateRange = useRef(dateRange);
   const loading = status === 'loading';
   const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   const loadData = useCallback(() => {
     dispatch(fetchDashboardData(hospitalId));
+    setLastUpdated(new Date());
   }, [dispatch, hospitalId]);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -93,9 +104,7 @@ export default function DashboardPage() {
   }, [dateRange, loadData]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      loadData();
-    }, 60000);
+    const interval = setInterval(() => { loadData(); }, 60000);
     return () => clearInterval(interval);
   }, [loadData]);
 
@@ -130,6 +139,9 @@ export default function DashboardPage() {
         onRefresh={handleRefresh}
         onNewPatient={() => navigate('/opd')}
         showNewPatient={canAccessModule('opd')}
+        lastUpdated={lastUpdated}
+        todayOPD={extendedMetrics?.todayAppointments ?? 0}
+        newPatients={extendedMetrics?.newPatients ?? 0}
       />
 
       {(isAdmin || isRole('receptionist')) && (
@@ -161,7 +173,6 @@ export default function DashboardPage() {
       )}
 
       {isRole('lab_technician') && <LabTechDashboard />}
-
       {isRole('pharmacist') && <PharmacistDashboard />}
 
       {isRole('billing') && (
@@ -186,18 +197,29 @@ export default function DashboardPage() {
   );
 }
 
+/* ─── Hero Banner ─── */
 function DashboardHeader({
   userName, refreshing, loading, onRefresh, onNewPatient, showNewPatient,
+  lastUpdated, todayOPD, newPatients,
 }: {
   userName: string; refreshing: boolean; loading: boolean;
   onRefresh: () => void; onNewPatient: () => void; showNewPatient: boolean;
+  lastUpdated: Date; todayOPD: number; newPatients: number;
 }) {
+  const clock = useLiveClock();
+
+  function timeSince(date: Date): string {
+    const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (mins < 1) return 'just now';
+    return `${mins}m ago`;
+  }
+
   return (
     <div className="hero-banner flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div className="space-y-1">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 backdrop-blur-sm flex items-center justify-center border border-primary/10">
-            <Sparkles className="w-5 h-5 text-primary" />
+      <div className="space-y-2 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 backdrop-blur-sm flex items-center justify-center border border-primary/10">
+            <Sparkles className="w-6 h-6 text-primary" />
           </div>
           <div>
             <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">
@@ -208,8 +230,28 @@ function DashboardHeader({
             </p>
           </div>
         </div>
+
+        {/* Quick stat pills */}
+        <div className="flex items-center gap-2 flex-wrap mt-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-card/60 backdrop-blur-sm border border-border/40 text-foreground">
+            <CalendarCheck className="w-3 h-3 text-primary" />
+            {todayOPD} appointments
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-card/60 backdrop-blur-sm border border-border/40 text-foreground">
+            <UserPlus className="w-3 h-3 text-primary" />
+            {newPatients} new patients
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-card/60 backdrop-blur-sm border border-border/40 text-muted-foreground">
+            <Clock className="w-3 h-3" />
+            {clock}
+          </span>
+        </div>
       </div>
-      <div className="flex items-center gap-2 flex-wrap">
+
+      <div className="flex items-center gap-2 flex-wrap relative z-10">
+        <span className="text-[11px] text-muted-foreground mr-1">
+          Updated {timeSince(lastUpdated)}
+        </span>
         <Button
           variant="outline"
           size="sm"
@@ -221,11 +263,7 @@ function DashboardHeader({
           Refresh
         </Button>
         {showNewPatient && (
-          <Button
-            size="sm"
-            onClick={onNewPatient}
-            className="gap-2 shadow-sm"
-          >
+          <Button size="sm" onClick={onNewPatient} className="gap-2 shadow-sm">
             <UserPlus className="w-4 h-4" />
             New Patient
           </Button>
@@ -235,54 +273,28 @@ function DashboardHeader({
   );
 }
 
+/* ─── Admin Dashboard ─── */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, recentAppointments, navigate, isAdmin, isReceptionist }: any) {
   return (
     <>
+      {/* Metric cards row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 stagger-children">
         <div className="cursor-pointer" onClick={() => navigate('/reports?tab=daily-opd')}>
-          <MetricCard
-            title="Today's OPD"
-            value={extendedMetrics?.todayAppointments?.toString() ?? '0'}
-            icon={CalendarCheck}
-            trend={extendedMetrics?.appointmentsTrend ?? 0}
-            gradient="blue"
-            loading={loading}
-          />
+          <MetricCard title="Today's OPD" value={extendedMetrics?.todayAppointments?.toString() ?? '0'} icon={CalendarCheck} trend={extendedMetrics?.appointmentsTrend ?? 0} gradient="blue" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/reports?tab=revenue')}>
-          <MetricCard
-            title="Today's Revenue"
-            value={loading ? '0' : `${formatCurrency(todayRevenue)}`}
-            subtitle="Collections today"
-            icon={IndianRupee}
-            trend={extendedMetrics?.revenueTrend ?? 0}
-            gradient="amber"
-            loading={loading}
-          />
+          <MetricCard title="Today's Revenue" value={loading ? '0' : `${formatCurrency(todayRevenue)}`} subtitle="Collections today" icon={IndianRupee} trend={extendedMetrics?.revenueTrend ?? 0} gradient="amber" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/reports?tab=ipd-census')}>
-          <MetricCard
-            title="Current IPD"
-            value={occupiedBeds.toString()}
-            subtitle={`${totalBeds - occupiedBeds} beds free`}
-            icon={BedDouble}
-            gradient="teal"
-            loading={loading}
-          />
+          <MetricCard title="Current IPD" value={occupiedBeds.toString()} subtitle={`${totalBeds - occupiedBeds} beds free`} icon={BedDouble} gradient="teal" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/reports?tab=bed-occupancy')}>
-          <MetricCard
-            title="Available Beds"
-            value={(totalBeds - occupiedBeds).toString()}
-            subtitle={`of ${totalBeds} total`}
-            icon={Activity}
-            gradient="rose"
-            loading={loading}
-          />
+          <MetricCard title="Available Beds" value={(totalBeds - occupiedBeds).toString()} subtitle={`of ${totalBeds} total`} icon={Activity} gradient="rose" loading={loading} />
         </div>
       </div>
 
+      {/* Status strip */}
       {isAdmin && <AppointmentStatusStrip data={todayAppointmentsByStatus} loading={loading} />}
 
       {isReceptionist && !isAdmin && (
@@ -294,58 +306,48 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
 
       {isAdmin && (
         <>
+          {/* Row: Revenue chart + Upcoming appointments */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <RevenueTrendChart />
             </div>
+            <UpcomingAppointments />
+          </div>
+
+          {/* Row: Hourly + Bed donut */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <HourlyTrendChart data={hourlyTrend} loading={loading} />
+            </div>
             <BedOccupancyDonut wards={bedSummary} loading={loading} />
           </div>
 
+          {/* Row: OPD by doctor + Bed panel */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <OPDByDoctorChart doctors={doctorStats} loading={loading} />
             </div>
-            <UpcomingAppointments />
+            <BedOccupancyPanel wards={bedSummary} loading={loading} />
           </div>
 
+          {/* Doctor stats full width */}
+          <DoctorStatsPanel doctors={doctorStats} loading={loading} />
+
+          {/* Alerts row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <LowStockAlert />
             <PendingLabOrders />
             <PharmacySalesToday />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <HourlyTrendChart data={hourlyTrend} loading={loading} />
-            </div>
-            <BedOccupancyPanel wards={bedSummary} loading={loading} />
-          </div>
-
-          <DoctorStatsPanel doctors={doctorStats} loading={loading} />
+          {/* Recent appointments */}
           <RecentAppointmentsPanel appointments={recentAppointments} loading={loading} />
 
+          {/* Quick nav cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-children">
-            <NavCard
-              icon={AlertTriangle}
-              color="red"
-              title="Emergency"
-              subtitle="Quick access to emergency care"
-              onClick={() => navigate('/emergency')}
-            />
-            <NavCard
-              icon={BedDouble}
-              color="amber"
-              title="IPD Admissions"
-              subtitle="Manage inpatient care"
-              onClick={() => navigate('/ipd')}
-            />
-            <NavCard
-              icon={IndianRupee}
-              color="emerald"
-              title="Billing"
-              subtitle="Payments and invoices"
-              onClick={() => navigate('/billing')}
-            />
+            <NavCard icon={AlertTriangle} color="red" title="Emergency" subtitle="Quick access to emergency care" onClick={() => navigate('/emergency')} />
+            <NavCard icon={BedDouble} color="amber" title="IPD Admissions" subtitle="Manage inpatient care" onClick={() => navigate('/ipd')} />
+            <NavCard icon={IndianRupee} color="emerald" title="Billing" subtitle="Payments and invoices" onClick={() => navigate('/billing')} />
           </div>
         </>
       )}
@@ -353,6 +355,7 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
   );
 }
 
+/* ─── Doctor Dashboard ─── */
 function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments, navigate }: {
   loading: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -370,39 +373,15 @@ function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments,
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 stagger-children">
-        <MetricCard
-          title="My Queue Today"
-          value={myStats?.total?.toString() ?? '0'}
-          icon={CalendarCheck}
-          gradient="blue"
-          loading={loading}
-        />
-        <MetricCard
-          title="Waiting"
-          value={myStats?.waiting?.toString() ?? '0'}
-          icon={Clock}
-          gradient="amber"
-          loading={loading}
-        />
-        <MetricCard
-          title="Completed"
-          value={myStats?.completed?.toString() ?? '0'}
-          icon={Stethoscope}
-          gradient="teal"
-          loading={loading}
-        />
-        <MetricCard
-          title="In Progress"
-          value={myStats?.in_progress?.toString() ?? '0'}
-          icon={Activity}
-          gradient="rose"
-          loading={loading}
-        />
+        <MetricCard title="My Queue Today" value={myStats?.total?.toString() ?? '0'} icon={CalendarCheck} gradient="blue" loading={loading} />
+        <MetricCard title="Waiting" value={myStats?.waiting?.toString() ?? '0'} icon={Clock} gradient="amber" loading={loading} />
+        <MetricCard title="Completed" value={myStats?.completed?.toString() ?? '0'} icon={Stethoscope} gradient="teal" loading={loading} />
+        <MetricCard title="In Progress" value={myStats?.in_progress?.toString() ?? '0'} icon={Activity} gradient="rose" loading={loading} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <UpcomingAppointments />
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-primary" />
@@ -422,12 +401,14 @@ function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments,
                   variant="ghost"
                   onClick={() => navigate(a.path)}
                   className={cn(
-                    'flex flex-col items-center gap-2 h-auto p-4 rounded-xl transition-all duration-200',
+                    'flex flex-col items-center gap-2.5 h-auto p-5 rounded-xl transition-all duration-200',
                     'border border-border/50 hover:shadow-sm hover:scale-[1.02]',
                     a.color,
                   )}
                 >
-                  <a.icon className="w-6 h-6" />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-current/10">
+                    <a.icon className="w-5 h-5" />
+                  </div>
                   <span className="text-xs font-medium text-center">{a.label}</span>
                 </Button>
               ))}
@@ -441,6 +422,7 @@ function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments,
   );
 }
 
+/* ─── Role-specific dashboards ─── */
 function LabTechDashboard() {
   const navigate = useNavigate();
   return (
@@ -452,13 +434,7 @@ function LabTechDashboard() {
           <h2 className="text-sm font-semibold text-foreground">Quick Actions</h2>
         </div>
         <div className="space-y-3">
-          <NavCard
-            icon={FileText}
-            color="orange"
-            title="Enter Results"
-            subtitle="Process pending lab orders"
-            onClick={() => navigate('/lab')}
-          />
+          <NavCard icon={FileText} color="orange" title="Enter Results" subtitle="Process pending lab orders" onClick={() => navigate('/lab')} />
         </div>
       </Card>
     </div>
@@ -481,25 +457,12 @@ function BillingDashboard({ loading, todayRevenue, pendingDues, navigate }: {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 stagger-children">
         <div className="cursor-pointer" onClick={() => navigate('/reports?tab=revenue')}>
-          <MetricCard
-            title="Today's Revenue"
-            value={loading ? '0' : formatCurrency(todayRevenue)}
-            icon={IndianRupee}
-            gradient="amber"
-            loading={loading}
-          />
+          <MetricCard title="Today's Revenue" value={loading ? '0' : formatCurrency(todayRevenue)} icon={IndianRupee} gradient="amber" loading={loading} />
         </div>
         <div className="cursor-pointer" onClick={() => navigate('/billing')}>
-          <MetricCard
-            title="Pending Dues"
-            value={loading ? '0' : formatCurrency(pendingDues)}
-            icon={Activity}
-            gradient="rose"
-            loading={loading}
-          />
+          <MetricCard title="Pending Dues" value={loading ? '0' : formatCurrency(pendingDues)} icon={Activity} gradient="rose" loading={loading} />
         </div>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RevenueTrendChart />
         <UpcomingAppointments />
@@ -515,22 +478,8 @@ function NurseDashboard({ loading, bedSummary, occupiedBeds, totalBeds, bedOccup
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger-children">
-        <MetricCard
-          title="Occupied Beds"
-          value={occupiedBeds.toString()}
-          subtitle={`${bedOccupancyRate}% occupancy`}
-          icon={BedDouble}
-          gradient="blue"
-          loading={loading}
-        />
-        <MetricCard
-          title="Available Beds"
-          value={(totalBeds - occupiedBeds).toString()}
-          subtitle={`of ${totalBeds} total`}
-          icon={Activity}
-          gradient="teal"
-          loading={loading}
-        />
+        <MetricCard title="Occupied Beds" value={occupiedBeds.toString()} subtitle={`${bedOccupancyRate}% occupancy`} icon={BedDouble} gradient="blue" loading={loading} />
+        <MetricCard title="Available Beds" value={(totalBeds - occupiedBeds).toString()} subtitle={`of ${totalBeds} total`} icon={Activity} gradient="teal" loading={loading} />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BedOccupancyPanel wards={bedSummary} loading={loading} />
@@ -541,6 +490,7 @@ function NurseDashboard({ loading, bedSummary, occupiedBeds, totalBeds, bedOccup
   );
 }
 
+/* ─── NavCard ─── */
 const NAV_COLOR_MAP: Record<string, { bg: string; bgHover: string; text: string; border: string }> = {
   red: { bg: 'bg-red-50', bgHover: 'group-hover:bg-red-100', text: 'text-red-600', border: 'border-red-100' },
   amber: { bg: 'bg-amber-50', bgHover: 'group-hover:bg-amber-100', text: 'text-amber-600', border: 'border-amber-100' },
@@ -555,26 +505,24 @@ function NavCard({ icon: Icon, color, title, subtitle, onClick }: {
 }) {
   const c = NAV_COLOR_MAP[color] || NAV_COLOR_MAP.blue;
   return (
-    <Card
-      className="hover:shadow-hover transition-all duration-300 cursor-pointer group hover:scale-[1.01]"
+    <div
+      className="glass-card hover:shadow-hover transition-all duration-300 cursor-pointer group hover:scale-[1.01] p-5"
       onClick={onClick}
     >
-      <CardContent className="p-5">
-        <div className="flex items-center gap-3">
-          <div className={cn(
-            'w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300',
-            'group-hover:scale-110 border',
-            c.bg, c.bgHover, c.border,
-          )}>
-            <Icon className={cn('w-6 h-6', c.text)} />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">{title}</p>
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" />
+      <div className="flex items-center gap-3">
+        <div className={cn(
+          'w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300',
+          'group-hover:scale-110 border',
+          c.bg, c.bgHover, c.border,
+        )}>
+          <Icon className={cn('w-6 h-6', c.text)} />
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-foreground">{title}</p>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
+        </div>
+        <ChevronRight className="w-5 h-5 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-1 transition-all duration-300" />
+      </div>
+    </div>
   );
 }
