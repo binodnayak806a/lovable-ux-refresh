@@ -25,7 +25,7 @@ import appointmentsService, {
   type WeekAppointment,
   type DoctorOption,
 } from '../../services/appointments.service';
-import PageHeader from '../../components/shared/PageHeader';
+
 import DayViewCalendar from './components/DayViewCalendar';
 import WeekViewCalendar from './components/WeekViewCalendar';
 import MonthViewCalendar from './components/MonthViewCalendar';
