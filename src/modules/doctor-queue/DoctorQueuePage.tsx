@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Search, RefreshCw, Clock, Stethoscope, Printer, Save,
-  UserPlus, CalendarPlus, FileText, AlertTriangle, Loader2,
-  ChevronDown, Activity, FlaskConical, Pill, CalendarCheck,
-  MessageSquare, ClipboardList, ArrowRightLeft, X, Download,
+  UserPlus, CalendarPlus, FileText, AlertTriangle,
+  ChevronDown, ClipboardList, X, Download,
   Eye, Bed, Receipt,
 } from 'lucide-react';
 import { format } from 'date-fns';
