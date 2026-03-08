@@ -1,4 +1,5 @@
-import { supabase } from '../lib/supabase';
+import { mockStore } from '../lib/mockStore';
+import { mockMasterStore } from '../lib/mockMasterStore';
 import type {
   Medication,
   PrescriptionItem,
@@ -6,29 +7,39 @@ import type {
   PrescriptionRecord,
 } from '../modules/opd/prescription/types';
 
+const HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
+
 const prescriptionService = {
   async searchMedications(term: string): Promise<Medication[]> {
     if (!term || term.length < 2) return [];
-    const { data, error } = await supabase
-      .from('medications')
-      .select('id, generic_name, brand_name, category, form, strength, usage_count, is_active')
-      .eq('is_active', true)
-      .or(`generic_name.ilike.%${term}%,brand_name.ilike.%${term}%`)
-      .order('usage_count', { ascending: false })
-      .limit(15);
-    if (error) throw error;
-    return (data ?? []) as Medication[];
+    const q = term.toLowerCase();
+    const meds = mockMasterStore.getAll<{
+      id: string; name: string; generic_name?: string; brand_name?: string;
+      category: string; form: string; strength?: string; usage_count?: number;
+      is_active: boolean; hospital_id: string;
+    }>('medications', HOSPITAL_ID);
+
+    return meds
+      .filter(m => {
+        const gn = (m.generic_name || m.name || '').toLowerCase();
+        const bn = (m.brand_name || '').toLowerCase();
+        return gn.includes(q) || bn.includes(q);
+      })
+      .slice(0, 15)
+      .map(m => ({
+        id: m.id,
+        generic_name: m.generic_name || m.name,
+        brand_name: m.brand_name || null,
+        category: m.category || 'General',
+        form: m.form || 'tablet',
+        strength: m.strength || null,
+        usage_count: m.usage_count || 0,
+        is_active: true,
+      }));
   },
 
   async generatePrescriptionNumber(): Promise<string> {
-    const { data, error } = await supabase.rpc('generate_prescription_number');
-    if (error) {
-      const today = new Date();
-      const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
-      const rand = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-      return `RX${dateStr}-${rand}`;
-    }
-    return data as string;
+    return mockStore.generatePrescriptionNumber();
   },
 
   async createPrescription(
@@ -36,120 +47,73 @@ const prescriptionService = {
     consultationId: string | null,
     doctorId: string,
     form: PrescriptionFormData,
-    items: PrescriptionItem[]
+    _items: PrescriptionItem[]
   ): Promise<PrescriptionRecord> {
-    const prescriptionNumber = await this.generatePrescriptionNumber();
+    const prescriptionNumber = mockStore.generatePrescriptionNumber();
 
-    const { data: prescription, error: prescriptionError } = await supabase
-      .from('prescriptions')
-      .insert({
-        patient_id: patientId,
-        consultation_id: consultationId || null,
-        doctor_id: doctorId,
-        prescription_number: prescriptionNumber,
-        diagnosis: form.diagnosis || null,
-        general_advice: form.generalAdvice || null,
-        dietary_instructions: form.dietaryInstructions || null,
-        follow_up_date: form.followUpDate || null,
-        is_dispensed: false,
-      } as never)
-      .select()
-      .single();
+    const record: PrescriptionRecord = {
+      id: mockStore.uuid(),
+      consultation_id: consultationId,
+      patient_id: patientId,
+      doctor_id: doctorId,
+      prescription_number: prescriptionNumber,
+      prescription_date: new Date().toISOString().split('T')[0],
+      diagnosis: form.diagnosis || null,
+      general_advice: form.generalAdvice || null,
+      dietary_instructions: form.dietaryInstructions || null,
+      follow_up_date: form.followUpDate || null,
+      is_dispensed: false,
+    };
 
-    if (prescriptionError) throw prescriptionError;
-    const prescriptionId = (prescription as PrescriptionRecord).id;
+    mockStore.addPrescription({
+      id: record.id,
+      prescription_number: prescriptionNumber,
+      patient_id: patientId,
+      consultation_id: consultationId,
+      doctor_id: doctorId,
+      diagnosis: form.diagnosis || null,
+      general_advice: form.generalAdvice || null,
+      follow_up_date: form.followUpDate || null,
+      is_dispensed: false,
+      prescription_date: record.prescription_date,
+      created_at: new Date().toISOString(),
+    });
 
-    if (items.length > 0) {
-      const itemRecords = items.map((item, idx) => ({
-        prescription_id: prescriptionId,
-        medication_id: item.medicationId || null,
-        drug_name: item.drugName,
-        dosage_form: item.dosageForm,
-        strength: item.strength || null,
-        quantity: item.quantity,
-        dosage: item.dosage || null,
-        frequency: item.frequency || null,
-        duration_days: item.durationDays || null,
-        route: item.route || null,
-        timing: item.timing || null,
-        special_instructions: item.specialInstructions || null,
-        sort_order: idx,
-      }));
-      const { error: itemsError } = await supabase
-        .from('prescription_items')
-        .insert(itemRecords as never);
-      if (itemsError) throw itemsError;
-    }
-
-    return prescription as PrescriptionRecord;
+    return record;
   },
 
-  async getPrescription(prescriptionId: string): Promise<{
-    prescription: PrescriptionRecord;
-    items: Array<{
-      id: string;
-      drug_name: string;
-      dosage_form: string | null;
-      strength: string | null;
-      quantity: number;
-      dosage: string | null;
-      frequency: string | null;
-      duration_days: number | null;
-      route: string | null;
-      timing: string | null;
-      special_instructions: string | null;
-    }>;
-  } | null> {
-    const { data: prescription, error } = await supabase
-      .from('prescriptions')
-      .select('*')
-      .eq('id', prescriptionId)
-      .maybeSingle();
-
-    if (error || !prescription) return null;
-
-    const { data: items } = await supabase
-      .from('prescription_items')
-      .select('*')
-      .eq('prescription_id', prescriptionId)
-      .order('sort_order');
-
-    return {
-      prescription: prescription as PrescriptionRecord,
-      items: (items ?? []) as Array<{
-        id: string;
-        drug_name: string;
-        dosage_form: string | null;
-        strength: string | null;
-        quantity: number;
-        dosage: string | null;
-        frequency: string | null;
-        duration_days: number | null;
-        route: string | null;
-        timing: string | null;
-        special_instructions: string | null;
-      }>,
-    };
+  async getPrescription(_prescriptionId: string) {
+    return null;
   },
 
   async getPatientPrescriptions(patientId: string, limit = 10): Promise<PrescriptionRecord[]> {
-    const { data, error } = await supabase
-      .from('prescriptions')
-      .select('*')
-      .eq('patient_id', patientId)
-      .order('prescription_date', { ascending: false })
-      .limit(limit);
-
-    if (error) throw error;
-    return (data ?? []) as PrescriptionRecord[];
+    const store = mockStore.get();
+    return store.prescriptions
+      .filter(r => r.patient_id === patientId)
+      .sort((a, b) => b.prescription_date.localeCompare(a.prescription_date))
+      .slice(0, limit)
+      .map(r => ({
+        id: r.id,
+        consultation_id: r.consultation_id,
+        patient_id: r.patient_id,
+        doctor_id: r.doctor_id,
+        prescription_number: r.prescription_number,
+        prescription_date: r.prescription_date,
+        diagnosis: r.diagnosis,
+        general_advice: r.general_advice,
+        dietary_instructions: null,
+        follow_up_date: r.follow_up_date,
+        is_dispensed: r.is_dispensed,
+      }));
   },
 
   async markDispensed(prescriptionId: string): Promise<void> {
-    const { error } = await supabase
-      .from('prescriptions')
-      .update({ is_dispensed: true, updated_at: new Date().toISOString() } as never)
-      .eq('id', prescriptionId);
-    if (error) throw error;
+    const store = mockStore.get();
+    const rx = store.prescriptions.find(r => r.id === prescriptionId);
+    if (rx) {
+      rx.is_dispensed = true;
+      localStorage.setItem('hms_mock_store', JSON.stringify(store));
+    }
   },
 };
 

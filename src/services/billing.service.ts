@@ -1,5 +1,4 @@
-import { supabase } from '../lib/supabase';
-import { BaseApiService } from './base.service';
+import { mockStore } from '../lib/mockStore';
 import type { Invoice, Payment, ServiceItem } from '../types';
 import type {
   BillItem,
@@ -8,100 +7,38 @@ import type {
   PaymentStatus,
 } from '../modules/opd/billing/types';
 
-class BillingService extends BaseApiService<Invoice> {
-  constructor() {
-    super('invoices');
+class BillingService {
+  async generateInvoiceNumber(_hospitalId: string): Promise<string> {
+    return mockStore.generateBillNumber();
   }
 
-  async generateInvoiceNumber(hospitalId: string): Promise<string> {
-    const year = new Date().getFullYear();
-    const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    const { count } = await supabase
-      .from('invoices')
-      .select('id', { count: 'exact', head: true })
-      .eq('hospital_id', hospitalId);
-    const seq = String((count ?? 0) + 1).padStart(5, '0');
-    return `INV${year}${month}${seq}`;
+  async recordPayment(_payment: Omit<Payment, 'id' | 'created_at'>): Promise<Payment> {
+    return { id: mockStore.uuid(), created_at: new Date().toISOString(), ..._payment } as Payment;
   }
 
-  async recordPayment(payment: Omit<Payment, 'id' | 'created_at'>): Promise<Payment> {
-    const { data, error } = await supabase
-      .from('payments')
-      .insert(payment as never)
-      .select()
-      .single();
-    if (error) throw error;
-
-    const paid = payment.amount;
-    const { data: invoice } = await supabase
-      .from('invoices')
-      .select('paid_amount, total_amount')
-      .eq('id', payment.invoice_id)
-      .single() as { data: { paid_amount: number; total_amount: number } | null };
-
-    if (invoice) {
-      const newPaid = (invoice.paid_amount ?? 0) + paid;
-      const isFullyPaid = newPaid >= invoice.total_amount;
-      await supabase
-        .from('invoices')
-        .update({
-          paid_amount: newPaid,
-          status: isFullyPaid ? 'paid' : 'partial',
-          updated_at: new Date().toISOString(),
-        } as never)
-        .eq('id', payment.invoice_id);
-    }
-
-    return data as Payment;
+  async getServiceItems(_hospitalId: string): Promise<ServiceItem[]> {
+    return [];
   }
 
-  async getServiceItems(hospitalId: string): Promise<ServiceItem[]> {
-    const { data, error } = await supabase
-      .from('service_items')
-      .select('*')
-      .eq('hospital_id', hospitalId)
-      .eq('is_active', true)
-      .order('category', { ascending: true })
-      .order('name', { ascending: true });
-    if (error) throw error;
-    return (data ?? []) as ServiceItem[];
-  }
-
-  async getRevenueStats(hospitalId: string, dateFrom: string, dateTo: string) {
-    const { data, error } = await supabase
-      .from('invoices')
-      .select('total_amount, paid_amount, status')
-      .eq('hospital_id', hospitalId)
-      .gte('invoice_date', dateFrom)
-      .lte('invoice_date', dateTo);
-
-    if (error) throw error;
-    const invoices = (data ?? []) as { total_amount: number; paid_amount: number; status: string }[];
-
-    const totalRevenue = invoices.reduce((sum, i) => sum + (i.paid_amount ?? 0), 0);
-    const pendingAmount = invoices
-      .filter((i) => i.status !== 'paid' && i.status !== 'cancelled')
-      .reduce((sum, i) => sum + ((i.total_amount ?? 0) - (i.paid_amount ?? 0)), 0);
-
+  async getRevenueStats(_hospitalId: string, _dateFrom: string, _dateTo: string) {
+    const store = mockStore.get();
+    const _items = store.bills;
+    const totalRevenue = _items.reduce((s, b) => s + b.amount_paid, 0);
+    const pendingAmount = _items
+      .filter(b => b.payment_status !== 'paid')
+      .reduce((s, b) => s + (b.total_amount - b.amount_paid), 0);
     return { totalRevenue, pendingAmount };
   }
 
   async generateBillNumber(): Promise<string> {
-    const { data, error } = await supabase.rpc('generate_bill_number');
-    if (error) {
-      const today = new Date();
-      const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
-      const rand = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-      return `INV${dateStr}-${rand}`;
-    }
-    return data as string;
+    return mockStore.generateBillNumber();
   }
 
   async createBill(
     patientId: string,
     consultationId: string | null,
     prescriptionId: string | null,
-    items: BillItem[],
+    _items: BillItem[],
     form: BillFormData,
     totals: {
       subtotal: number;
@@ -109,114 +46,66 @@ class BillingService extends BaseApiService<Invoice> {
       taxAmount: number;
       totalAmount: number;
     },
-    userId: string
+    _userId: string
   ): Promise<BillRecord> {
-    const billNumber = await this.generateBillNumber();
+    const billNumber = mockStore.generateBillNumber();
 
-    const { data: bill, error: billError } = await supabase
-      .from('bills')
-      .insert({
-        bill_number: billNumber,
-        patient_id: patientId,
-        consultation_id: consultationId || null,
-        prescription_id: prescriptionId || null,
-        bill_type: 'OPD',
-        subtotal: totals.subtotal,
-        discount_percentage: form.discountPercentage,
-        discount_amount: totals.discountAmount,
-        tax_percentage: form.taxPercentage,
-        tax_amount: totals.taxAmount,
-        total_amount: totals.totalAmount,
-        amount_paid: totals.totalAmount,
-        payment_status: 'paid' as PaymentStatus,
-        payment_mode: form.paymentMode,
-        payment_reference: form.paymentReference || null,
-        notes: form.notes || null,
-        created_by: userId,
-      } as never)
-      .select()
-      .single();
+    const bill: BillRecord = {
+      id: mockStore.uuid(),
+      hospital_id: '11111111-1111-1111-1111-111111111111',
+      bill_number: billNumber,
+      patient_id: patientId,
+      consultation_id: consultationId,
+      prescription_id: prescriptionId,
+      bill_type: 'OPD',
+      bill_date: new Date().toISOString().split('T')[0],
+      subtotal: totals.subtotal,
+      discount_percentage: form.discountPercentage,
+      discount_amount: totals.discountAmount,
+      tax_percentage: form.taxPercentage,
+      tax_amount: totals.taxAmount,
+      total_amount: totals.totalAmount,
+      amount_paid: totals.totalAmount,
+      payment_status: 'paid' as PaymentStatus,
+      payment_mode: form.paymentMode,
+      payment_reference: form.paymentReference || null,
+      notes: form.notes || null,
+    };
 
-    if (billError) throw billError;
-    const billId = (bill as BillRecord).id;
+    mockStore.addBill({
+      id: bill.id,
+      bill_number: bill.bill_number,
+      patient_id: patientId,
+      consultation_id: consultationId,
+      bill_type: 'OPD',
+      subtotal: totals.subtotal,
+      discount_amount: totals.discountAmount,
+      tax_amount: totals.taxAmount,
+      total_amount: totals.totalAmount,
+      amount_paid: totals.totalAmount,
+      payment_status: 'paid',
+      payment_mode: form.paymentMode,
+      notes: form.notes || null,
+      bill_date: bill.bill_date,
+      created_at: new Date().toISOString(),
+    });
 
-    if (items.length > 0) {
-      const itemRecords = items.map((item, idx) => ({
-        bill_id: billId,
-        item_type: item.itemType,
-        item_name: item.itemName,
-        description: item.description || null,
-        quantity: item.quantity,
-        unit_price: item.unitPrice,
-        total_price: item.totalPrice,
-        sort_order: idx,
-      }));
-      const { error: itemsError } = await supabase
-        .from('bill_items')
-        .insert(itemRecords as never);
-      if (itemsError) throw itemsError;
-    }
-
-    if (consultationId) {
-      await supabase
-        .from('appointments')
-        .update({ status: 'completed' } as never)
-        .eq('consultation_id', consultationId);
-    }
-
-    return bill as BillRecord;
+    return bill;
   }
 
-  async getBill(billId: string): Promise<{
-    bill: BillRecord;
-    items: Array<{
-      id: string;
-      item_type: string;
-      item_name: string;
-      description: string | null;
-      quantity: number;
-      unit_price: number;
-      total_price: number;
-    }>;
-  } | null> {
-    const { data: bill, error } = await supabase
-      .from('bills')
-      .select('*')
-      .eq('id', billId)
-      .maybeSingle();
-
-    if (error || !bill) return null;
-
-    const { data: items } = await supabase
-      .from('bill_items')
-      .select('*')
-      .eq('bill_id', billId)
-      .order('sort_order');
-
-    return {
-      bill: bill as BillRecord,
-      items: (items ?? []) as Array<{
-        id: string;
-        item_type: string;
-        item_name: string;
-        description: string | null;
-        quantity: number;
-        unit_price: number;
-        total_price: number;
-      }>,
-    };
+  async getBill(billId: string) {
+    const store = mockStore.get();
+    const bill = store.bills.find(b => b.id === billId);
+    if (!bill) return null;
+    return { bill: bill as unknown as BillRecord, items: [] };
   }
 
   async getPatientBills(patientId: string, limit = 10): Promise<BillRecord[]> {
-    const { data, error } = await supabase
-      .from('bills')
-      .select('*')
-      .eq('patient_id', patientId)
-      .order('bill_date', { ascending: false })
-      .limit(limit);
-
-    if (error) throw error;
-    return (data ?? []) as BillRecord[];
+    const store = mockStore.get();
+    return store.bills
+      .filter(b => b.patient_id === patientId)
+      .sort((a, b) => b.bill_date.localeCompare(a.bill_date))
+      .slice(0, limit) as unknown as BillRecord[];
   }
 
   async updatePaymentStatus(
@@ -224,19 +113,18 @@ class BillingService extends BaseApiService<Invoice> {
     status: PaymentStatus,
     amountPaid?: number
   ): Promise<void> {
-    const updateData: Record<string, unknown> = {
-      payment_status: status,
-      updated_at: new Date().toISOString(),
-    };
-    if (amountPaid !== undefined) {
-      updateData.amount_paid = amountPaid;
+    const store = mockStore.get();
+    const bill = store.bills.find(b => b.id === billId);
+    if (bill) {
+      bill.payment_status = status;
+      if (amountPaid !== undefined) bill.amount_paid = amountPaid;
+      localStorage.setItem('hms_mock_store', JSON.stringify(store));
     }
-    const { error } = await supabase
-      .from('bills')
-      .update(updateData as never)
-      .eq('id', billId);
-    if (error) throw error;
   }
+
+  // Stub methods for compatibility
+  async getAll(_hospitalId: string): Promise<Invoice[]> { return []; }
+  async getById(_id: string): Promise<Invoice | null> { return null; }
 }
 
 export const billingService = new BillingService();
