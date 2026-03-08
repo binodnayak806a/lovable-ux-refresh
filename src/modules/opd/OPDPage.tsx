@@ -148,21 +148,21 @@ export default function OPDPage() {
           subtitle={`Outpatient Department — ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
           icon={Stethoscope}
         />
-        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-          <TabsList>
-            <TabsTrigger value="queue" className="gap-1.5">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList className="h-11 p-1 bg-muted/50 rounded-xl">
+            <TabsTrigger value="queue" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
               <List className="w-4 h-4" />
               Today's Queue
             </TabsTrigger>
-            <TabsTrigger value="register" className="gap-1.5">
+            <TabsTrigger value="register" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
               <UserPlus className="w-4 h-4" />
               Register Patient
             </TabsTrigger>
-            <TabsTrigger value="vitals" className="gap-1.5">
+            <TabsTrigger value="vitals" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
               <Activity className="w-4 h-4" />
               Record Vitals
             </TabsTrigger>
-            <TabsTrigger value="consultation" className="gap-1.5">
+            <TabsTrigger value="consultation" className="gap-1.5 rounded-lg data-[state=active]:shadow-sm">
               <Stethoscope className="w-4 h-4" />
               Consultation
             </TabsTrigger>
@@ -172,17 +172,17 @@ export default function OPDPage() {
 
       {tab === 'queue' && (
         <div className="space-y-5">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <SharedStatCard label="Today's Total" value={stats.total} icon={CalendarClock} iconClassName="bg-blue-50 text-blue-600" />
-            <SharedStatCard label="In Progress" value={stats.inProgress} icon={Stethoscope} iconClassName="bg-amber-50 text-amber-600" />
-            <SharedStatCard label="Completed" value={stats.completed} icon={CheckCircle2} iconClassName="bg-emerald-50 text-emerald-600" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 stagger-children">
+            <SharedStatCard label="Today's Total" value={stats.total} icon={CalendarClock} iconClassName="bg-primary/10 text-primary" accentColor="blue" />
+            <SharedStatCard label="In Progress" value={stats.inProgress} icon={Stethoscope} iconClassName="bg-amber-50 text-amber-600" accentColor="amber" />
+            <SharedStatCard label="Completed" value={stats.completed} icon={CheckCircle2} iconClassName="bg-emerald-50 text-emerald-600" accentColor="green" />
             <SharedStatCard label="Pending" value={stats.total - stats.completed - stats.inProgress} icon={Clock} iconClassName="bg-muted text-muted-foreground" />
           </div>
 
-          <Card className="border-0 shadow-sm">
+          <Card>
             <CardHeader className="pb-3">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <CardTitle className="text-base font-semibold text-gray-900">Today's Appointments</CardTitle>
+                <CardTitle className="text-base font-semibold">Today's Appointments</CardTitle>
                 <div className="flex items-center gap-2 sm:ml-auto flex-wrap">
                   <div className="relative">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
@@ -250,9 +250,9 @@ export default function OPDPage() {
                     const initials = appt.patient_name.split(' ').slice(0, 2).map((n) => n[0]).join('');
                     return (
                       <div key={appt.id} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-                        <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm shrink-0">
-                          {initials}
-                        </div>
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                           {initials}
+                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="text-sm font-semibold text-gray-900">{appt.patient_name}</p>

@@ -89,10 +89,10 @@ export default function DoctorQueuePage() {
   const engaged = appointments.filter(a => a.status === 'in_progress');
   const completed = appointments.filter(a => a.status === 'completed');
 
-  const tabConfig: Array<{ key: QueueTab; label: string; icon: React.ElementType; count: number; color: string }> = [
-    { key: 'waiting', label: 'Waiting', icon: Clock, count: waiting.length, color: 'text-amber-600 bg-amber-50 border-amber-200' },
-    { key: 'engaged', label: 'Engaged', icon: UserCheck, count: engaged.length, color: 'text-blue-600 bg-blue-50 border-blue-200' },
-    { key: 'completed', label: 'Completed', icon: CheckCircle2, count: completed.length, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+  const tabConfig: Array<{ key: QueueTab; label: string; icon: React.ElementType; count: number; badgeClass: string }> = [
+    { key: 'waiting', label: 'Waiting', icon: Clock, count: waiting.length, badgeClass: 'bg-amber-100 text-amber-700' },
+    { key: 'engaged', label: 'Engaged', icon: UserCheck, count: engaged.length, badgeClass: 'bg-primary/10 text-primary' },
+    { key: 'completed', label: 'Completed', icon: CheckCircle2, count: completed.length, badgeClass: 'bg-emerald-100 text-emerald-700' },
   ];
 
   const filtered = activeTab === 'waiting' ? waiting : activeTab === 'engaged' ? engaged : completed;
@@ -100,7 +100,7 @@ export default function DoctorQueuePage() {
   const emergencyCount = appointments.filter(a => a.emergency).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <PageHeader
         title="Doctor Queue"
         subtitle={`${appointments.length} patient${appointments.length !== 1 ? 's' : ''} today${emergencyCount > 0 ? ` · ${emergencyCount} emergency` : ''}`}
@@ -119,12 +119,16 @@ export default function DoctorQueuePage() {
       />
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as QueueTab)}>
-        <TabsList>
+        <TabsList className="h-11 p-1 bg-muted/50 rounded-xl">
           {tabConfig.map(tab => (
-            <TabsTrigger key={tab.key} value={tab.key} className="gap-2">
+            <TabsTrigger
+              key={tab.key}
+              value={tab.key}
+              className="gap-2 rounded-lg data-[state=active]:shadow-sm transition-all"
+            >
               <tab.icon className="w-4 h-4" />
               {tab.label}
-              <Badge variant="secondary" className="h-5 min-w-[20px] text-xs font-bold">
+              <Badge className={cn('h-5 min-w-[20px] text-xs font-bold border-0', tab.badgeClass)}>
                 {tab.count}
               </Badge>
             </TabsTrigger>
@@ -164,7 +168,7 @@ function QueueSkeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="bg-white rounded-xl border border-gray-100 p-4">
+        <div key={i} className="bg-card rounded-2xl border border-border/50 p-4">
           <div className="flex items-center gap-4">
             <Skeleton className="w-12 h-12 rounded-full" />
             <div className="flex-1 space-y-2">

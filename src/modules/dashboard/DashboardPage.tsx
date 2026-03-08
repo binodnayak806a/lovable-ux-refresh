@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef, useState } from 'react';
 import {
   CalendarCheck, BedDouble, TrendingUp, Clock,
   ChevronRight, AlertTriangle, Stethoscope, UserPlus, RefreshCw,
-  IndianRupee, FileText, Activity,
+  IndianRupee, FileText, Activity, Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -50,9 +50,9 @@ function formatDate(): string {
 }
 
 function formatCurrency(value: number): string {
-  if (value >= 100000) return `${(value / 100000).toFixed(1)}L`;
-  if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
-  return value.toLocaleString('en-IN');
+  if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
+  return `₹${value.toLocaleString('en-IN')}`;
 }
 
 export default function DashboardPage() {
@@ -122,7 +122,7 @@ export default function DashboardPage() {
   const userName = user?.full_name?.split(' ')[0] || 'User';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <DashboardHeader
         userName={userName}
         refreshing={refreshing}
@@ -193,14 +193,21 @@ function DashboardHeader({
   onRefresh: () => void; onNewPatient: () => void; showNewPatient: boolean;
 }) {
   return (
-    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-2">
-      <div className="space-y-1.5">
-        <h1 className="text-xl lg:text-2xl font-bold text-foreground">
-          Good {getTimeOfDay().toLowerCase()}, {userName}!
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {formatDate()}
-        </p>
+    <div className="hero-banner flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="space-y-1">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 backdrop-blur-sm flex items-center justify-center border border-primary/10">
+            <Sparkles className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">
+              Good {getTimeOfDay().toLowerCase()}, {userName}!
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {formatDate()}
+            </p>
+          </div>
+        </div>
       </div>
       <div className="flex items-center gap-2 flex-wrap">
         <Button
@@ -208,7 +215,7 @@ function DashboardHeader({
           size="sm"
           onClick={onRefresh}
           disabled={refreshing || loading}
-          className="gap-2"
+          className="gap-2 bg-card/50 backdrop-blur-sm"
         >
           <RefreshCw className={cn('w-4 h-4', (refreshing || loading) && 'animate-spin')} />
           Refresh
@@ -217,7 +224,7 @@ function DashboardHeader({
           <Button
             size="sm"
             onClick={onNewPatient}
-            className="gap-2"
+            className="gap-2 shadow-sm"
           >
             <UserPlus className="w-4 h-4" />
             New Patient
@@ -232,7 +239,7 @@ function DashboardHeader({
 function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, recentAppointments, navigate, isAdmin, isReceptionist }: any) {
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 stagger-children">
         <div className="cursor-pointer" onClick={() => navigate('/reports?tab=daily-opd')}>
           <MetricCard
             title="Today's OPD"
@@ -317,7 +324,7 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
           <DoctorStatsPanel doctors={doctorStats} loading={loading} />
           <RecentAppointmentsPanel appointments={recentAppointments} loading={loading} />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-children">
             <NavCard
               icon={AlertTriangle}
               color="red"
@@ -362,7 +369,7 @@ function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments,
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 stagger-children">
         <MetricCard
           title="My Queue Today"
           value={myStats?.total?.toString() ?? '0'}
@@ -395,10 +402,10 @@ function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments,
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <UpcomingAppointments />
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-primary" />
               Quick Actions
             </CardTitle>
           </CardHeader>
@@ -406,9 +413,9 @@ function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments,
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: 'Start Consultation', icon: Stethoscope, color: 'text-teal-600 bg-teal-50 hover:bg-teal-100', path: '/doctor/queue' },
-                { label: 'My Queue', icon: Clock, color: 'text-blue-600 bg-blue-50 hover:bg-blue-100', path: '/doctor/queue' },
-                { label: 'Lab Reports', icon: FileText, color: 'text-orange-600 bg-orange-50 hover:bg-orange-100', path: '/lab' },
-                { label: 'IPD Rounds', icon: BedDouble, color: 'text-amber-600 bg-amber-50 hover:bg-amber-100', path: '/ipd' },
+                { label: 'My Queue', icon: Clock, color: 'text-primary bg-primary/10 hover:bg-primary/15', path: '/doctor/queue' },
+                { label: 'Lab Reports', icon: FileText, color: 'text-amber-600 bg-amber-50 hover:bg-amber-100', path: '/lab' },
+                { label: 'IPD Rounds', icon: BedDouble, color: 'text-rose-600 bg-rose-50 hover:bg-rose-100', path: '/ipd' },
               ].map((a) => (
                 <Button
                   key={a.label}
@@ -416,7 +423,7 @@ function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments,
                   onClick={() => navigate(a.path)}
                   className={cn(
                     'flex flex-col items-center gap-2 h-auto p-4 rounded-xl transition-all duration-200',
-                    'border border-transparent hover:border-gray-200 hover:shadow-sm',
+                    'border border-border/50 hover:shadow-sm hover:scale-[1.02]',
                     a.color,
                   )}
                 >
@@ -439,10 +446,10 @@ function LabTechDashboard() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <PendingLabOrders />
-      <Card className="border-0 shadow-sm p-5">
+      <Card className="p-5">
         <div className="flex items-center gap-2.5 mb-4">
-          <FileText className="w-4 h-4 text-blue-500" />
-          <h2 className="text-sm font-semibold text-gray-900">Quick Actions</h2>
+          <FileText className="w-4 h-4 text-primary" />
+          <h2 className="text-sm font-semibold text-foreground">Quick Actions</h2>
         </div>
         <div className="space-y-3">
           <NavCard
@@ -472,7 +479,7 @@ function BillingDashboard({ loading, todayRevenue, pendingDues, navigate }: {
 }) {
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 stagger-children">
         <div className="cursor-pointer" onClick={() => navigate('/reports?tab=revenue')}>
           <MetricCard
             title="Today's Revenue"
@@ -507,7 +514,7 @@ function NurseDashboard({ loading, bedSummary, occupiedBeds, totalBeds, bedOccup
 }) {
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger-children">
         <MetricCard
           title="Occupied Beds"
           value={occupiedBeds.toString()}
@@ -534,13 +541,13 @@ function NurseDashboard({ loading, bedSummary, occupiedBeds, totalBeds, bedOccup
   );
 }
 
-const NAV_COLOR_MAP: Record<string, { bg: string; bgHover: string; text: string }> = {
-  red: { bg: 'bg-red-50', bgHover: 'group-hover:bg-red-100', text: 'text-red-600' },
-  amber: { bg: 'bg-amber-50', bgHover: 'group-hover:bg-amber-100', text: 'text-amber-600' },
-  emerald: { bg: 'bg-emerald-50', bgHover: 'group-hover:bg-emerald-100', text: 'text-emerald-600' },
-  orange: { bg: 'bg-orange-50', bgHover: 'group-hover:bg-orange-100', text: 'text-orange-600' },
-  blue: { bg: 'bg-blue-50', bgHover: 'group-hover:bg-blue-100', text: 'text-blue-600' },
-  teal: { bg: 'bg-teal-50', bgHover: 'group-hover:bg-teal-100', text: 'text-teal-600' },
+const NAV_COLOR_MAP: Record<string, { bg: string; bgHover: string; text: string; border: string }> = {
+  red: { bg: 'bg-red-50', bgHover: 'group-hover:bg-red-100', text: 'text-red-600', border: 'border-red-100' },
+  amber: { bg: 'bg-amber-50', bgHover: 'group-hover:bg-amber-100', text: 'text-amber-600', border: 'border-amber-100' },
+  emerald: { bg: 'bg-emerald-50', bgHover: 'group-hover:bg-emerald-100', text: 'text-emerald-600', border: 'border-emerald-100' },
+  orange: { bg: 'bg-amber-50', bgHover: 'group-hover:bg-amber-100', text: 'text-amber-600', border: 'border-amber-100' },
+  blue: { bg: 'bg-primary/10', bgHover: 'group-hover:bg-primary/15', text: 'text-primary', border: 'border-primary/10' },
+  teal: { bg: 'bg-teal-50', bgHover: 'group-hover:bg-teal-100', text: 'text-teal-600', border: 'border-teal-100' },
 };
 
 function NavCard({ icon: Icon, color, title, subtitle, onClick }: {
@@ -549,19 +556,23 @@ function NavCard({ icon: Icon, color, title, subtitle, onClick }: {
   const c = NAV_COLOR_MAP[color] || NAV_COLOR_MAP.blue;
   return (
     <Card
-      className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+      className="hover:shadow-hover transition-all duration-300 cursor-pointer group hover:scale-[1.01]"
       onClick={onClick}
     >
       <CardContent className="p-5">
         <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-xl ${c.bg} flex items-center justify-center ${c.bgHover} transition-colors`}>
-            <Icon className={`w-6 h-6 ${c.text}`} />
+          <div className={cn(
+            'w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300',
+            'group-hover:scale-110 border',
+            c.bg, c.bgHover, c.border,
+          )}>
+            <Icon className={cn('w-6 h-6', c.text)} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-900">{title}</p>
-            <p className="text-xs text-gray-500">{subtitle}</p>
+            <p className="text-sm font-semibold text-foreground">{title}</p>
+            <p className="text-xs text-muted-foreground">{subtitle}</p>
           </div>
-          <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors" />
+          <ChevronRight className="w-5 h-5 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" />
         </div>
       </CardContent>
     </Card>

@@ -191,22 +191,22 @@ export default function PatientsPage() {
           }
         />
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <SharedStatCard label="Total Patients" value={total} icon={Users} iconClassName="bg-blue-50 text-blue-600" subtitle="All registered" />
-          <SharedStatCard label="Male Patients" value={maleCount} icon={User} iconClassName="bg-sky-50 text-sky-600" subtitle="Current page" />
-          <SharedStatCard label="Female Patients" value={femaleCount} icon={Heart} iconClassName="bg-rose-50 text-rose-500" subtitle="Current page" />
-          <SharedStatCard label="Emergency Cases" value={emergencyCount} icon={Activity} iconClassName="bg-red-50 text-red-500" subtitle="Current page" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 stagger-children">
+          <SharedStatCard label="Total Patients" value={total} icon={Users} iconClassName="bg-primary/10 text-primary" accentColor="blue" subtitle="All registered" />
+          <SharedStatCard label="Male Patients" value={maleCount} icon={User} iconClassName="bg-primary/10 text-primary" accentColor="teal" subtitle="Current page" />
+          <SharedStatCard label="Female Patients" value={femaleCount} icon={Heart} iconClassName="bg-rose-50 text-rose-500" accentColor="rose" subtitle="Current page" />
+          <SharedStatCard label="Emergency Cases" value={emergencyCount} icon={Activity} iconClassName="bg-red-50 text-red-500" accentColor="amber" subtitle="Current page" />
         </div>
 
-        <Card>
+        <Card className="glass-card">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <div className="relative flex-1 max-w-sm group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none transition-colors group-focus-within:text-primary" />
               <Input
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search by UHID, name, or mobile..."
-                className="h-9 pl-10 text-sm border-gray-200"
+                className="h-9 pl-10 text-sm border-border/50 focus:border-primary"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -240,7 +240,7 @@ export default function PatientsPage() {
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-gray-200 rounded-xl p-4">
+                  <div key={i} className="bg-card border border-border/50 rounded-2xl p-4">
                     <div className="flex items-center gap-3">
                       <Skeleton className="w-11 h-11 rounded-full shrink-0" />
                       <div className="flex-1 space-y-2">
@@ -253,16 +253,18 @@ export default function PatientsPage() {
                 ))}
               </div>
             ) : patients.length === 0 ? (
-              <div className="bg-white border border-gray-200 rounded-xl flex flex-col items-center justify-center py-16 text-gray-400">
-                <User className="w-12 h-12 mb-3 opacity-20" />
-                <p className="text-sm font-medium text-gray-500">No patients found</p>
+              <div className="bg-card border border-border/50 rounded-2xl flex flex-col items-center justify-center py-16 animate-fade-in">
+                <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                  <User className="w-8 h-8 text-muted-foreground/40" />
+                </div>
+                <p className="text-sm font-medium text-muted-foreground">No patients found</p>
                 {searchInput && (
-                  <p className="text-xs mt-1 text-gray-400">Try a different search term</p>
+                  <p className="text-xs mt-1 text-muted-foreground/70">Try a different search term</p>
                 )}
                 <Button
                   size="sm"
                   variant="outline"
-                  className="mt-4 gap-1.5 border-gray-200"
+                  className="mt-4 gap-1.5"
                   onClick={() => navigate('/opd?tab=register')}
                 >
                   <UserPlus className="w-4 h-4" /> Register First Patient
