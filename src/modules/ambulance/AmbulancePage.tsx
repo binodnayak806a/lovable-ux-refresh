@@ -19,6 +19,8 @@ import { ScrollArea } from '../../components/ui/scroll-area';
 import { useAppSelector } from '../../store';
 import { useToast } from '../../hooks/useToast';
 import { supabase } from '../../lib/supabase';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import PageHeader from '../../components/shared/PageHeader';
 import ambulanceService from '../../services/ambulance.service';
 import { formatDistanceToNow } from 'date-fns';
 import type {
@@ -39,6 +41,7 @@ import {
 const SAMPLE_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
 export default function AmbulancePage() {
+  usePageTitle('Ambulance');
   const { hospitalId: rawHospitalId } = useAppSelector((s) => s.auth);
   const hospitalId = rawHospitalId ?? SAMPLE_HOSPITAL_ID;
   const { toast } = useToast();
@@ -208,23 +211,24 @@ export default function AmbulancePage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Ambulance Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Track and manage ambulance fleet and dispatch</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={loadData} className="gap-1.5">
-            <RefreshCw className="w-3.5 h-3.5" />
-            Refresh
-          </Button>
-          <Button size="sm" onClick={() => setShowNewRequest(true)} className="gap-1.5 bg-red-600 hover:bg-red-700">
-            <Phone className="w-3.5 h-3.5" />
-            New Request
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Ambulance Management"
+        subtitle="Track and manage ambulance fleet and dispatch"
+        icon={Truck}
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={loadData} className="gap-1.5">
+              <RefreshCw className="w-3.5 h-3.5" />
+              Refresh
+            </Button>
+            <Button size="sm" onClick={() => setShowNewRequest(true)} className="gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+              <Phone className="w-3.5 h-3.5" />
+              New Request
+            </Button>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-4 space-y-4">
