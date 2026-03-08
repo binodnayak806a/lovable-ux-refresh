@@ -22,8 +22,9 @@ class BillingService {
 
   async getRevenueStats(_hospitalId: string, _dateFrom: string, _dateTo: string) {
     const store = mockStore.get();
-    const totalRevenue = store.bills.reduce((s, b) => s + b.amount_paid, 0);
-    const pendingAmount = store.bills
+    const _items = store.bills;
+    const totalRevenue = _items.reduce((s, b) => s + b.amount_paid, 0);
+    const pendingAmount = _items
       .filter(b => b.payment_status !== 'paid')
       .reduce((s, b) => s + (b.total_amount - b.amount_paid), 0);
     return { totalRevenue, pendingAmount };

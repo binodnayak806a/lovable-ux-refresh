@@ -113,7 +113,7 @@ const consultationService = {
     const store = mockStore.get();
     return store.consultations
       .filter(c => c.patient_id === patientId)
-      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .sort((a, b) => b.consultation_date.localeCompare(a.consultation_date))
       .slice(0, limit)
       .map(c => ({
         id: c.id,
