@@ -13,8 +13,8 @@ import { startOfDay, endOfDay } from 'date-fns';
 
 const labService = {
   async getTests(hospitalId: string, category?: TestCategory): Promise<LabTest[]> {
-    const all = mockMasterStore.getAll<LabTest>('lab_tests', hospitalId)
-      .filter(t => (t as Record<string, unknown>).is_active !== false);
+    const all = mockMasterStore.getAll('lab_tests', hospitalId)
+      .filter(t => t.is_active !== false) as unknown as LabTest[];
     if (category) return all.filter(t => t.test_category === category);
     return all;
   },

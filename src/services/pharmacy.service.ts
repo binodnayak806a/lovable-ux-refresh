@@ -159,9 +159,9 @@ const pharmacyService = {
     hospitalId: string,
     medicationId: string,
     quantity: number,
-    patientId: string,
-    prescriptionId: string | null,
-    userId: string
+    _patientId: string,
+    _prescriptionId: string | null,
+    _userId: string
   ): Promise<void> {
     const today = new Date().toISOString().split('T')[0];
     const batches = mockMasterStore.getAll<Record<string, unknown>>('pharmacy_inventory', hospitalId)
