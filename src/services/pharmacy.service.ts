@@ -103,7 +103,7 @@ const pharmacyService = {
     mockMasterStore.update('pharmacy_inventory', itemId, updates);
   },
 
-  async adjustStock(itemId: string, adjustment: number, reason: string, userId: string): Promise<void> {
+  async adjustStock(itemId: string, adjustment: number, _reason: string, _userId: string): Promise<void> {
     const item = mockMasterStore.getById<Record<string, unknown>>('pharmacy_inventory', itemId);
     if (!item) throw new Error('Not found');
     const newQty = (item.quantity_in_stock as number) + adjustment;
