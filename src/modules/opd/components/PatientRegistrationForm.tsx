@@ -416,7 +416,7 @@ export default function PatientRegistrationForm({ onSuccess, onCancel, editPatie
           {hasDraft && <span className="text-xs text-gray-400 flex items-center gap-1"><Save className="w-3 h-3" /> Draft saved</span>}
         </div>
         <Button size="sm" onClick={handleSubmit} disabled={submitting} className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 min-w-[140px]">
-          {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Registering…</> : 'Register Patient'}
+          {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> {isEditMode ? 'Saving…' : 'Registering…'}</> : isEditMode ? 'Save Changes' : 'Register Patient'}
         </Button>
       </div>
 
