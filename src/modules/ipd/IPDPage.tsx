@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   BedDouble, Search, RefreshCw, Filter, FileText,
-  Download, MoreVertical, CheckCircle, Info, Phone, CreditCard,
+  MoreVertical, Info, Phone, CreditCard,
   ShoppingCart, ClipboardList, ChevronLeft, ChevronRight, Plus,
   LogOut, Printer, Tag,
 } from 'lucide-react';
