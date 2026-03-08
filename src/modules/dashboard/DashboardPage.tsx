@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef, useState } from 'react';
 import {
   CalendarCheck, BedDouble, TrendingUp, Clock,
   ChevronRight, AlertTriangle, Stethoscope, UserPlus, RefreshCw,
-  IndianRupee, FileText, Activity, Sparkles,
+  IndianRupee, FileText, Activity,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -193,39 +193,28 @@ function DashboardHeader({
   onRefresh: () => void; onNewPatient: () => void; showNewPatient: boolean;
 }) {
   return (
-    <div className="hero-banner flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div className="space-y-1">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 backdrop-blur-sm flex items-center justify-center border border-primary/10">
-            <Sparkles className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">
-              Good {getTimeOfDay().toLowerCase()}, {userName}!
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {formatDate()}
-            </p>
-          </div>
-        </div>
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-2">
+      <div>
+        <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight">
+          Good {getTimeOfDay().toLowerCase()}, {userName}!
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {formatDate()}
+        </p>
       </div>
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="sm"
           onClick={onRefresh}
           disabled={refreshing || loading}
-          className="gap-2 bg-card/50 backdrop-blur-sm"
+          className="gap-2"
         >
           <RefreshCw className={cn('w-4 h-4', (refreshing || loading) && 'animate-spin')} />
           Refresh
         </Button>
         {showNewPatient && (
-          <Button
-            size="sm"
-            onClick={onNewPatient}
-            className="gap-2 shadow-sm"
-          >
+          <Button size="sm" onClick={onNewPatient} className="gap-2">
             <UserPlus className="w-4 h-4" />
             New Patient
           </Button>
