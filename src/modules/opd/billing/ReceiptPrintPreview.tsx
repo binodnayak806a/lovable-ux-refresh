@@ -3,7 +3,7 @@
  * Opens in a new window for print/PDF.
  */
 import { useRef } from 'react';
-import { Printer, X, FileDown } from 'lucide-react';
+import { Printer, X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import {
   hospitalHeaderHTML, openPrintWindow, formatCurrencyINR, formatDateIN,
