@@ -198,15 +198,15 @@ export default function PatientsPage() {
           <SharedStatCard label="Emergency Cases" value={emergencyCount} icon={Activity} iconClassName="bg-red-50 text-red-500" accentColor="amber" subtitle="Current page" />
         </div>
 
-        <Card>
+        <Card className="glass-card">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <div className="relative flex-1 max-w-sm group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none transition-colors group-focus-within:text-primary" />
               <Input
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search by UHID, name, or mobile..."
-                className="h-9 pl-10 text-sm border-gray-200"
+                className="h-9 pl-10 text-sm border-border/50 focus:border-primary"
               />
             </div>
             <div className="flex items-center gap-2">
