@@ -1,364 +1,150 @@
-import { supabase } from '../lib/supabase';
+import { mockMasterStore } from '../lib/mockMasterStore';
 import type {
   DoctorMaster, DepartmentMaster, ServiceMasterRow, PackageMasterRow,
   MedicationMaster, SymptomMaster, LabTestMaster, CustomFieldConfig,
   UserRole, GstSlabRow, VisitTypeRule,
 } from '../modules/masters/types';
 
-const DEMO_HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
-
 class MastersService {
+  // ── Doctors ──
   async getDoctors(hospitalId: string): Promise<DoctorMaster[]> {
-    const { data, error } = await supabase
-      .from('doctors')
-      .select('*, department:departments(name)')
-      .eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID)
-      .order('first_name');
-    if (error) throw error;
-    return (data ?? []) as DoctorMaster[];
+    return mockMasterStore.getAll<DoctorMaster>('doctors', hospitalId);
   }
-
   async upsertDoctor(hospitalId: string, doctor: Partial<DoctorMaster>, id?: string): Promise<DoctorMaster> {
-    if (id) {
-      const { data, error } = await supabase.from('doctors')
-        .update({ ...doctor, updated_at: new Date().toISOString() } as never)
-        .eq('id', id).select('*, department:departments(name)').single();
-      if (error) throw error;
-      return data as DoctorMaster;
-    }
-    const { data, error } = await supabase.from('doctors')
-      .insert({ ...doctor, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select('*, department:departments(name)').single();
-    if (error) throw error;
-    return data as DoctorMaster;
+    if (id) return mockMasterStore.update<DoctorMaster>('doctors', id, doctor);
+    return mockMasterStore.insert<DoctorMaster>('doctors', { ...doctor, hospital_id: hospitalId });
   }
+  async deleteDoctor(id: string): Promise<void> { mockMasterStore.remove('doctors', id); }
 
-  async deleteDoctor(id: string): Promise<void> {
-    const { error } = await supabase.from('doctors').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── Departments ──
   async getDepartments(hospitalId: string): Promise<DepartmentMaster[]> {
-    const { data, error } = await supabase.from('departments')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID).order('name');
-    if (error) throw error;
-    return (data ?? []) as DepartmentMaster[];
+    return mockMasterStore.getAll<DepartmentMaster>('departments', hospitalId);
   }
-
   async upsertDepartment(hospitalId: string, dept: Partial<DepartmentMaster>, id?: string): Promise<DepartmentMaster> {
-    if (id) {
-      const { data, error } = await supabase.from('departments')
-        .update({ ...dept, updated_at: new Date().toISOString() } as never)
-        .eq('id', id).select().single();
-      if (error) throw error;
-      return data as DepartmentMaster;
-    }
-    const { data, error } = await supabase.from('departments')
-      .insert({ ...dept, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as DepartmentMaster;
+    if (id) return mockMasterStore.update<DepartmentMaster>('departments', id, dept);
+    return mockMasterStore.insert<DepartmentMaster>('departments', { ...dept, hospital_id: hospitalId });
   }
+  async deleteDepartment(id: string): Promise<void> { mockMasterStore.remove('departments', id); }
 
-  async deleteDepartment(id: string): Promise<void> {
-    const { error } = await supabase.from('departments').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── Services ──
   async getServices(hospitalId: string): Promise<ServiceMasterRow[]> {
-    const { data, error } = await supabase.from('services_master')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID).order('service_name');
-    if (error) throw error;
-    return (data ?? []) as ServiceMasterRow[];
+    return mockMasterStore.getAll<ServiceMasterRow>('services', hospitalId);
   }
-
   async upsertService(hospitalId: string, svc: Partial<ServiceMasterRow>, id?: string): Promise<ServiceMasterRow> {
-    if (id) {
-      const { data, error } = await supabase.from('services_master')
-        .update({ ...svc, updated_at: new Date().toISOString() } as never)
-        .eq('id', id).select().single();
-      if (error) throw error;
-      return data as ServiceMasterRow;
-    }
-    const { data, error } = await supabase.from('services_master')
-      .insert({ ...svc, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as ServiceMasterRow;
+    if (id) return mockMasterStore.update<ServiceMasterRow>('services', id, svc);
+    return mockMasterStore.insert<ServiceMasterRow>('services', { ...svc, hospital_id: hospitalId });
   }
+  async deleteService(id: string): Promise<void> { mockMasterStore.remove('services', id); }
 
-  async deleteService(id: string): Promise<void> {
-    const { error } = await supabase.from('services_master').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── Packages ──
   async getPackages(hospitalId: string): Promise<PackageMasterRow[]> {
-    const { data, error } = await supabase.from('packages_master')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID).order('package_name');
-    if (error) throw error;
-    return (data ?? []) as PackageMasterRow[];
+    return mockMasterStore.getAll<PackageMasterRow>('packages', hospitalId);
   }
-
   async upsertPackage(hospitalId: string, pkg: Partial<PackageMasterRow>, id?: string): Promise<PackageMasterRow> {
-    if (id) {
-      const { data, error } = await supabase.from('packages_master')
-        .update(pkg as never).eq('id', id).select().single();
-      if (error) throw error;
-      return data as PackageMasterRow;
-    }
-    const { data, error } = await supabase.from('packages_master')
-      .insert({ ...pkg, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as PackageMasterRow;
+    if (id) return mockMasterStore.update<PackageMasterRow>('packages', id, pkg);
+    return mockMasterStore.insert<PackageMasterRow>('packages', { ...pkg, hospital_id: hospitalId });
   }
+  async deletePackage(id: string): Promise<void> { mockMasterStore.remove('packages', id); }
 
-  async deletePackage(id: string): Promise<void> {
-    const { error } = await supabase.from('packages_master').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── Medications ──
   async getMedications(hospitalId: string): Promise<MedicationMaster[]> {
-    const { data, error } = await supabase.from('medications')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID).order('generic_name');
-    if (error) throw error;
-    return (data ?? []) as MedicationMaster[];
+    return mockMasterStore.getAll<MedicationMaster>('medications', hospitalId);
   }
-
   async upsertMedication(hospitalId: string, med: Partial<MedicationMaster>, id?: string): Promise<MedicationMaster> {
-    if (id) {
-      const { data, error } = await supabase.from('medications')
-        .update({ ...med, updated_at: new Date().toISOString() } as never)
-        .eq('id', id).select().single();
-      if (error) throw error;
-      return data as MedicationMaster;
-    }
-    const { data, error } = await supabase.from('medications')
-      .insert({ ...med, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as MedicationMaster;
+    if (id) return mockMasterStore.update<MedicationMaster>('medications', id, med);
+    return mockMasterStore.insert<MedicationMaster>('medications', { ...med, hospital_id: hospitalId });
   }
+  async deleteMedication(id: string): Promise<void> { mockMasterStore.remove('medications', id); }
 
-  async deleteMedication(id: string): Promise<void> {
-    const { error } = await supabase.from('medications').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── Symptoms ──
   async getSymptoms(hospitalId: string): Promise<SymptomMaster[]> {
-    const { data, error } = await supabase.from('symptoms')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID).order('name');
-    if (error) throw error;
-    return (data ?? []) as SymptomMaster[];
+    return mockMasterStore.getAll<SymptomMaster>('symptoms', hospitalId);
   }
-
   async upsertSymptom(hospitalId: string, sym: Partial<SymptomMaster>, id?: string): Promise<SymptomMaster> {
-    if (id) {
-      const { data, error } = await supabase.from('symptoms')
-        .update({ ...sym, updated_at: new Date().toISOString() } as never)
-        .eq('id', id).select().single();
-      if (error) throw error;
-      return data as SymptomMaster;
-    }
-    const { data, error } = await supabase.from('symptoms')
-      .insert({ ...sym, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as SymptomMaster;
+    if (id) return mockMasterStore.update<SymptomMaster>('symptoms', id, sym);
+    return mockMasterStore.insert<SymptomMaster>('symptoms', { ...sym, hospital_id: hospitalId });
   }
+  async deleteSymptom(id: string): Promise<void> { mockMasterStore.remove('symptoms', id); }
 
-  async deleteSymptom(id: string): Promise<void> {
-    const { error } = await supabase.from('symptoms').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── Lab Tests ──
   async getLabTests(hospitalId: string): Promise<LabTestMaster[]> {
-    const { data, error } = await supabase.from('lab_tests')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID).order('test_name');
-    if (error) throw error;
-    return (data ?? []) as LabTestMaster[];
+    return mockMasterStore.getAll<LabTestMaster>('lab_tests', hospitalId);
   }
-
   async upsertLabTest(hospitalId: string, test: Partial<LabTestMaster>, id?: string): Promise<LabTestMaster> {
-    if (id) {
-      const { data, error } = await supabase.from('lab_tests')
-        .update(test as never).eq('id', id).select().single();
-      if (error) throw error;
-      return data as LabTestMaster;
-    }
-    const { data, error } = await supabase.from('lab_tests')
-      .insert({ ...test, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as LabTestMaster;
+    if (id) return mockMasterStore.update<LabTestMaster>('lab_tests', id, test);
+    return mockMasterStore.insert<LabTestMaster>('lab_tests', { ...test, hospital_id: hospitalId });
   }
+  async deleteLabTest(id: string): Promise<void> { mockMasterStore.remove('lab_tests', id); }
 
-  async deleteLabTest(id: string): Promise<void> {
-    const { error } = await supabase.from('lab_tests').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── Custom Fields ──
   async getCustomFields(hospitalId: string): Promise<CustomFieldConfig[]> {
-    const { data, error } = await supabase.from('custom_fields_config')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID)
-      .order('form_name').order('sort_order');
-    if (error) throw error;
-    return (data ?? []) as CustomFieldConfig[];
+    return mockMasterStore.getAll<CustomFieldConfig>('custom_fields', hospitalId);
   }
-
   async upsertCustomField(hospitalId: string, field: Partial<CustomFieldConfig>, id?: string): Promise<CustomFieldConfig> {
-    if (id) {
-      const { data, error } = await supabase.from('custom_fields_config')
-        .update({ ...field, updated_at: new Date().toISOString() } as never)
-        .eq('id', id).select().single();
-      if (error) throw error;
-      return data as CustomFieldConfig;
-    }
-    const { data, error } = await supabase.from('custom_fields_config')
-      .insert({ ...field, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as CustomFieldConfig;
+    if (id) return mockMasterStore.update<CustomFieldConfig>('custom_fields', id, field);
+    return mockMasterStore.insert<CustomFieldConfig>('custom_fields', { ...field, hospital_id: hospitalId });
   }
+  async deleteCustomField(id: string): Promise<void> { mockMasterStore.remove('custom_fields', id); }
 
-  async deleteCustomField(id: string): Promise<void> {
-    const { error } = await supabase.from('custom_fields_config').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── User Roles ──
   async getUserRoles(hospitalId: string): Promise<UserRole[]> {
-    const { data, error } = await supabase.from('user_roles')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID).order('role_name');
-    if (error) throw error;
-    const roles = (data ?? []) as UserRole[];
-    if (roles.length > 0) {
-      const userIds = roles.filter(r => r.user_id).map(r => r.user_id!);
-      if (userIds.length > 0) {
-        const { data: profiles } = await supabase.from('profiles')
-          .select('id, full_name, email').in('id', userIds);
-        const profileMap = new Map((profiles ?? []).map((p: { id: string; full_name: string; email: string }) => [p.id, p]));
-        roles.forEach(r => {
-          if (r.user_id && profileMap.has(r.user_id)) {
-            const p = profileMap.get(r.user_id) as { full_name: string; email: string };
-            r.profile = { full_name: p.full_name, email: p.email };
-          }
-        });
-      }
-    }
-    return roles;
+    return mockMasterStore.getAll<UserRole>('user_roles', hospitalId);
   }
-
-  async getProfiles(hospitalId: string): Promise<{ id: string; full_name: string; email: string; role: string }[]> {
-    const { data, error } = await supabase.from('profiles')
-      .select('id, full_name, email, role')
-      .eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID)
-      .eq('is_active', true)
-      .order('full_name');
-    if (error) throw error;
-    return (data ?? []) as { id: string; full_name: string; email: string; role: string }[];
+  async getProfiles(_hospitalId: string): Promise<{ id: string; full_name: string; email: string; role: string }[]> {
+    // Return mock profiles
+    return [
+      { id: 'usr-1', full_name: 'Admin User', email: 'admin@hospital.com', role: 'admin' },
+      { id: 'usr-2', full_name: 'Dr. Rajesh Kumar', email: 'rajesh@hospital.com', role: 'doctor' },
+      { id: 'usr-3', full_name: 'Nurse Priya', email: 'priya.nurse@hospital.com', role: 'nurse' },
+      { id: 'usr-4', full_name: 'Receptionist Anita', email: 'anita@hospital.com', role: 'receptionist' },
+    ];
   }
-
   async upsertUserRole(hospitalId: string, role: Partial<UserRole>, id?: string): Promise<UserRole> {
-    if (id) {
-      const { data, error } = await supabase.from('user_roles')
-        .update({ ...role, updated_at: new Date().toISOString() } as never)
-        .eq('id', id).select().single();
-      if (error) throw error;
-      return data as UserRole;
-    }
-    const { data, error } = await supabase.from('user_roles')
-      .insert({ ...role, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as UserRole;
+    if (id) return mockMasterStore.update<UserRole>('user_roles', id, role);
+    return mockMasterStore.insert<UserRole>('user_roles', { ...role, hospital_id: hospitalId });
   }
+  async deleteUserRole(id: string): Promise<void> { mockMasterStore.remove('user_roles', id); }
 
-  async deleteUserRole(id: string): Promise<void> {
-    const { error } = await supabase.from('user_roles').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── GST ──
   async getGstSlabs(hospitalId: string): Promise<GstSlabRow[]> {
-    const { data, error } = await supabase.from('gst_master')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID).order('gst_rate');
-    if (error) throw error;
-    return (data ?? []) as GstSlabRow[];
+    return mockMasterStore.getAll<GstSlabRow>('gst_slabs', hospitalId);
   }
-
   async upsertGstSlab(hospitalId: string, slab: Partial<GstSlabRow>, id?: string): Promise<GstSlabRow> {
-    if (id) {
-      const { data, error } = await supabase.from('gst_master')
-        .update(slab as never).eq('id', id).select().single();
-      if (error) throw error;
-      return data as GstSlabRow;
-    }
-    const { data, error } = await supabase.from('gst_master')
-      .insert({ ...slab, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as GstSlabRow;
+    if (id) return mockMasterStore.update<GstSlabRow>('gst_slabs', id, slab);
+    return mockMasterStore.insert<GstSlabRow>('gst_slabs', { ...slab, hospital_id: hospitalId });
+  }
+  async deleteGstSlab(id: string): Promise<void> { mockMasterStore.remove('gst_slabs', id); }
+  async getHospitalGstConfig(_hospitalId: string): Promise<{ gst_number: string | null; state_code: string | null; gst_mode: string | null }> {
+    const cfg = mockMasterStore.getConfig();
+    return {
+      gst_number: (cfg.gst_number as string) || null,
+      state_code: (cfg.state_code as string) || null,
+      gst_mode: (cfg.gst_mode as string) || 'cgst_sgst',
+    };
+  }
+  async updateHospitalGstConfig(_hospitalId: string, config: Record<string, unknown>): Promise<void> {
+    mockMasterStore.updateConfig(config);
   }
 
-  async deleteGstSlab(id: string): Promise<void> {
-    const { error } = await supabase.from('gst_master').delete().eq('id', id);
-    if (error) throw error;
-  }
-
-  async getHospitalGstConfig(hospitalId: string): Promise<{ gst_number: string | null; state_code: string | null; gst_mode: string | null }> {
-    const { data, error } = await supabase.from('hospitals')
-      .select('gst_number, state_code, gst_mode')
-      .eq('id', hospitalId || DEMO_HOSPITAL_ID)
-      .maybeSingle();
-    if (error) throw error;
-    return (data ?? { gst_number: null, state_code: null, gst_mode: 'cgst_sgst' }) as { gst_number: string | null; state_code: string | null; gst_mode: string | null };
-  }
-
-  async updateHospitalGstConfig(hospitalId: string, config: { gst_number?: string; state_code?: string; gst_mode?: string }): Promise<void> {
-    const { error } = await supabase.from('hospitals')
-      .update(config as never)
-      .eq('id', hospitalId || DEMO_HOSPITAL_ID);
-    if (error) throw error;
-  }
-
+  // ── Visit Types ──
   async getVisitTypes(hospitalId: string): Promise<VisitTypeRule[]> {
-    const { data, error } = await supabase.from('visit_type_rules')
-      .select('*').eq('hospital_id', hospitalId || DEMO_HOSPITAL_ID).order('days_threshold');
-    if (error) throw error;
-    return (data ?? []) as VisitTypeRule[];
+    return mockMasterStore.getAll<VisitTypeRule>('visit_types', hospitalId);
   }
-
   async upsertVisitType(hospitalId: string, vt: Partial<VisitTypeRule>, id?: string): Promise<VisitTypeRule> {
-    if (id) {
-      const { data, error } = await supabase.from('visit_type_rules')
-        .update(vt as never).eq('id', id).select().single();
-      if (error) throw error;
-      return data as VisitTypeRule;
-    }
-    const { data, error } = await supabase.from('visit_type_rules')
-      .insert({ ...vt, hospital_id: hospitalId || DEMO_HOSPITAL_ID } as never)
-      .select().single();
-    if (error) throw error;
-    return data as VisitTypeRule;
+    if (id) return mockMasterStore.update<VisitTypeRule>('visit_types', id, vt);
+    return mockMasterStore.insert<VisitTypeRule>('visit_types', { ...vt, hospital_id: hospitalId });
   }
+  async deleteVisitType(id: string): Promise<void> { mockMasterStore.remove('visit_types', id); }
 
-  async deleteVisitType(id: string): Promise<void> {
-    const { error } = await supabase.from('visit_type_rules').delete().eq('id', id);
-    if (error) throw error;
-  }
-
+  // ── Bulk Insert ──
   async bulkInsert<T>(table: string, rows: Partial<T>[], hospitalId: string): Promise<number> {
-    let inserted = 0;
-    const batchSize = 50;
-    for (let i = 0; i < rows.length; i += batchSize) {
-      const batch = rows.slice(i, i + batchSize).map(r => ({
-        ...r,
-        hospital_id: hospitalId || DEMO_HOSPITAL_ID,
-      }));
-      const { error } = await supabase.from(table).insert(batch as never);
-      if (error) throw error;
-      inserted += batch.length;
-    }
-    return inserted;
+    const tableMap: Record<string, string> = {
+      doctors: 'doctors', departments: 'departments', medications: 'medications',
+      symptoms: 'symptoms', lab_tests: 'lab_tests', services_master: 'services',
+      packages_master: 'packages', gst_master: 'gst_slabs', visit_type_rules: 'visit_types',
+    };
+    const key = tableMap[table] || table;
+    return mockMasterStore.bulkInsert(key as 'doctors', rows, hospitalId);
   }
 }
 
