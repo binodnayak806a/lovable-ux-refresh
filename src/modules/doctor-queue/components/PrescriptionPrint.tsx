@@ -1,6 +1,6 @@
 import { useRef, forwardRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import { Printer, X, Download } from 'lucide-react';
+import { Printer, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '../../../components/ui/button';
 import type { PrescriptionDrug, InvestigationItem } from '../../../services/doctor-queue.service';
