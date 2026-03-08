@@ -296,6 +296,25 @@ export interface Database {
           updated_at?: string;
         };
       };
+      user_roles: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          role_name: UserRole;
+          permissions: Record<string, unknown> | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          role_name: UserRole;
+          permissions?: Record<string, unknown> | null;
+        };
+        Update: {
+          role_name?: UserRole;
+          permissions?: Record<string, unknown> | null;
+        };
+      };
     };
     Enums: {
       user_role: UserRole;

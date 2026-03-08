@@ -71,6 +71,15 @@ function AppInit() {
           } catch {
             // silent
           }
+          // Sync role to user_roles table on sign-in
+          if (profile?.role) {
+            try {
+              const { roleService } = await import('./services/role.service');
+              await roleService.ensureUserRole(session.user.id, profile.role as UserRole);
+            } catch {
+              // non-blocking
+            }
+          }
           dispatch(setSession({ session, user: profile }));
         })();
       }
