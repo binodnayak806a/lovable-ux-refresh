@@ -147,19 +147,11 @@ export default function AppointmentsPage() {
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="flex items-center justify-between py-2 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary/10 text-primary">
-            <CalendarDays className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground tracking-tight">Appointments</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {viewMode === 'calendar' ? weekLabel : `Today's Queue`}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
+        <PageHeader
+          title="Appointments"
+          subtitle={viewMode === 'calendar' ? weekLabel : `Today's Queue`}
+          icon={CalendarDays}
+          actions={<div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 mr-2">
             <Badge variant="outline" className="border-gray-200 text-gray-600 text-xs font-medium">
               <Users className="w-3 h-3 mr-1" />
