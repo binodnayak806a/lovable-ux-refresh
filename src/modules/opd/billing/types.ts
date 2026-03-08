@@ -8,12 +8,21 @@ export interface BillItem {
   totalPrice: number;
 }
 
+export interface SplitPaymentEntry {
+  id: string;
+  mode: PaymentMode;
+  amount: number;
+  reference: string;
+}
+
 export interface BillFormData {
   discountPercentage: number;
   taxPercentage: number;
   paymentMode: PaymentMode;
   paymentReference: string;
   notes: string;
+  isSplitPayment: boolean;
+  splitEntries: SplitPaymentEntry[];
 }
 
 export interface BillRecord {
@@ -38,7 +47,7 @@ export interface BillRecord {
   notes: string | null;
 }
 
-export type PaymentMode = 'cash' | 'card' | 'upi' | 'online' | 'insurance';
+export type PaymentMode = 'cash' | 'card' | 'upi' | 'online' | 'insurance' | 'rtgs';
 export type PaymentStatus = 'pending' | 'paid' | 'partial' | 'cancelled';
 export type ItemType = 'consultation' | 'procedure' | 'medication' | 'lab' | 'room' | 'other';
 
@@ -48,6 +57,8 @@ export const EMPTY_BILL_FORM: BillFormData = {
   paymentMode: 'cash',
   paymentReference: '',
   notes: '',
+  isSplitPayment: false,
+  splitEntries: [],
 };
 
 export const createEmptyBillItem = (type: ItemType = 'other'): BillItem => ({
@@ -60,11 +71,19 @@ export const createEmptyBillItem = (type: ItemType = 'other'): BillItem => ({
   totalPrice: 0,
 });
 
+export const createEmptySplitEntry = (mode: PaymentMode = 'cash'): SplitPaymentEntry => ({
+  id: crypto.randomUUID(),
+  mode,
+  amount: 0,
+  reference: '',
+});
+
 export const PAYMENT_MODES: Array<{ value: PaymentMode; label: string; icon: string }> = [
   { value: 'cash', label: 'Cash', icon: 'Banknote' },
   { value: 'card', label: 'Card', icon: 'CreditCard' },
   { value: 'upi', label: 'UPI', icon: 'Smartphone' },
   { value: 'online', label: 'Online Transfer', icon: 'Globe' },
+  { value: 'rtgs', label: 'RTGS/NEFT', icon: 'Building2' },
   { value: 'insurance', label: 'Insurance', icon: 'Shield' },
 ];
 
