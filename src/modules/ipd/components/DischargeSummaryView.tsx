@@ -205,14 +205,3 @@ function SummarySection({ icon: Icon, title, content }: { icon: React.ElementTyp
   );
 }
 
-function PrintSection({ title, content }: { title: string; content: string | null }) {
-  if (!content) return null;
-  return (
-    <div style={{ marginBottom: '14px' }}>
-      <div style={{ fontWeight: 700, fontSize: '12px', marginBottom: '4px', borderBottom: '1px solid #eee', paddingBottom: '2px' }}>
-        {title}
-      </div>
-      <div style={{ fontSize: '11px', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{content}</div>
-    </div>
-  );
-}
