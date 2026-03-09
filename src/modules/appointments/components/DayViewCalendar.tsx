@@ -72,7 +72,7 @@ export default function DayViewCalendar({ appointments, date, slotInterval, onSl
 
   return (
     <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
-      <div className="max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin">
+      <div ref={scrollRef} className="max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin">
         {timeSlots.map((slot) => {
           const cellAppts = appointmentsBySlot[slot] ?? [];
           const [slotH, slotM] = slot.split(':').map(Number);
