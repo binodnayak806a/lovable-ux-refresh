@@ -100,7 +100,7 @@ export default function WardBoard({ hospitalId }: Props) {
   }
 
   return (
-    <div className="flex h-[calc(100vh-180px)] gap-4 animate-fade-in">
+    <div className="flex flex-1 min-h-0 gap-4 animate-fade-in">
       <div className="flex-1 flex flex-col min-w-0">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>

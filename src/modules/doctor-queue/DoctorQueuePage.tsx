@@ -211,7 +211,7 @@ export default function DoctorQueuePage() {
   const doneCount = appointments.filter(a => a.status === 'completed').length;
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-background">
+    <div className="flex h-full overflow-hidden bg-background">
       {/* ═══ LEFT: Patient Queue ═══ */}
       <div className="w-[280px] border-r border-border bg-card flex flex-col shrink-0">
         {/* Walk-In / Online toggle */}

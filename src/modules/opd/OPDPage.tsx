@@ -206,7 +206,7 @@ export default function OPDPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-background">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
       {/* ═══════ HEADER ═══════ */}
       <div className="bg-card border-b border-border">
         <div className="px-6 pt-5 pb-4">
