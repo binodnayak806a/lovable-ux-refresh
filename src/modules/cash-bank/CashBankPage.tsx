@@ -93,7 +93,7 @@ export default function CashBankPage() {
       />
 
       {/* Split layout — glass card */}
-      <div className="glass-card flex overflow-hidden" style={{ height: 'calc(100vh - 180px)' }}>
+      <div className="glass-card flex overflow-hidden flex-1 min-h-0">
         {/* Left: Accounts list */}
         <div className="w-72 shrink-0">
           <AccountsList
