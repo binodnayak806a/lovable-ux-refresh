@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import {
   Search, User, BedDouble, Receipt, X, ArrowRight, Loader2,
   UserPlus, CalendarPlus, Pill, FlaskConical, FileText, Settings,
-  BarChart3, Stethoscope,
+  BarChart3, Stethoscope, Clock,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { setSearchOpen } from '../../store/slices/globalSlice';
 import { loadPatientContext } from '../../store/slices/globalSlice';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useRecentPatients } from '../../hooks/useRecentPatients';
 
 interface SearchResult {
   type: 'patient' | 'admission' | 'bill' | 'action';
