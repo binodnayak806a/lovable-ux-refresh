@@ -44,6 +44,7 @@ export default function GlobalSearch() {
   const { searchOpen } = useAppSelector((s) => s.global);
   const { user } = useAppSelector((s) => s.auth);
   const hospitalId = user?.hospital_id ?? HOSPITAL_ID;
+  const { recentPatients, addRecentPatient } = useRecentPatients();
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -51,6 +52,15 @@ export default function GlobalSearch() {
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const debouncedQuery = useDebounce(query, 150);
+
+  // Recent patients as search results (shown when no query)
+  const recentPatientResults: SearchResult[] = recentPatients.slice(0, 4).map(p => ({
+    type: 'patient' as const,
+    id: p.id,
+    title: p.name,
+    subtitle: `UHID: ${p.uhid}`,
+    icon: Clock,
+  }));
 
   // Filtered quick actions when no query or partial match
   const filteredActions = query.length > 0
