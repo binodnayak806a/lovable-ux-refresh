@@ -180,6 +180,7 @@ export default function GlobalSearch() {
     }
     switch (result.type) {
       case 'patient':
+        addRecentPatient({ id: result.id, name: result.title, uhid: result.subtitle.replace('UHID: ', '').split(' · ')[0] });
         await dispatch(loadPatientContext(result.id));
         navigate(`/patients?id=${result.id}`);
         break;
