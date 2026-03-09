@@ -30,11 +30,11 @@ const ACCENT_MAP: Record<string, string> = {
 };
 
 const ICON_BG_MAP: Record<string, string> = {
-  blue: 'bg-primary/10 text-primary',
-  amber: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
-  teal: 'bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400',
-  rose: 'bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400',
-  green: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
+  blue: 'bg-primary/15 text-primary',
+  amber: 'bg-warning/15 text-warning',
+  teal: 'bg-primary/15 text-primary',
+  rose: 'bg-destructive/15 text-destructive',
+  green: 'bg-success/15 text-success',
 };
 
 export default function MetricCard({
@@ -62,7 +62,7 @@ export default function MetricCard({
 
   if (loading) {
     return (
-      <div className={cn('rounded-2xl shadow-card border border-border/50 p-4 h-[130px]', GRADIENT_MAP[gradient])} role="status" aria-label={`Loading ${title}`}>
+      <div className={cn('rounded-2xl shadow-card border border-border/40 p-4 h-[130px]', GRADIENT_MAP[gradient])} role="status" aria-label={`Loading ${title}`}>
         <div className="space-y-3">
           <Skeleton className="h-4 w-20" />
           <Skeleton className="h-8 w-16" />
@@ -75,8 +75,8 @@ export default function MetricCard({
   return (
     <article
       className={cn(
-        'rounded-2xl shadow-card border border-border/50 p-4 h-[130px]',
-        'hover:shadow-hover transition-all duration-300 group flex flex-col',
+        'rounded-2xl shadow-card border border-border/40 p-4 h-[130px]',
+        'hover:shadow-hover hover:-translate-y-0.5 transition-all duration-300 group flex flex-col',
         GRADIENT_MAP[gradient],
         ACCENT_MAP[gradient],
       )}
@@ -95,17 +95,17 @@ export default function MetricCard({
       </div>
 
       {/* Value */}
-      <p className="text-2xl font-bold tracking-tight text-foreground">{displayValue}</p>
+      <p className="text-2xl font-bold tracking-tight text-foreground font-display">{displayValue}</p>
 
-      {/* Trend or subtitle - always same height */}
+      {/* Trend or subtitle */}
       <div className="flex items-center gap-2 mt-auto h-5">
         {trend !== undefined ? (
           <>
             <span
               className={cn(
                 'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold',
-                trendPositive && 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400',
-                trendNegative && 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400',
+                trendPositive && 'bg-success/15 text-success',
+                trendNegative && 'bg-destructive/15 text-destructive',
                 !trendPositive && !trendNegative && 'bg-muted text-muted-foreground',
               )}
             >

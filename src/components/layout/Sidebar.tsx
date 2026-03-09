@@ -22,6 +22,7 @@ import {
   Sparkles,
   Building2,
   Receipt,
+  Zap,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -167,7 +168,7 @@ function NavGroupSection({ group }: { group: NavGroup }) {
                   </NavLink>
                 </SidebarMenuButton>
                 {item.badge && (
-                  <SidebarMenuBadge className="bg-red-500/10 text-red-600 text-[10px] font-bold px-1.5 rounded-full">
+                  <SidebarMenuBadge className="bg-red-500/15 text-red-400 text-[10px] font-bold px-1.5 rounded-full animate-pulse">
                     {item.badge}
                   </SidebarMenuBadge>
                 )}
@@ -185,7 +186,8 @@ function SidebarUserFooter() {
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
   const { role } = usePermissions();
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile, setOpenMobile, state } = useSidebar();
+  const collapsed = state === 'collapsed';
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -212,6 +214,15 @@ function SidebarUserFooter() {
 
   return (
     <SidebarFooter>
+      {/* Plan badge */}
+      {!collapsed && (
+        <div className="px-3 pb-2">
+          <div className="plan-badge">
+            <Zap className="w-3 h-3" />
+            Pro Plan
+          </div>
+        </div>
+      )}
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
@@ -221,18 +232,18 @@ function SidebarUserFooter() {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 text-white text-xs font-bold">
+                  <AvatarFallback className="rounded-lg bg-gradient-to-br from-primary to-primary-dark text-primary-foreground text-xs font-bold">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{userName}</span>
-                  <span className="truncate text-xs text-muted-foreground flex items-center gap-1.5">
+                  <span className="truncate text-xs text-sidebar-foreground/60 flex items-center gap-1.5">
                     <span className={`inline-block h-1.5 w-1.5 rounded-full ${roleColor}`} />
                     {roleLabel}
                   </span>
                 </div>
-                <ChevronsUpDown className="ml-auto size-4" />
+                <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/40" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -244,7 +255,7 @@ function SidebarUserFooter() {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 text-white text-xs font-bold">
+                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-primary to-primary-dark text-primary-foreground text-xs font-bold">
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>
@@ -273,7 +284,7 @@ function SidebarUserFooter() {
                 Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                 <LogOut className="mr-2 size-4" />
                 Sign out
               </DropdownMenuItem>
@@ -304,12 +315,12 @@ export default function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild className="hover:bg-transparent active:bg-transparent">
               <NavLink to="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 shadow-sm">
-                  <Heart className="size-4 text-white" />
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-dark shadow-glow-sm">
+                  <Heart className="size-4 text-primary-foreground" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold tracking-tight">HealthCare HMS</span>
-                  <span className="truncate text-[11px] text-muted-foreground">Hospital Management</span>
+                  <span className="truncate font-bold tracking-tight font-display text-sidebar-accent-foreground">HealthCare HMS</span>
+                  <span className="truncate text-[11px] text-sidebar-foreground/50">Hospital Management</span>
                 </div>
               </NavLink>
             </SidebarMenuButton>

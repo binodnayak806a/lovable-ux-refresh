@@ -19,7 +19,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["DM Sans", "system-ui", "sans-serif"],
+        display: ["Space Grotesk", "DM Sans", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "Fira Code", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -32,6 +34,7 @@ export default {
           foreground: "hsl(var(--primary-foreground))",
           light: "hsl(var(--primary-light))",
           dark: "hsl(var(--primary-dark))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -80,8 +83,9 @@ export default {
         card: "0 1px 3px 0 hsl(var(--foreground) / 0.04), 0 1px 2px -1px hsl(var(--foreground) / 0.04)",
         hover: "0 4px 12px -2px hsl(var(--foreground) / 0.08), 0 2px 6px -2px hsl(var(--foreground) / 0.04)",
         elevated: "0 8px 24px -4px hsl(var(--foreground) / 0.1), 0 4px 8px -4px hsl(var(--foreground) / 0.06)",
-        modal: "0 16px 48px rgba(0,0,0,0.10)",
-        glow: "0 0 20px -4px hsl(var(--primary) / 0.25)",
+        modal: "0 16px 48px rgba(0,0,0,0.12)",
+        glow: "0 0 20px -4px hsl(var(--primary) / 0.3)",
+        "glow-sm": "0 0 12px -2px hsl(var(--primary) / 0.2)",
       },
       keyframes: {
         "accordion-down": {
@@ -114,11 +118,11 @@ export default {
         },
         pulseGlow: {
           "0%, 100%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0)" },
-          "50%": { boxShadow: "0 0 12px 2px hsl(var(--primary) / 0.2)" },
+          "50%": { boxShadow: "0 0 16px 3px hsl(var(--primary) / 0.2)" },
         },
         pulseRed: {
-          "0%, 100%": { boxShadow: "0 0 0 0 hsl(0 84% 60% / 0)" },
-          "50%": { boxShadow: "0 0 12px 2px hsl(0 84% 60% / 0.25)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 hsl(4 90% 58% / 0)" },
+          "50%": { boxShadow: "0 0 12px 2px hsl(4 90% 58% / 0.25)" },
         },
         scaleIn: {
           from: { opacity: "0", transform: "scale(0.95)" },
