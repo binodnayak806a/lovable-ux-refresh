@@ -206,8 +206,8 @@ export default function BillingPage() {
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Search bills..." value={search}
-                  onChange={e => setSearch(e.target.value)} className="pl-9 w-64" />
+                <Input placeholder="Search by bill no. or name..." value={search}
+                  onChange={e => setSearch(e.target.value)} className="pl-9 w-64" autoFocus />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-32"><SelectValue placeholder="Status" /></SelectTrigger>
