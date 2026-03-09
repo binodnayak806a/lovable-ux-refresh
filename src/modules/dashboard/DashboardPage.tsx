@@ -36,6 +36,7 @@ import TodayActivityFeed from './components/TodayActivityFeed';
 import DoctorQueueMonitor from './components/DoctorQueueMonitor';
 import DateFilterBar from './components/DateFilterBar';
 import QuickActionButtons from './components/QuickActionButtons';
+import { useRecentPages } from '../../hooks/useRecentPages';
 
 import { cn } from '../../lib/utils';
 
