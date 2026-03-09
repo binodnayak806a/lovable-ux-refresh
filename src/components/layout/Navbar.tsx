@@ -59,14 +59,16 @@ function NavBreadcrumbs() {
         {crumbs.map((crumb, i) => {
           const isLast = i === crumbs.length - 1;
           return (
-            <BreadcrumbItem key={crumb.path} className={isLast ? '' : 'hidden md:block'}>
+            <React.Fragment key={crumb.path}>
               {i > 0 && <BreadcrumbSeparator className="hidden md:block" />}
-              {isLast ? (
-                <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink href={crumb.path}>{crumb.label}</BreadcrumbLink>
-              )}
-            </BreadcrumbItem>
+              <BreadcrumbItem className={isLast ? '' : 'hidden md:block'}>
+                {isLast ? (
+                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink href={crumb.path}>{crumb.label}</BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </React.Fragment>
           );
         })}
       </BreadcrumbList>
