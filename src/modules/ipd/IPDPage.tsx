@@ -3,7 +3,7 @@ import {
   BedDouble, Search, RefreshCw, Filter, FileText,
   MoreVertical, Info, Phone, CreditCard,
   ShoppingCart, ClipboardList, ChevronLeft, ChevronRight, Plus,
-  LogOut, Printer, Tag,
+  LogOut, Printer,
 } from 'lucide-react';
 import { useAppSelector } from '../../store';
 import { usePageTitle } from '../../hooks/usePageTitle';
@@ -11,7 +11,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -378,32 +378,32 @@ export default function IPDPage() {
           {/* Table */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="flex-1 overflow-auto">
-              <table className="w-full text-xs min-w-[1100px]">
+              <table className="w-full text-xs">
                 <thead className="bg-muted/60 sticky top-0 z-10">
                   <tr className="border-b border-border">
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">UHID</th>
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Patient</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Mobile No</th>
+                    {!selectedAdmission && <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Mobile No</th>}
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Doctor</th>
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Ward/Bed</th>
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">DOA</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Payer</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Billing</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Adm Type</th>
+                    {!selectedAdmission && <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Payer</th>}
+                    {!selectedAdmission && <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Billing</th>}
+                    {!selectedAdmission && <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Adm Type</th>}
                     <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Status</th>
-                    <th className="py-2.5 px-3 text-center font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Action</th>
+                    <th className="py-2.5 px-3 text-center font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap w-16">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={11} className="py-16 text-center">
+                      <td colSpan={selectedAdmission ? 7 : 11} className="py-16 text-center">
                         <RefreshCw className="w-5 h-5 animate-spin mx-auto text-muted-foreground" />
                       </td>
                     </tr>
                   ) : filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={11} className="py-16 text-center text-muted-foreground">
+                      <td colSpan={selectedAdmission ? 7 : 11} className="py-16 text-center text-muted-foreground">
                         <div className="flex flex-col items-center gap-2">
                           <BedDouble className="w-8 h-8 text-muted-foreground/40" />
                           <p>No admissions found</p>
@@ -417,62 +417,70 @@ export default function IPDPage() {
                     filtered.map((adm) => {
                       const billing = getBillingBadge(adm);
                       const admType = getAdmTypeBadge(adm);
-                      const isSelected = selectedAdmission?.id === adm.id;
+                      const isRowSelected = selectedAdmission?.id === adm.id;
                       return (
                         <tr
                           key={adm.id}
                           onClick={() => handleViewDetails(adm)}
                           className={cn(
                             'border-b border-border/50 cursor-pointer transition-colors',
-                            isSelected ? 'bg-primary/5' : 'hover:bg-muted/40'
+                            isRowSelected ? 'bg-primary/5' : 'hover:bg-muted/40'
                           )}
                         >
-                          <td className="py-2.5 px-3 font-medium text-primary">{adm.patient?.uhid || adm.admission_number}</td>
+                          <td className="py-2.5 px-3 font-medium text-primary whitespace-nowrap">{adm.patient?.uhid || adm.admission_number}</td>
                           <td className="py-2.5 px-3">
-                            <div className="font-semibold text-foreground uppercase">{adm.patient?.full_name}</div>
+                            <div className="font-semibold text-foreground uppercase truncate max-w-[120px]">{adm.patient?.full_name}</div>
                           </td>
-                          <td className="py-2.5 px-3">
-                            <div className="flex items-center gap-1">
-                              <Phone className="w-3 h-3 text-emerald-500" />
-                              <span>{adm.patient?.phone || '---'}</span>
-                            </div>
-                          </td>
-                          <td className="py-2.5 px-3 truncate max-w-[140px]">
+                          {!selectedAdmission && (
+                            <td className="py-2.5 px-3">
+                              <div className="flex items-center gap-1">
+                                <Phone className="w-3 h-3 text-muted-foreground" />
+                                <span>{adm.patient?.phone || '---'}</span>
+                              </div>
+                            </td>
+                          )}
+                          <td className="py-2.5 px-3 truncate max-w-[120px]">
                             DR. {adm.doctor?.full_name?.toUpperCase() || '---'}
                           </td>
-                          <td className="py-2.5 px-3">
+                          <td className="py-2.5 px-3 whitespace-nowrap">
                             <div className="font-medium">{adm.bed?.bed_number || '---'}</div>
                             <div className="text-[10px] text-muted-foreground">
                               {(adm.bed?.ward as { name?: string })?.name || '---'}
                             </div>
                           </td>
                           <td className="py-2.5 px-3 whitespace-nowrap">
-                            <div>{adm.admission_date ? format(new Date(adm.admission_date), 'dd/MM/yyyy') : '---'}</div>
+                            <div>{adm.admission_date ? format(new Date(adm.admission_date), 'dd/MM') : '---'}</div>
                             <div className="text-[10px] text-muted-foreground">
                               {adm.admission_date ? formatStayDuration(adm.admission_date) : ''}
                             </div>
                           </td>
-                          <td className="py-2.5 px-3">
-                            <span className={billing.color}>{billing.label}</span>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <Badge
-                              variant="outline"
-                              className={cn('text-[10px] px-1.5 py-0.5 font-semibold',
-                                adm.status === 'active' ? 'text-red-600 border-red-200' : 'text-emerald-600 border-emerald-200'
-                              )}
-                            >
-                              {adm.status === 'active' ? 'DUE' : 'PAID'}
-                            </Badge>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <span className={admType.color}>{admType.label}</span>
-                          </td>
+                          {!selectedAdmission && (
+                            <td className="py-2.5 px-3">
+                              <span className={billing.color}>{billing.label}</span>
+                            </td>
+                          )}
+                          {!selectedAdmission && (
+                            <td className="py-2.5 px-3">
+                              <Badge
+                                variant="outline"
+                                className={cn('text-[10px] px-1.5 py-0.5 font-semibold',
+                                  adm.status === 'active' ? 'text-destructive border-destructive/30' : 'text-primary border-primary/30'
+                                )}
+                              >
+                                {adm.status === 'active' ? 'DUE' : 'PAID'}
+                              </Badge>
+                            </td>
+                          )}
+                          {!selectedAdmission && (
+                            <td className="py-2.5 px-3 whitespace-nowrap">
+                              <span className={admType.color}>{admType.label}</span>
+                            </td>
+                          )}
                           <td className="py-2.5 px-3">
                             <Badge
                               className={cn('text-[10px] px-2 py-0.5 border-0',
-                                adm.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                                adm.status === 'discharged' ? 'bg-blue-100 text-blue-700' :
+                                adm.status === 'active' ? 'bg-primary/10 text-primary' :
+                                adm.status === 'discharged' ? 'bg-muted text-muted-foreground' :
                                 'bg-muted text-muted-foreground'
                               )}
                             >
@@ -480,79 +488,11 @@ export default function IPDPage() {
                             </Badge>
                           </td>
                           <td className="py-2.5 px-3">
-                            <div className="flex items-center justify-center gap-0.5" onClick={e => e.stopPropagation()}>
-                              <TooltipProvider delayDuration={150}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                                      onClick={() => handleViewDetails(adm)}
-                                    >
-                                      <ClipboardList className="w-3.5 h-3.5" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-[10px]">View Details</TooltipContent>
-                                </Tooltip>
-
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      className={cn('w-6 h-6 rounded flex items-center justify-center transition-colors',
-                                        adm.status === 'active'
-                                          ? 'text-emerald-600 hover:bg-emerald-50'
-                                          : 'text-muted-foreground/40 cursor-not-allowed'
-                                      )}
-                                      onClick={() => handleDischarge(adm)}
-                                      disabled={adm.status !== 'active'}
-                                    >
-                                      <LogOut className="w-3.5 h-3.5" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-[10px]">Discharge</TooltipContent>
-                                </Tooltip>
-
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                                      onClick={() => handleViewBilling(adm)}
-                                    >
-                                      <CreditCard className="w-3.5 h-3.5" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-[10px]">Billing</TooltipContent>
-                                </Tooltip>
-
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                                      onClick={() => handleViewSummary(adm)}
-                                    >
-                                      <FileText className="w-3.5 h-3.5" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-[10px]">Discharge Summary</TooltipContent>
-                                </Tooltip>
-
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                                      onClick={() => handlePrintLabel(adm)}
-                                    >
-                                      <Tag className="w-3.5 h-3.5" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-[10px]">Print Label</TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-
-                              {/* More actions dropdown */}
+                            <div className="flex items-center justify-center" onClick={e => e.stopPropagation()}>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <button className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-                                    <MoreVertical className="w-3.5 h-3.5" />
+                                  <button className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                                    <MoreVertical className="w-4 h-4" />
                                   </button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-48">
@@ -577,7 +517,7 @@ export default function IPDPage() {
                                       <DropdownMenuSeparator />
                                       <DropdownMenuItem
                                         onClick={() => handleDischarge(adm)}
-                                        className="text-red-600 focus:text-red-600"
+                                        className="text-destructive focus:text-destructive"
                                       >
                                         <LogOut className="w-3.5 h-3.5 mr-2" /> Discharge Patient
                                       </DropdownMenuItem>
