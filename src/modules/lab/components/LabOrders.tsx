@@ -3,6 +3,8 @@ import {
   Search, Plus, Loader2, Clock, CheckCircle2,
   ClipboardList, Activity, Eye, TestTube, FlaskConical,
 } from 'lucide-react';
+import { PageSkeleton } from '../../../components/common/skeletons';
+import EmptyState from '../../../components/common/EmptyState';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
@@ -153,11 +155,7 @@ export default function LabOrders({ onViewResults }: LabOrdersProps) {
   }, [tests, orderForm.test_ids]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
+    return <PageSkeleton type="table" />;
   }
 
   return (
@@ -257,8 +255,13 @@ export default function LabOrders({ onViewResults }: LabOrdersProps) {
             <TableBody>
               {filteredOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-gray-400">
-                    No lab orders found
+                  <TableCell colSpan={8} className="p-0">
+                    <EmptyState
+                      icon={ClipboardList}
+                      title="No lab orders found"
+                      description={search ? "Try adjusting your search or filters" : "Create a new lab order to get started"}
+                      action={!search ? { label: 'New Order', onClick: () => setShowNewOrder(true) } : undefined}
+                    />
                   </TableCell>
                 </TableRow>
               ) : (

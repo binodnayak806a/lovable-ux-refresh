@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import {
-  Search, Loader2, Eye, Printer, FileText, Calendar,
+  Search, Eye, Printer, FileText, Calendar,
 } from 'lucide-react';
+import { PageSkeleton } from '../../../components/common/skeletons';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
@@ -89,11 +90,7 @@ export default function LabReports() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
+    return <PageSkeleton type="table" />;
   }
 
   return (

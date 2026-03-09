@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   Search, Download, AlertTriangle, Package,
 } from 'lucide-react';
+import EmptyState from '../../../components/common/EmptyState';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
@@ -141,8 +142,12 @@ export default function StockView() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-400">
-                    No stock items found
+                  <TableCell colSpan={7} className="p-0">
+                    <EmptyState
+                      icon={Package}
+                      title="No stock items found"
+                      description={search ? "Try adjusting your search query" : "Add medicines to your inventory to see them here"}
+                    />
                   </TableCell>
                 </TableRow>
               ) : (

@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Siren, Clock, Plus, RefreshCw, Activity, Stethoscope,
-  AlertTriangle, CheckCircle2, Loader2, X, ChevronRight, Heart,
+  AlertTriangle, CheckCircle2, X, ChevronRight, Heart,
   Thermometer, Droplets, FileText, Users,
 } from 'lucide-react';
+import { PageSkeleton } from '../../components/common/skeletons';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -273,11 +274,7 @@ export default function EmergencyPage() {
   const filteredCases = cases;
 
   if (loading && cases.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-destructive" />
-      </div>
-    );
+    return <PageSkeleton type="cards" />;
   }
 
   return (

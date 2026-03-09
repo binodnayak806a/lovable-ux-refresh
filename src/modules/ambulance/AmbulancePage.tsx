@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Truck, Phone, User, MapPin, Plus, RefreshCw, AlertTriangle,
-  CheckCircle2, Wrench, Navigation, Loader2, ChevronRight, X,
+  CheckCircle2, Wrench, Navigation, ChevronRight, X,
 } from 'lucide-react';
+import { PageSkeleton } from '../../components/common/skeletons';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -203,11 +204,7 @@ export default function AmbulancePage() {
   const availableAmbulances = ambulances.filter(a => a.status === 'available');
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
+    return <PageSkeleton type="cards" />;
   }
 
   return (

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
   Clock, BedDouble, DollarSign, ThumbsUp, UserCog, FlaskConical,
-  TrendingUp, Loader2, Activity, Stethoscope,
+  TrendingUp, Activity, Stethoscope,
   RefreshCw, AlertTriangle, CheckCircle2,
 } from 'lucide-react';
+import { PageSkeleton } from '../../components/common/skeletons';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { usePageTitle } from '../../hooks/usePageTitle';
@@ -88,17 +89,15 @@ export default function AnalyticsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
+    return <PageSkeleton type="dashboard" />;
   }
 
   if (!data) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <p className="text-gray-500">No data available</p>
+      <div className="flex flex-col items-center justify-center h-96">
+        <TrendingUp className="w-12 h-12 text-muted-foreground/40 mb-3" />
+        <p className="text-muted-foreground font-medium">No analytics data available</p>
+        <p className="text-sm text-muted-foreground/60 mt-1">Data will appear once patient activity begins</p>
       </div>
     );
   }
