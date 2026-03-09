@@ -214,6 +214,10 @@ export default function DoctorQueuePage() {
     <div className="flex h-full overflow-hidden bg-background">
       {/* ═══ LEFT: Patient Queue ═══ */}
       <div className="w-[280px] border-r border-border bg-card flex flex-col shrink-0">
+        {/* Quick help */}
+        <div className="px-3 py-2 border-b border-border bg-primary/5">
+          <p className="text-[10px] text-muted-foreground">💡 Click a patient to start consultation • Fill tabs left-to-right • Print Rx when done</p>
+        </div>
         {/* Walk-In / Online toggle */}
         <div className="flex border-b border-border">
           {(['walkin', 'online'] as const).map(f => (
