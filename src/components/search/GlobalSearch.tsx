@@ -19,6 +19,7 @@ interface SearchResult {
   meta?: string;
   path?: string;
   icon?: React.ElementType;
+  shortcut?: string;
 }
 
 const HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
