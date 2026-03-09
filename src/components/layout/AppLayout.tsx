@@ -85,6 +85,7 @@ export default function AppLayout() {
       <ContextualPatientBar />
       <KeyboardShortcuts />
       <BarcodeScannerInput onScan={handleBarcodeScan} />
+      <Toaster position="top-right" richColors closeButton />
     </SidebarProvider>
   );
 }
