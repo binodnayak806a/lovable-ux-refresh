@@ -14,6 +14,7 @@ import {
   Settings,
   Database,
   Shield,
+  ShieldCheck,
   LogOut,
   Landmark,
   ChevronsUpDown,
