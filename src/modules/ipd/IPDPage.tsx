@@ -209,6 +209,12 @@ export default function IPDPage() {
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
+      {/* Quick help hint */}
+      <div className="px-4 pt-2 pb-0">
+        <p className="text-[11px] text-muted-foreground">
+          💡 <strong>IPD:</strong> Search patients by name or UHID • Click any row for details • Use filters to narrow results
+        </p>
+      </div>
       {/* ── Top Filter Bar ── */}
       <div className="border-b border-border bg-card px-4 pt-2 pb-0 space-y-2">
         {/* Row 1: Status Tabs + Duration + Search */}
