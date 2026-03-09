@@ -342,7 +342,12 @@ function SearchItem({ item, index, selected, onSelect, onHover, TypeIcon, TypeLa
           </div>
           <p className="text-xs text-muted-foreground truncate mt-0.5">{item.subtitle}</p>
         </div>
-        {item.meta && (
+        {item.shortcut && (
+          <kbd className="hidden sm:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded border border-border bg-muted text-muted-foreground shrink-0">
+            {item.shortcut}
+          </kbd>
+        )}
+        {item.meta && !item.shortcut && (
           <span className="text-xs text-muted-foreground shrink-0">{item.meta}</span>
         )}
         <ArrowRight className={`w-3.5 h-3.5 shrink-0 transition-opacity ${index === selected ? 'opacity-100 text-primary' : 'opacity-0'}`} />
