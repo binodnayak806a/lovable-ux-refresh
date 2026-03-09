@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
+import { Toaster } from '../ui/sonner';
 import { useEffect, useRef } from 'react';
 import Navbar from './Navbar';
 import AppSidebar from './Sidebar';
@@ -84,6 +85,7 @@ export default function AppLayout() {
       <ContextualPatientBar />
       <KeyboardShortcuts />
       <BarcodeScannerInput onScan={handleBarcodeScan} />
+      <Toaster position="top-right" richColors closeButton />
     </SidebarProvider>
   );
 }

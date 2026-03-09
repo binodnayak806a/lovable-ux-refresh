@@ -1,46 +1,58 @@
 import { useCallback } from 'react';
-import { useAppDispatch } from '../store';
-import { pushToast, dismissToast } from '../store/slices/uiSlice';
-import type { NotificationType } from '../types';
+import { toast as sonnerToast } from 'sonner';
 
+/**
+ * Unified toast hook — delegates to sonner.
+ * Keeps the same API so existing callers don't break:
+ *   toast('Title', { description, type })
+ *   toast.success / .error / .warning / .info
+ */
 export function useToast() {
-  const dispatch = useAppDispatch();
-
   const toast = useCallback(
-    (title: string, options?: { description?: string; type?: NotificationType; duration?: number }) => {
-      dispatch(pushToast({
-        title,
-        description: options?.description,
-        type: options?.type ?? 'info',
-        duration: options?.duration ?? 4000,
-      }));
+    (title: string, options?: { description?: string; type?: string; duration?: number }) => {
+      const duration = options?.duration;
+
+      switch (options?.type) {
+        case 'success':
+          sonnerToast.success(title, { description: options?.description, duration });
+          break;
+        case 'error':
+          sonnerToast.error(title, { description: options?.description, duration });
+          break;
+        case 'warning':
+          sonnerToast.warning(title, { description: options?.description, duration });
+          break;
+        default:
+          sonnerToast.info(title, { description: options?.description, duration });
+          break;
+      }
     },
-    [dispatch]
+    []
   );
 
   const success = useCallback(
-    (title: string, description?: string) => toast(title, { type: 'success', description }),
-    [toast]
+    (title: string, description?: string) => sonnerToast.success(title, { description }),
+    []
   );
 
   const error = useCallback(
-    (title: string, description?: string) => toast(title, { type: 'error', description }),
-    [toast]
+    (title: string, description?: string) => sonnerToast.error(title, { description }),
+    []
   );
 
   const warning = useCallback(
-    (title: string, description?: string) => toast(title, { type: 'warning', description }),
-    [toast]
+    (title: string, description?: string) => sonnerToast.warning(title, { description }),
+    []
   );
 
   const info = useCallback(
-    (title: string, description?: string) => toast(title, { type: 'info', description }),
-    [toast]
+    (title: string, description?: string) => sonnerToast.info(title, { description }),
+    []
   );
 
   const dismiss = useCallback(
-    (id: string) => dispatch(dismissToast(id)),
-    [dispatch]
+    (id?: string | number) => sonnerToast.dismiss(id),
+    []
   );
 
   return { toast, success, error, warning, info, dismiss };
