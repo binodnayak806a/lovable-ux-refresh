@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  Search, Plus, Clock, CheckCircle2,
+  Search, Plus, Loader2, Clock, CheckCircle2,
   ClipboardList, Activity, Eye, TestTube, FlaskConical,
 } from 'lucide-react';
 import { PageSkeleton } from '../../../components/common/skeletons';
