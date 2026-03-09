@@ -95,22 +95,24 @@ export default function OperationTheatrePage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Scissors className="h-6 w-6 text-primary" />
-            Operation Theatre
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Schedule surgeries, manage OT bookings, and track pre-op readiness
-          </p>
-        </div>
-        <Button onClick={() => setBookDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Book Surgery
-        </Button>
-      </div>
+      <PageHeader
+        title="Operation Theatre"
+        subtitle="Schedule surgeries, manage OT bookings, and track pre-op readiness"
+        icon={Scissors}
+        helpItems={[
+          'Click "Book Surgery" to schedule a new operation',
+          'Click any booking on the calendar to view details & checklist',
+          'Complete the pre-op checklist before surgery starts',
+          'Assign surgical team members from the detail panel',
+          'Switch to "Theatres Status" to see OT availability',
+        ]}
+        actions={
+          <Button onClick={() => setBookDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Book Surgery
+          </Button>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
