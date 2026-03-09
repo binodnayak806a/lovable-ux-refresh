@@ -5,6 +5,7 @@ import {
   ShoppingCart, ClipboardList, ChevronLeft, ChevronRight, Plus,
   LogOut, Printer,
 } from 'lucide-react';
+import { Skeleton } from '../../components/ui/skeleton';
 import { useAppSelector } from '../../store';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { Button } from '../../components/ui/button';
