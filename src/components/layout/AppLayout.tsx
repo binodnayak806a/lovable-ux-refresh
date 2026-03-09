@@ -89,6 +89,7 @@ export default function AppLayout() {
       <BarcodeScannerInput onScan={handleBarcodeScan} />
       <FloatingActionButton />
       <MobileBottomNav />
+      <ScrollToTop containerRef={mainRef as React.RefObject<HTMLElement>} />
       <Toaster position="top-right" richColors closeButton />
     </SidebarProvider>
   );
