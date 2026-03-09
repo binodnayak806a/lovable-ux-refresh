@@ -290,26 +290,26 @@ export default function PatientsPage() {
                         <span className="text-[10px] text-muted-foreground">{formatDate(p.created_at)}</span>
                       </td>
                       <td className="px-3 py-2">
-                        <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
-                          <Button size="sm" variant="ghost" className="h-6 px-1.5 text-[10px] gap-1 text-primary hover:bg-primary/10"
-                            onClick={() => openPatient(p)} title="View Details">
-                            <Eye className="w-3 h-3" /> View
+                        <div className="flex items-center justify-end gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                          <Button size="sm" variant="ghost" className="h-7 px-2 text-[11px] gap-1 text-primary hover:bg-primary/10"
+                            onClick={() => openPatient(p)} title="View patient details">
+                            <Eye className="w-3.5 h-3.5" /> View
                           </Button>
-                          <Button size="sm" variant="ghost" className="h-6 px-1.5 text-[10px] gap-1 text-teal-700 hover:bg-teal-50"
-                            onClick={() => startConsultation(p.id)} title="Start OPD">
-                            <Stethoscope className="w-3 h-3" /> OPD
+                          <Button size="sm" variant="ghost" className="h-7 px-2 text-[11px] gap-1 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20"
+                            onClick={() => startConsultation(p.id)} title="Start OPD consultation">
+                            <Stethoscope className="w-3.5 h-3.5" /> OPD
                           </Button>
-                          <Button size="sm" variant="ghost" className="h-6 px-1.5 text-[10px] gap-1 text-emerald-700 hover:bg-emerald-50"
-                            onClick={() => goToBilling(p.id)} title="Billing">
-                            <Receipt className="w-3 h-3" /> Bill
+                          <Button size="sm" variant="ghost" className="h-7 px-2 text-[11px] gap-1 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                            onClick={() => goToBilling(p.id)} title="Create a bill for this patient">
+                            <Receipt className="w-3.5 h-3.5" /> Bill
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground">
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" title="More actions">
                                 <MoreHorizontal className="w-3.5 h-3.5" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuContent align="end" className="w-48">
                               <DropdownMenuItem onClick={() => navigate(`/edit-patient?id=${p.id}`)} className="text-xs gap-2">
                                 <Pencil className="w-3.5 h-3.5" /> Edit Patient
                               </DropdownMenuItem>

@@ -9,6 +9,7 @@ import OfflineBanner from '../common/OfflineBanner';
 import KeyboardShortcuts from '../common/KeyboardShortcuts';
 import BarcodeScannerInput from '../common/BarcodeScannerInput';
 import FloatingActionButton from '../common/FloatingActionButton';
+import MobileBottomNav from '../common/MobileBottomNav';
 import { offlineStore } from '../../lib/offlineStore';
 import { supabase } from '../../lib/supabase';
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -73,7 +74,7 @@ export default function AppLayout() {
       <SidebarInset>
         <OfflineBanner />
         <Navbar />
-        <div ref={mainRef} className="flex-1 overflow-y-auto scrollbar-thin">
+        <div ref={mainRef} className="flex-1 overflow-y-auto scrollbar-thin pb-14 sm:pb-0">
           <div className={fullBleedRoutes.has(location.pathname) ? 'h-full' : 'p-4 md:p-6'}>
             <div key={location.pathname} className="animate-fade-in h-full">
               <Outlet />
@@ -86,6 +87,7 @@ export default function AppLayout() {
       <KeyboardShortcuts />
       <BarcodeScannerInput onScan={handleBarcodeScan} />
       <FloatingActionButton />
+      <MobileBottomNav />
       <Toaster position="top-right" richColors closeButton />
     </SidebarProvider>
   );
