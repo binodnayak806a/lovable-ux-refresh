@@ -91,6 +91,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'lab', label: 'Laboratory', icon: FlaskConical, path: '/lab', module: 'lab' },
       { id: 'pharmacy', label: 'Pharmacy', icon: Pill, path: '/pharmacy', module: 'pharmacy' },
+      { id: 'operation-theatre', label: 'Operation Theatre', icon: Heart, path: '/operation-theatre', module: 'operation_theatre' },
       { id: 'ambulance', label: 'Ambulance', icon: Ambulance, path: '/ambulance', module: 'ambulance' },
       { id: 'emergency', label: 'Emergency', icon: AlertTriangle, path: '/emergency', module: 'emergency', badge: 'LIVE' },
     ],

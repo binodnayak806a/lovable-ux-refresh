@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { format, isSameDay, parseISO, startOfWeek, addDays } from 'date-fns';
-import { Clock, User, AlertTriangle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Clock, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SurgeryBooking, SurgeryPriority } from '../types';
 

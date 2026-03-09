@@ -49,7 +49,7 @@ const stub = (name: string) =>
 
 const AppointmentsPage = lazy(() => import('../modules/appointments/AppointmentsPage'));
 const DoctorQueuePage = lazy(() => import('../modules/doctor-queue/DoctorQueuePage'));
-const OperationTheatrePage = stub('OperationTheatrePage');
+const OperationTheatrePage = lazy(() => import('../modules/operation-theatre/OperationTheatrePage'));
 const ICUPage = stub('ICUPage');
 const WardPage = stub('WardPage');
 const NursingPage = stub('NursingPage');
