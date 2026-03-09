@@ -35,6 +35,7 @@ import PaymentModePieChart from './components/PaymentModePieChart';
 import TodayActivityFeed from './components/TodayActivityFeed';
 import DoctorQueueMonitor from './components/DoctorQueueMonitor';
 import DateFilterBar from './components/DateFilterBar';
+import QuickActionButtons from './components/QuickActionButtons';
 
 import { cn } from '../../lib/utils';
 
@@ -104,8 +105,26 @@ export default function DashboardPage() {
   const todayRevenue = revenueSummary?.today ?? 0;
   
 
+  const greeting = (() => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  })();
+  const firstName = user?.full_name?.split(' ')[0] ?? 'there';
+
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Welcome Banner */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gradient-to-r from-primary/5 to-transparent rounded-xl px-5 py-4 border border-primary/10">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">{greeting}, {firstName} 👋</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Here's what's happening today. Press <kbd className="px-1.5 py-0.5 rounded border border-border text-[10px] font-mono bg-background mx-0.5">⌘K</kbd> to search or jump to any module.
+          </p>
+        </div>
+        <QuickActionButtons />
+      </div>
 
       {(isAdmin || isRole('receptionist')) && (
         <AdminDashboard
