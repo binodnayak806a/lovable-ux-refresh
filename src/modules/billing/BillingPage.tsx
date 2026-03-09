@@ -272,18 +272,18 @@ export default function BillingPage() {
                     const balance = bill.total_amount - (bill.paid_amount || 0);
 
                     return (
-                      <TableRow key={bill.id} className="hover:bg-gray-50/50">
+                      <TableRow key={bill.id} className="hover:bg-muted/50">
                         <TableCell>
-                          <span className="font-mono text-sm font-medium text-gray-900">
+                          <span className="font-mono text-sm font-medium text-foreground">
                             {bill.bill_number}
                           </span>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                              <User className="w-4 h-4 text-gray-500" />
+                            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                              <User className="w-4 h-4 text-muted-foreground" />
                             </div>
-                            <span className="font-medium text-gray-900 truncate max-w-[150px]">
+                            <span className="font-medium text-foreground truncate max-w-[150px]">
                               {bill.patient_name}
                             </span>
                           </div>
