@@ -166,10 +166,10 @@ export default function GlobalSearch() {
     performSearch(debouncedQuery);
   }, [debouncedQuery, performSearch]);
 
-  // Combined list: DB results first, then matching actions
+  // Combined list: DB results first, then matching actions, then recent patients when idle
   const displayList = query.length >= 2
     ? [...results, ...filteredActions.slice(0, 3)]
-    : filteredActions;
+    : [...(recentPatientResults.length > 0 ? recentPatientResults : []), ...filteredActions];
 
   const handleSelect = async (result: SearchResult) => {
     dispatch(setSearchOpen(false));
