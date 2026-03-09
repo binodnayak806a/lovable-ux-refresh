@@ -207,7 +207,7 @@ export default function IPDPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] bg-background">
+    <div className="flex flex-col h-full bg-background overflow-hidden">
       {/* ── Top Filter Bar ── */}
       <div className="border-b border-border bg-card px-4 pt-2 pb-0 space-y-2">
         {/* Row 1: Status Tabs + Duration + Search */}
