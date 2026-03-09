@@ -23,12 +23,16 @@ import {
   Sparkles,
   Building2,
   Receipt,
+  Star,
+  Clock,
+  StarOff,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { usePermissions } from '../../hooks/usePermissions';
 import { authService } from '../../services/auth.service';
 import { clearAuth } from '../../store/slices/authSlice';
+import { useRecentPages, useFavoritePages } from '../../hooks/useRecentPages';
 import {
   Sidebar,
   SidebarContent,
@@ -41,6 +45,7 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuAction,
   SidebarRail,
   SidebarSeparator,
   useSidebar,
@@ -54,6 +59,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface NavItem {
   id: string;
@@ -116,6 +122,11 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
 ];
+
+// Flat lookup for icon by path
+const ALL_NAV_ITEMS = NAV_GROUPS.flatMap(g => g.items);
+const NAV_BY_PATH: Record<string, NavItem> = {};
+ALL_NAV_ITEMS.forEach(item => { NAV_BY_PATH[item.path] = item; });
 
 const ROLE_LABELS: Record<string, string> = {
   superadmin: 'Super Admin',
