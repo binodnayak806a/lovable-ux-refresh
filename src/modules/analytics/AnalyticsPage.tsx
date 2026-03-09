@@ -94,8 +94,10 @@ export default function AnalyticsPage() {
 
   if (!data) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <p className="text-gray-500">No data available</p>
+      <div className="flex flex-col items-center justify-center h-96">
+        <TrendingUp className="w-12 h-12 text-muted-foreground/40 mb-3" />
+        <p className="text-muted-foreground font-medium">No analytics data available</p>
+        <p className="text-sm text-muted-foreground/60 mt-1">Data will appear once patient activity begins</p>
       </div>
     );
   }
