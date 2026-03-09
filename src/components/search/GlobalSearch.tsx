@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import {
   Search, User, BedDouble, Receipt, X, ArrowRight, Loader2,
   UserPlus, CalendarPlus, Pill, FlaskConical, FileText, Settings,
-  BarChart3, Stethoscope,
+  BarChart3, Stethoscope, Clock,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { setSearchOpen } from '../../store/slices/globalSlice';
 import { loadPatientContext } from '../../store/slices/globalSlice';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useRecentPatients } from '../../hooks/useRecentPatients';
 
 interface SearchResult {
   type: 'patient' | 'admission' | 'bill' | 'action';
@@ -43,6 +44,7 @@ export default function GlobalSearch() {
   const { searchOpen } = useAppSelector((s) => s.global);
   const { user } = useAppSelector((s) => s.auth);
   const hospitalId = user?.hospital_id ?? HOSPITAL_ID;
+  const { recentPatients, addRecentPatient } = useRecentPatients();
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -50,6 +52,15 @@ export default function GlobalSearch() {
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const debouncedQuery = useDebounce(query, 150);
+
+  // Recent patients as search results (shown when no query)
+  const recentPatientResults: SearchResult[] = recentPatients.slice(0, 4).map(p => ({
+    type: 'patient' as const,
+    id: p.id,
+    title: p.name,
+    subtitle: `UHID: ${p.uhid}`,
+    icon: Clock,
+  }));
 
   // Filtered quick actions when no query or partial match
   const filteredActions = query.length > 0
@@ -155,10 +166,10 @@ export default function GlobalSearch() {
     performSearch(debouncedQuery);
   }, [debouncedQuery, performSearch]);
 
-  // Combined list: DB results first, then matching actions
+  // Combined list: DB results first, then matching actions, then recent patients when idle
   const displayList = query.length >= 2
     ? [...results, ...filteredActions.slice(0, 3)]
-    : filteredActions;
+    : [...(recentPatientResults.length > 0 ? recentPatientResults : []), ...filteredActions];
 
   const handleSelect = async (result: SearchResult) => {
     dispatch(setSearchOpen(false));
@@ -169,6 +180,7 @@ export default function GlobalSearch() {
     }
     switch (result.type) {
       case 'patient':
+        addRecentPatient({ id: result.id, name: result.title, uhid: result.subtitle.replace('UHID: ', '').split(' · ')[0] });
         await dispatch(loadPatientContext(result.id));
         navigate(`/patients?id=${result.id}`);
         break;
@@ -258,32 +270,52 @@ export default function GlobalSearch() {
           </div>
         </div>
 
-        {/* Quick actions heading when no query */}
-        {query.length < 2 && (
+        {/* Section headings when no query */}
+        {query.length < 2 && recentPatientResults.length > 0 && (
           <div className="px-4 pt-3 pb-1">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Clock className="w-3 h-3" /> Recent Patients
+            </p>
+          </div>
+        )}
+
+        {query.length < 2 && recentPatientResults.length > 0 && (
+          <ul className="py-1">
+            {recentPatientResults.map((item, i) => (
+              <SearchItem key={item.id} item={item} index={i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+            ))}
+          </ul>
+        )}
+
+        {query.length < 2 && (
+          <div className="px-4 pt-2 pb-1">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Quick Actions</p>
           </div>
         )}
 
-        {displayList.length > 0 && (
+        {filteredActions.length > 0 && (
           <ul className="py-1.5 max-h-80 overflow-y-auto">
-            {/* Section divider between DB results and actions */}
+            {/* When searching: DB results + action suggestions */}
             {query.length >= 2 && results.length > 0 && filteredActions.length > 0 && (
               <>
                 {results.map((result, i) => (
-                  <SearchItem key={result.id} item={result} index={i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+                  <SearchItem key={result.id} item={result} index={recentPatientResults.length + i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
                 ))}
                 <li className="px-4 py-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Go to</p>
                 </li>
                 {filteredActions.slice(0, 3).map((item, i) => (
-                  <SearchItem key={item.id} item={item} index={results.length + i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+                  <SearchItem key={item.id} item={item} index={recentPatientResults.length + results.length + i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
                 ))}
               </>
             )}
-            {/* Only actions or only results */}
-            {!(query.length >= 2 && results.length > 0 && filteredActions.length > 0) && displayList.map((item, i) => (
+            {/* Search with only results or only actions */}
+            {query.length >= 2 && !(results.length > 0 && filteredActions.length > 0) && results.length > 0 && results.map((item, i) => (
               <SearchItem key={item.id} item={item} index={i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+            ))}
+            {/* Idle: show only quick actions (recent patients already above) */}
+            {query.length < 2 && filteredActions.map((item, i) => (
+              <SearchItem key={item.id} item={item} index={recentPatientResults.length + i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
             ))}
           </ul>
         )}

@@ -8,6 +8,7 @@ import {
   Eye, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRecentPatients } from '../../hooks/useRecentPatients';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -85,6 +86,7 @@ export default function PatientsPage() {
   const { startConsultation, goToBilling, admitPatient } = useSmartNavigation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { addRecentPatient } = useRecentPatients();
 
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
   const highlightId = searchParams.get('id');
@@ -139,6 +141,7 @@ export default function PatientsPage() {
     setHistoryPatientId(p.id);
     setSearchParams({ id: p.id });
     dispatch(loadPatientContext(p.id));
+    addRecentPatient({ id: p.id, name: p.full_name, uhid: p.uhid });
   };
 
   const startNum = (page - 1) * limit + 1;
