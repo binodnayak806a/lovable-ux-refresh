@@ -17,11 +17,13 @@ function generateAuthNumber(): string {
   return `${prefix}-${ts}-${rand}`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const from = (table: string) => supabase.from(table as any);
+
 class InsuranceService {
   // ─── Providers ────────────────────────────────────────────────
   async getProviders(hospitalId: string): Promise<InsuranceProvider[]> {
-    const { data, error } = await supabase
-      .from('insurance_providers')
+    const { data, error } = await from('insurance_providers')
       .select('*')
       .eq('hospital_id', hospitalId)
       .order('name');
@@ -30,9 +32,8 @@ class InsuranceService {
   }
 
   async createProvider(provider: Omit<InsuranceProvider, 'id' | 'created_at' | 'updated_at'>): Promise<InsuranceProvider> {
-    const { data, error } = await supabase
-      .from('insurance_providers')
-      .insert(provider)
+    const { data, error } = await from('insurance_providers')
+      .insert(provider as Record<string, unknown>)
       .select()
       .single();
     if (error) throw error;
@@ -40,17 +41,15 @@ class InsuranceService {
   }
 
   async updateProvider(id: string, updates: Partial<InsuranceProvider>): Promise<void> {
-    const { error } = await supabase
-      .from('insurance_providers')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+    const { error } = await from('insurance_providers')
+      .update({ ...updates, updated_at: new Date().toISOString() } as Record<string, unknown>)
       .eq('id', id);
     if (error) throw error;
   }
 
   // ─── Claims ───────────────────────────────────────────────────
   async getClaims(hospitalId: string, filters?: { status?: string; providerId?: string }): Promise<InsuranceClaim[]> {
-    let query = supabase
-      .from('insurance_claims')
+    let query = from('insurance_claims')
       .select('*')
       .eq('hospital_id', hospitalId)
       .order('created_at', { ascending: false })
@@ -65,13 +64,13 @@ class InsuranceService {
   }
 
   async createClaim(claim: Partial<InsuranceClaim> & { hospital_id: string; patient_id: string }): Promise<InsuranceClaim> {
-    const { data, error } = await supabase
-      .from('insurance_claims')
-      .insert({
-        ...claim,
-        claim_number: claim.claim_number || generateClaimNumber(),
-        status: claim.status || 'draft',
-      })
+    const payload = {
+      ...claim,
+      claim_number: claim.claim_number || generateClaimNumber(),
+      status: claim.status || 'draft',
+    };
+    const { data, error } = await from('insurance_claims')
+      .insert(payload as Record<string, unknown>)
       .select()
       .single();
     if (error) throw error;
@@ -79,7 +78,7 @@ class InsuranceService {
   }
 
   async updateClaimStatus(id: string, status: ClaimStatus, extra?: Partial<InsuranceClaim>): Promise<void> {
-    const updates: Partial<InsuranceClaim> & { updated_at: string } = {
+    const updates: Record<string, unknown> = {
       status,
       updated_at: new Date().toISOString(),
       ...extra,
@@ -88,8 +87,7 @@ class InsuranceService {
     if (status === 'approved' || status === 'partially_approved') updates.approved_at = new Date().toISOString();
     if (status === 'settled') updates.settled_at = new Date().toISOString();
 
-    const { error } = await supabase
-      .from('insurance_claims')
+    const { error } = await from('insurance_claims')
       .update(updates)
       .eq('id', id);
     if (error) throw error;
@@ -103,8 +101,7 @@ class InsuranceService {
     pendingCount: number;
     rejectedCount: number;
   }> {
-    const { data, error } = await supabase
-      .from('insurance_claims')
+    const { data, error } = await from('insurance_claims')
       .select('status, claimed_amount, approved_amount, settled_amount')
       .eq('hospital_id', hospitalId);
     if (error) throw error;
@@ -122,8 +119,7 @@ class InsuranceService {
 
   // ─── Pre-Authorizations ──────────────────────────────────────
   async getPreAuths(hospitalId: string, filters?: { status?: string }): Promise<PreAuthorization[]> {
-    let query = supabase
-      .from('pre_authorizations')
+    let query = from('pre_authorizations')
       .select('*')
       .eq('hospital_id', hospitalId)
       .order('created_at', { ascending: false })
@@ -137,13 +133,13 @@ class InsuranceService {
   }
 
   async createPreAuth(preAuth: Partial<PreAuthorization> & { hospital_id: string; patient_id: string }): Promise<PreAuthorization> {
-    const { data, error } = await supabase
-      .from('pre_authorizations')
-      .insert({
-        ...preAuth,
-        auth_number: preAuth.auth_number || generateAuthNumber(),
-        status: preAuth.status || 'pending',
-      })
+    const payload = {
+      ...preAuth,
+      auth_number: preAuth.auth_number || generateAuthNumber(),
+      status: preAuth.status || 'pending',
+    };
+    const { data, error } = await from('pre_authorizations')
+      .insert(payload as Record<string, unknown>)
       .select()
       .single();
     if (error) throw error;
@@ -151,15 +147,14 @@ class InsuranceService {
   }
 
   async updatePreAuthStatus(id: string, status: PreAuthStatus, extra?: Partial<PreAuthorization>): Promise<void> {
-    const updates: Partial<PreAuthorization> & { updated_at: string } = {
+    const updates: Record<string, unknown> = {
       status,
       updated_at: new Date().toISOString(),
       ...extra,
     };
     if (status === 'approved' || status === 'partially_approved') updates.approved_at = new Date().toISOString();
 
-    const { error } = await supabase
-      .from('pre_authorizations')
+    const { error } = await from('pre_authorizations')
       .update(updates)
       .eq('id', id);
     if (error) throw error;

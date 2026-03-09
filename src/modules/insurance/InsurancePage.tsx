@@ -56,7 +56,7 @@ export default function InsurancePage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [providerFilter, setProviderFilter] = useState('all');
+  const [providerFilter] = useState('all');
 
   const [claimDialogOpen, setClaimDialogOpen] = useState(false);
   const [preAuthDialogOpen, setPreAuthDialogOpen] = useState(false);
