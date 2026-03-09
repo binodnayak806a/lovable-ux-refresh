@@ -141,6 +141,7 @@ export default function PatientsPage() {
     setHistoryPatientId(p.id);
     setSearchParams({ id: p.id });
     dispatch(loadPatientContext(p.id));
+    addRecentPatient({ id: p.id, name: p.full_name, uhid: p.uhid });
   };
 
   const startNum = (page - 1) * limit + 1;
