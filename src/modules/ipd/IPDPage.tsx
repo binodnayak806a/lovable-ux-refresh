@@ -396,11 +396,13 @@ export default function IPDPage() {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr>
-                      <td colSpan={selectedAdmission ? 7 : 11} className="py-16 text-center">
-                        <RefreshCw className="w-5 h-5 animate-spin mx-auto text-muted-foreground" />
-                      </td>
-                    </tr>
+                    Array.from({ length: 8 }).map((_, i) => (
+                      <tr key={i} className="border-b border-border/20">
+                        {Array.from({ length: selectedAdmission ? 7 : 11 }).map((_, j) => (
+                          <td key={j} className="px-3 py-2.5"><Skeleton className="h-4 w-full" /></td>
+                        ))}
+                      </tr>
+                    ))
                   ) : filtered.length === 0 ? (
                     <tr>
                       <td colSpan={selectedAdmission ? 7 : 11} className="py-16 text-center text-muted-foreground">
