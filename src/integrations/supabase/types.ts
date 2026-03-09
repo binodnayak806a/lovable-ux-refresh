@@ -14,6 +14,268 @@ export type Database = {
   }
   public: {
     Tables: {
+      insurance_claims: {
+        Row: {
+          admission_date: string | null
+          admission_id: string | null
+          approved_amount: number | null
+          approved_at: string | null
+          bill_id: string | null
+          claim_number: string
+          claim_type: string
+          claimed_amount: number
+          created_at: string
+          created_by: string | null
+          deduction_amount: number | null
+          deduction_reason: string | null
+          diagnosis: string | null
+          discharge_date: string | null
+          documents: Json | null
+          hospital_id: string
+          id: string
+          member_id: string | null
+          patient_id: string
+          patient_name: string | null
+          policy_number: string | null
+          provider_id: string | null
+          provider_name: string | null
+          query_details: string | null
+          query_response: string | null
+          rejection_reason: string | null
+          remarks: string | null
+          settled_amount: number | null
+          settled_at: string | null
+          status: string
+          submitted_at: string | null
+          treatment_summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          admission_date?: string | null
+          admission_id?: string | null
+          approved_amount?: number | null
+          approved_at?: string | null
+          bill_id?: string | null
+          claim_number: string
+          claim_type?: string
+          claimed_amount?: number
+          created_at?: string
+          created_by?: string | null
+          deduction_amount?: number | null
+          deduction_reason?: string | null
+          diagnosis?: string | null
+          discharge_date?: string | null
+          documents?: Json | null
+          hospital_id: string
+          id?: string
+          member_id?: string | null
+          patient_id: string
+          patient_name?: string | null
+          policy_number?: string | null
+          provider_id?: string | null
+          provider_name?: string | null
+          query_details?: string | null
+          query_response?: string | null
+          rejection_reason?: string | null
+          remarks?: string | null
+          settled_amount?: number | null
+          settled_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          treatment_summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admission_date?: string | null
+          admission_id?: string | null
+          approved_amount?: number | null
+          approved_at?: string | null
+          bill_id?: string | null
+          claim_number?: string
+          claim_type?: string
+          claimed_amount?: number
+          created_at?: string
+          created_by?: string | null
+          deduction_amount?: number | null
+          deduction_reason?: string | null
+          diagnosis?: string | null
+          discharge_date?: string | null
+          documents?: Json | null
+          hospital_id?: string
+          id?: string
+          member_id?: string | null
+          patient_id?: string
+          patient_name?: string | null
+          policy_number?: string | null
+          provider_id?: string | null
+          provider_name?: string | null
+          query_details?: string | null
+          query_response?: string | null
+          rejection_reason?: string | null
+          remarks?: string | null
+          settled_amount?: number | null
+          settled_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          treatment_summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_claims_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insurance_providers: {
+        Row: {
+          address: string | null
+          contact_person: string | null
+          created_at: string
+          discount_percentage: number | null
+          email: string | null
+          gst_number: string | null
+          hospital_id: string
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          pan_number: string | null
+          phone: string | null
+          provider_type: string
+          settlement_period_days: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          discount_percentage?: number | null
+          email?: string | null
+          gst_number?: string | null
+          hospital_id: string
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          pan_number?: string | null
+          phone?: string | null
+          provider_type?: string
+          settlement_period_days?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          discount_percentage?: number | null
+          email?: string | null
+          gst_number?: string | null
+          hospital_id?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          pan_number?: string | null
+          phone?: string | null
+          provider_type?: string
+          settlement_period_days?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pre_authorizations: {
+        Row: {
+          admission_date: string | null
+          approved_amount: number | null
+          approved_at: string | null
+          auth_number: string
+          created_at: string
+          created_by: string | null
+          diagnosis: string | null
+          documents: Json | null
+          expected_los_days: number | null
+          hospital_id: string
+          id: string
+          member_id: string | null
+          patient_id: string
+          patient_name: string | null
+          planned_procedure: string | null
+          policy_number: string | null
+          provider_id: string | null
+          provider_name: string | null
+          rejection_reason: string | null
+          remarks: string | null
+          requested_amount: number
+          status: string
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          admission_date?: string | null
+          approved_amount?: number | null
+          approved_at?: string | null
+          auth_number: string
+          created_at?: string
+          created_by?: string | null
+          diagnosis?: string | null
+          documents?: Json | null
+          expected_los_days?: number | null
+          hospital_id: string
+          id?: string
+          member_id?: string | null
+          patient_id: string
+          patient_name?: string | null
+          planned_procedure?: string | null
+          policy_number?: string | null
+          provider_id?: string | null
+          provider_name?: string | null
+          rejection_reason?: string | null
+          remarks?: string | null
+          requested_amount?: number
+          status?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          admission_date?: string | null
+          approved_amount?: number | null
+          approved_at?: string | null
+          auth_number?: string
+          created_at?: string
+          created_by?: string | null
+          diagnosis?: string | null
+          documents?: Json | null
+          expected_los_days?: number | null
+          hospital_id?: string
+          id?: string
+          member_id?: string | null
+          patient_id?: string
+          patient_name?: string | null
+          planned_procedure?: string | null
+          policy_number?: string | null
+          provider_id?: string | null
+          provider_name?: string | null
+          rejection_reason?: string | null
+          remarks?: string | null
+          requested_amount?: number
+          status?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_authorizations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string

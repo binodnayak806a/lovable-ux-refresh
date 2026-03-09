@@ -58,7 +58,7 @@ const RadiologyPage = stub('RadiologyPage');
 const PathologyPage = stub('PathologyPage');
 const BloodBankPage = stub('BloodBankPage');
 const BillingPage = lazy(() => import('../modules/billing/BillingPage'));
-const InsurancePage = stub('InsurancePage');
+const InsurancePage = lazy(() => import('../modules/insurance/InsurancePage'));
 const TPAPage = stub('TPAPage');
 const AccountsPage = stub('AccountsPage');
 const InventoryPage = stub('InventoryPage');
