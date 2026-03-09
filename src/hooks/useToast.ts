@@ -20,7 +20,7 @@ export function useToast() {
           sonnerToast.error(title, { description: options.description, duration });
           break;
         case 'warning':
-          sonnerToast.warning(title, { description: options.description, duration });
+          sonnerToast.warning(title, { description: options?.description, duration });
           break;
         default:
           sonnerToast.info(title, { description: options.description, duration });
