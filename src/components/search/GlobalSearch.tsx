@@ -25,10 +25,10 @@ interface SearchResult {
 const HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
 
 const QUICK_ACTIONS: SearchResult[] = [
-  { type: 'action', id: 'new-patient', title: 'Register New Patient', subtitle: 'Open patient registration form', path: '/add-patient', icon: UserPlus },
-  { type: 'action', id: 'new-appointment', title: 'Book Appointment', subtitle: 'Schedule a new appointment', path: '/appointments', icon: CalendarPlus },
+  { type: 'action', id: 'new-patient', title: 'Register New Patient', subtitle: 'Open patient registration form', path: '/add-patient', icon: UserPlus, shortcut: 'Ctrl+N' },
+  { type: 'action', id: 'new-appointment', title: 'Book Appointment', subtitle: 'Schedule a new appointment', path: '/appointments', icon: CalendarPlus, shortcut: 'Ctrl+⇧+A' },
   { type: 'action', id: 'doctor-queue', title: 'Doctor Queue', subtitle: 'View & manage patient queue', path: '/doctor/queue', icon: Stethoscope },
-  { type: 'action', id: 'billing', title: 'Create Bill', subtitle: 'Generate a new bill', path: '/billing', icon: Receipt },
+  { type: 'action', id: 'billing', title: 'Create Bill', subtitle: 'Generate a new bill', path: '/billing', icon: Receipt, shortcut: 'Ctrl+⇧+B' },
   { type: 'action', id: 'pharmacy', title: 'Pharmacy', subtitle: 'Dispense medicines', path: '/pharmacy', icon: Pill },
   { type: 'action', id: 'lab', title: 'Laboratory', subtitle: 'Lab orders & reports', path: '/lab', icon: FlaskConical },
   { type: 'action', id: 'ipd', title: 'IPD / Admissions', subtitle: 'Admit or view patients', path: '/ipd', icon: BedDouble },
