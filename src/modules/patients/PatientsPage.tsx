@@ -8,6 +8,7 @@ import {
   Eye, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRecentPatients } from '../../hooks/useRecentPatients';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Skeleton } from '../../components/ui/skeleton';
