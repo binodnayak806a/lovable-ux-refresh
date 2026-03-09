@@ -9,6 +9,7 @@ import OfflineBanner from '../common/OfflineBanner';
 import KeyboardShortcuts from '../common/KeyboardShortcuts';
 import BarcodeScannerInput from '../common/BarcodeScannerInput';
 import FloatingActionButton from '../common/FloatingActionButton';
+import MobileBottomNav from '../common/MobileBottomNav';
 import { offlineStore } from '../../lib/offlineStore';
 import { supabase } from '../../lib/supabase';
 import { useAppSelector, useAppDispatch } from '../../store';
