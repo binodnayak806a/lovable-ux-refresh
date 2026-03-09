@@ -293,25 +293,29 @@ export default function GlobalSearch() {
           </div>
         )}
 
-        {displayList.length > 0 && (
+        {filteredActions.length > 0 && (
           <ul className="py-1.5 max-h-80 overflow-y-auto">
-            {/* Section divider between DB results and actions */}
+            {/* When searching: DB results + action suggestions */}
             {query.length >= 2 && results.length > 0 && filteredActions.length > 0 && (
               <>
                 {results.map((result, i) => (
-                  <SearchItem key={result.id} item={result} index={i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+                  <SearchItem key={result.id} item={result} index={recentPatientResults.length + i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
                 ))}
                 <li className="px-4 py-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Go to</p>
                 </li>
                 {filteredActions.slice(0, 3).map((item, i) => (
-                  <SearchItem key={item.id} item={item} index={results.length + i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+                  <SearchItem key={item.id} item={item} index={recentPatientResults.length + results.length + i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
                 ))}
               </>
             )}
-            {/* Only actions or only results */}
-            {!(query.length >= 2 && results.length > 0 && filteredActions.length > 0) && displayList.map((item, i) => (
+            {/* Search with only results or only actions */}
+            {query.length >= 2 && !(results.length > 0 && filteredActions.length > 0) && results.length > 0 && results.map((item, i) => (
               <SearchItem key={item.id} item={item} index={i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+            ))}
+            {/* Idle: show only quick actions (recent patients already above) */}
+            {query.length < 2 && filteredActions.map((item, i) => (
+              <SearchItem key={item.id} item={item} index={recentPatientResults.length + i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
             ))}
           </ul>
         )}
