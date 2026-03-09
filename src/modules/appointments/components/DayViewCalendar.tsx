@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { format, isToday } from 'date-fns';
 import type { WeekAppointment } from '../../../services/appointments.service';
 import { cn } from '../../../lib/utils';
