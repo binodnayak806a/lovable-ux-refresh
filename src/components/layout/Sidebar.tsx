@@ -150,9 +150,10 @@ const ROLE_COLORS: Record<string, string> = {
   lab_technician: 'bg-cyan-500',
 };
 
-function NavGroupSection({ group }: { group: NavGroup }) {
+function NavGroupSection({ group, showFavAction }: { group: NavGroup; showFavAction?: boolean }) {
   const location = useLocation();
-  const { setOpenMobile, isMobile } = useSidebar();
+  const { setOpenMobile, isMobile, state } = useSidebar();
+  const { toggleFavorite, isFavorite } = useFavoritePages();
 
   if (group.items.length === 0) return null;
 
@@ -164,6 +165,7 @@ function NavGroupSection({ group }: { group: NavGroup }) {
           {group.items.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+            const isFav = isFavorite(item.path);
 
             return (
               <SidebarMenuItem key={item.id}>
@@ -185,6 +187,88 @@ function NavGroupSection({ group }: { group: NavGroup }) {
                     {item.badge}
                   </SidebarMenuBadge>
                 )}
+                {showFavAction && state === 'expanded' && (
+                  <SidebarMenuAction
+                    onClick={() => toggleFavorite(item.path)}
+                    className="opacity-0 group-hover/menu-item:opacity-100 transition-opacity"
+                  >
+                    {isFav ? <StarOff className="w-3.5 h-3.5 text-amber-500" /> : <Star className="w-3.5 h-3.5" />}
+                  </SidebarMenuAction>
+                )}
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+function RecentPagesSection() {
+  const recentPages = useRecentPages();
+  const location = useLocation();
+  const { setOpenMobile, isMobile, state } = useSidebar();
+
+  // Only show pages not currently on
+  const recents = recentPages.filter(p => p.path !== location.pathname).slice(0, 3);
+  if (recents.length === 0 || state !== 'expanded') return null;
+
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>
+        <Clock className="w-3 h-3 mr-1" />
+        Recent
+      </SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {recents.map(page => {
+            const navItem = NAV_BY_PATH[page.path];
+            const Icon = navItem?.icon || FileText;
+            return (
+              <SidebarMenuItem key={page.path}>
+                <SidebarMenuButton asChild tooltip={page.label}>
+                  <NavLink to={page.path} onClick={() => isMobile && setOpenMobile(false)}>
+                    <Icon className="w-4 h-4 opacity-60" />
+                    <span className="text-muted-foreground">{page.label}</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+function FavoritesSection() {
+  const { favorites } = useFavoritePages();
+  const location = useLocation();
+  const { setOpenMobile, isMobile, state } = useSidebar();
+
+  if (favorites.length === 0 || state !== 'expanded') return null;
+
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>
+        <Star className="w-3 h-3 mr-1 text-amber-500" />
+        Favorites
+      </SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {favorites.map(path => {
+            const navItem = NAV_BY_PATH[path];
+            if (!navItem) return null;
+            const Icon = navItem.icon;
+            const isActive = location.pathname === path;
+            return (
+              <SidebarMenuItem key={path}>
+                <SidebarMenuButton asChild isActive={isActive} tooltip={navItem.label}>
+                  <NavLink to={path} onClick={() => isMobile && setOpenMobile(false)}>
+                    <Icon />
+                    <span>{navItem.label}</span>
+                  </NavLink>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             );
           })}
