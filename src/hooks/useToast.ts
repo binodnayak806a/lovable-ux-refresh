@@ -10,7 +10,6 @@ import { toast as sonnerToast } from 'sonner';
 export function useToast() {
   const toast = useCallback(
     (title: string, options?: { description?: string; type?: string; duration?: number }) => {
-      const msg = options?.description ? `${title}: ${options.description}` : title;
       const duration = options?.duration;
 
       switch (options?.type) {
