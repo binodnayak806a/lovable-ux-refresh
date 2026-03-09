@@ -303,7 +303,7 @@ export default function BillingPage() {
                           {formatCurrency(bill.paid_amount || 0)}
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          <span className={balance > 0 ? 'text-amber-600' : 'text-gray-400'}>
+                          <span className={balance > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}>
                             {formatCurrency(balance)}
                           </span>
                         </TableCell>
