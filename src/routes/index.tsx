@@ -10,6 +10,7 @@ import ForgotPasswordPage from '../modules/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../modules/auth/ResetPasswordPage';
 
 const DashboardPage = lazy(() => import('../modules/dashboard/DashboardPage'));
+const PremiumDashboard = lazy(() => import('../modules/dashboard/PremiumDashboard'));
 const PatientsPage = lazy(() => import('../modules/patients/PatientsPage'));
 const AddPatientPage = lazy(() => import('../modules/patients/AddPatientPage'));
 const EditPatientPage = lazy(() => import('../modules/patients/EditPatientPage'));
