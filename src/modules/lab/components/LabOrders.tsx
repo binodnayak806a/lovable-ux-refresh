@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  Search, Plus, Loader2, Clock, CheckCircle2,
+  Search, Plus, Clock, CheckCircle2,
   ClipboardList, Activity, Eye, TestTube, FlaskConical,
 } from 'lucide-react';
+import { PageSkeleton } from '../../../components/common/skeletons';
+import EmptyState from '../../../components/common/EmptyState';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
