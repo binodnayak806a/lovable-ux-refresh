@@ -32,17 +32,17 @@ const NOTIFICATION_ICONS: Record<IconKey, React.ElementType> = {
 };
 
 const NOTIFICATION_COLORS: Record<IconKey, { bg: string; text: string }> = {
-  info: { bg: 'bg-blue-100', text: 'text-blue-600' },
-  warning: { bg: 'bg-orange-100', text: 'text-orange-600' },
-  error: { bg: 'bg-red-100', text: 'text-red-600' },
-  success: { bg: 'bg-emerald-100', text: 'text-emerald-600' },
-  system: { bg: 'bg-gray-100', text: 'text-gray-600' },
-  appointment: { bg: 'bg-blue-100', text: 'text-blue-600' },
-  lab: { bg: 'bg-teal-100', text: 'text-teal-600' },
-  pharmacy: { bg: 'bg-amber-100', text: 'text-amber-600' },
-  billing: { bg: 'bg-cyan-100', text: 'text-cyan-600' },
-  emergency: { bg: 'bg-red-100', text: 'text-red-600' },
-  ipd: { bg: 'bg-cyan-100', text: 'text-cyan-600' },
+  info: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400' },
+  warning: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-600 dark:text-orange-400' },
+  error: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400' },
+  success: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-600 dark:text-emerald-400' },
+  system: { bg: 'bg-muted', text: 'text-muted-foreground' },
+  appointment: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400' },
+  lab: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-600 dark:text-teal-400' },
+  pharmacy: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-600 dark:text-amber-400' },
+  billing: { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-600 dark:text-cyan-400' },
+  emergency: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400' },
+  ipd: { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-600 dark:text-cyan-400' },
 };
 
 function NotificationItem({

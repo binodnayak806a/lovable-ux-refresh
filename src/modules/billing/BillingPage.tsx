@@ -49,19 +49,19 @@ interface BillStats {
 }
 
 const STATUS_CONFIG = {
-  pending: { label: 'Pending', color: 'bg-amber-100 text-amber-700', icon: Clock },
-  partial: { label: 'Partial', color: 'bg-blue-100 text-blue-700', icon: AlertCircle },
-  paid: { label: 'Paid', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
-  cancelled: { label: 'Cancelled', color: 'bg-gray-100 text-gray-600', icon: XCircle },
-  refunded: { label: 'Refunded', color: 'bg-red-100 text-red-700', icon: RefreshCw },
+  pending: { label: 'Pending', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400', icon: Clock },
+  partial: { label: 'Partial', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400', icon: AlertCircle },
+  paid: { label: 'Paid', color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400', icon: CheckCircle },
+  cancelled: { label: 'Cancelled', color: 'bg-muted text-muted-foreground', icon: XCircle },
+  refunded: { label: 'Refunded', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400', icon: RefreshCw },
 };
 
 const BILL_TYPE_CONFIG = {
-  opd: { label: 'OPD', color: 'bg-blue-50 text-blue-600' },
-  ipd: { label: 'IPD', color: 'bg-teal-50 text-teal-600' },
-  pharmacy: { label: 'Pharmacy', color: 'bg-amber-50 text-amber-600' },
-  lab: { label: 'Lab', color: 'bg-cyan-50 text-cyan-600' },
-  other: { label: 'Other', color: 'bg-gray-50 text-gray-600' },
+  opd: { label: 'OPD', color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
+  ipd: { label: 'IPD', color: 'bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400' },
+  pharmacy: { label: 'Pharmacy', color: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' },
+  lab: { label: 'Lab', color: 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400' },
+  other: { label: 'Other', color: 'bg-muted text-muted-foreground' },
 };
 
 function formatCurrency(amount: number): string {
@@ -198,7 +198,7 @@ export default function BillingPage() {
             </Tabs>
             <div className="flex items-center gap-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input placeholder="Search bills..." value={search}
                   onChange={e => setSearch(e.target.value)} className="pl-9 w-64" />
               </div>
@@ -233,7 +233,7 @@ export default function BillingPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50/50">
+                <TableRow className="bg-muted/50">
                   <TableHead>Bill No.</TableHead>
                   <TableHead>Patient</TableHead>
                   <TableHead>Type</TableHead>
@@ -258,9 +258,9 @@ export default function BillingPage() {
                   <TableRow>
                     <TableCell colSpan={9} className="h-32 text-center">
                       <div className="flex flex-col items-center gap-2">
-                        <Receipt className="w-10 h-10 text-gray-300" />
-                        <p className="text-gray-500 font-medium">No bills found</p>
-                        <p className="text-sm text-gray-400">Create a new bill to get started</p>
+                       <Receipt className="w-10 h-10 text-muted-foreground/30" />
+                        <p className="text-muted-foreground font-medium">No bills found</p>
+                        <p className="text-sm text-muted-foreground/70">Create a new bill to get started</p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -272,18 +272,18 @@ export default function BillingPage() {
                     const balance = bill.total_amount - (bill.paid_amount || 0);
 
                     return (
-                      <TableRow key={bill.id} className="hover:bg-gray-50/50">
+                      <TableRow key={bill.id} className="hover:bg-muted/50">
                         <TableCell>
-                          <span className="font-mono text-sm font-medium text-gray-900">
+                          <span className="font-mono text-sm font-medium text-foreground">
                             {bill.bill_number}
                           </span>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                              <User className="w-4 h-4 text-gray-500" />
+                            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                              <User className="w-4 h-4 text-muted-foreground" />
                             </div>
-                            <span className="font-medium text-gray-900 truncate max-w-[150px]">
+                            <span className="font-medium text-foreground truncate max-w-[150px]">
                               {bill.patient_name}
                             </span>
                           </div>
@@ -293,17 +293,17 @@ export default function BillingPage() {
                             {typeConfig.label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-gray-600">
+                        <TableCell className="text-muted-foreground">
                           {format(new Date(bill.created_at), 'dd MMM yyyy')}
                         </TableCell>
-                        <TableCell className="text-right font-medium text-gray-900">
+                        <TableCell className="text-right font-medium text-foreground">
                           {formatCurrency(bill.total_amount)}
                         </TableCell>
-                        <TableCell className="text-right font-medium text-emerald-600">
+                        <TableCell className="text-right font-medium text-emerald-600 dark:text-emerald-400">
                           {formatCurrency(bill.paid_amount || 0)}
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          <span className={balance > 0 ? 'text-amber-600' : 'text-gray-400'}>
+                          <span className={balance > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}>
                             {formatCurrency(balance)}
                           </span>
                         </TableCell>
