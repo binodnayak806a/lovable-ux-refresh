@@ -273,11 +273,7 @@ export default function EmergencyPage() {
   const filteredCases = cases;
 
   if (loading && cases.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-destructive" />
-      </div>
-    );
+    return <PageSkeleton type="cards" />;
   }
 
   return (
