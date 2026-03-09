@@ -396,9 +396,7 @@ export default function IPDPage() {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr>
-                      <td colSpan={11} className="py-16 text-center">
-                        <RefreshCw className="w-5 h-5 animate-spin mx-auto text-muted-foreground" />
+                     <td colSpan={selectedAdmission ? 7 : 11} className="py-16 text-center">
                       </td>
                     </tr>
                   ) : filtered.length === 0 ? (
