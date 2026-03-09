@@ -117,6 +117,12 @@ export default function AnalyticsPage() {
         title="Analytics Dashboard"
         subtitle="Real-time hospital performance metrics"
         icon={Activity}
+        helpItems={[
+          'Monitor KPIs like patient wait time and bed occupancy',
+          'View department-wise performance breakdowns',
+          'Track monthly revenue and patient flow trends',
+          'Click "Refresh" to fetch the latest data',
+        ]}
         actions={
           <Button
             variant="outline"

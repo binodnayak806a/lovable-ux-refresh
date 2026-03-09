@@ -284,6 +284,13 @@ export default function EmergencyPage() {
         subtitle="Triage and manage emergency cases"
         icon={Siren}
         iconClassName="bg-destructive/10 text-destructive"
+        helpItems={[
+          'Click "New Case" to register an emergency patient',
+          'Filter by triage color (Red/Yellow/Green) for priority',
+          'Click any case card to view details and add treatments',
+          'Update disposition to admit, discharge, or refer patients',
+          'Cases auto-refresh in real-time — no need to reload',
+        ]}
         actions={
           <>
             <Button variant="outline" size="sm" onClick={loadData} className="gap-1.5">

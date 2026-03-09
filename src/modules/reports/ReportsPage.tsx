@@ -69,6 +69,12 @@ export default function ReportsPage() {
         title="Reports"
         subtitle="Generate and analyze hospital data"
         icon={FileBarChart}
+        helpItems={[
+          'Choose from 6 pre-built reports for OPD, IPD, revenue, and more',
+          'Use the Report Builder to create custom reports with filters',
+          'Save reports for quick access later',
+          'Export any report to CSV or print directly',
+        ]}
         actions={
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-xs text-muted-foreground">
             <FileBarChart className="w-3.5 h-3.5" />

@@ -155,6 +155,12 @@ export default function AppointmentsPage() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
+      {/* Quick help hint */}
+      <div className="shrink-0 px-4 pt-2">
+        <p className="text-[11px] text-muted-foreground">
+          💡 Click any time slot to book an appointment • Use "Board" view for drag-and-drop patient flow • Filter by doctor to focus your view
+        </p>
+      </div>
       {/* Single clean toolbar */}
       <div className="shrink-0 bg-card border-b border-border/40 px-4 py-2.5 flex items-center justify-between gap-3">
         {/* Left: Navigation */}

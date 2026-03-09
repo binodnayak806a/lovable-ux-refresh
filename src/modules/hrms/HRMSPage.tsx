@@ -98,6 +98,12 @@ export default function HRMSPage() {
         title="HR Management"
         subtitle="Staff directory, attendance tracking, and leave management"
         icon={Users}
+        helpItems={[
+          'Add and manage staff in the directory tab',
+          'Mark daily attendance for all staff members',
+          'Review and approve/reject leave requests',
+          'Export staff data for payroll processing',
+        ]}
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

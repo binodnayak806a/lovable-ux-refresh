@@ -116,6 +116,12 @@ export default function InsurancePage() {
         title="Insurance & TPA"
         subtitle="Manage claims, pre-authorizations, and settlements"
         icon={ShieldCheck}
+        helpItems={[
+          'Submit insurance claims and track their lifecycle',
+          'Create pre-authorization requests for planned procedures',
+          'Add and manage insurance providers and TPAs',
+          'View settlement dashboard for provider-wise breakdowns',
+        ]}
         actions={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setProviderDialogOpen(true)}>

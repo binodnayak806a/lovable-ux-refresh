@@ -66,6 +66,12 @@ export default function CashBankPage() {
         title="Cash & Bank"
         subtitle="Manage cash, bank accounts, and fund transfers"
         icon={Landmark}
+        helpItems={[
+          'View balances across cash and bank accounts',
+          'Click "Deposit / Withdraw" to transfer funds between accounts',
+          'Click "+ Add Account" to create a new cash or bank account',
+          'Search transactions by description or reference',
+        ]}
         actions={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

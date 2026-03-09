@@ -20,6 +20,12 @@ export default function PharmacyPage() {
         title="Pharmacy"
         subtitle="Manage sales, purchases, and stock"
         icon={ShoppingCart}
+        helpItems={[
+          'Create sale bills and dispense medicines',
+          'Record purchase entries from suppliers',
+          'View and search medicine stock levels',
+          'Scan barcode to quickly find medicines',
+        ]}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -37,6 +43,12 @@ export default function PharmacyPage() {
             Stock View
           </TabsTrigger>
         </TabsList>
+
+        <p className="text-xs text-muted-foreground mt-2 ml-1">
+          {activeTab === 'billing' && '💡 Tip: Search by patient name or scan barcode to start a sale'}
+          {activeTab === 'purchase' && '💡 Tip: Enter supplier invoice details to record a purchase'}
+          {activeTab === 'stock' && '💡 Tip: Use search to quickly find any medicine in stock'}
+        </p>
 
         <TabsContent value="billing" className="mt-4">
           <SaleBilling />
