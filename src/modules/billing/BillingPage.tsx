@@ -293,13 +293,13 @@ export default function BillingPage() {
                             {typeConfig.label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-gray-600">
+                        <TableCell className="text-muted-foreground">
                           {format(new Date(bill.created_at), 'dd MMM yyyy')}
                         </TableCell>
-                        <TableCell className="text-right font-medium text-gray-900">
+                        <TableCell className="text-right font-medium text-foreground">
                           {formatCurrency(bill.total_amount)}
                         </TableCell>
-                        <TableCell className="text-right font-medium text-emerald-600">
+                        <TableCell className="text-right font-medium text-emerald-600 dark:text-emerald-400">
                           {formatCurrency(bill.paid_amount || 0)}
                         </TableCell>
                         <TableCell className="text-right font-medium">
