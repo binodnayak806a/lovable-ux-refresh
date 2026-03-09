@@ -258,9 +258,9 @@ export default function BillingPage() {
                   <TableRow>
                     <TableCell colSpan={9} className="h-32 text-center">
                       <div className="flex flex-col items-center gap-2">
-                        <Receipt className="w-10 h-10 text-gray-300" />
-                        <p className="text-gray-500 font-medium">No bills found</p>
-                        <p className="text-sm text-gray-400">Create a new bill to get started</p>
+                       <Receipt className="w-10 h-10 text-muted-foreground/30" />
+                        <p className="text-muted-foreground font-medium">No bills found</p>
+                        <p className="text-sm text-muted-foreground/70">Create a new bill to get started</p>
                       </div>
                     </TableCell>
                   </TableRow>
