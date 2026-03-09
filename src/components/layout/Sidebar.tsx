@@ -396,34 +396,38 @@ export default function AppSidebar() {
   }, [canAccessModule]);
 
   return (
-    <Sidebar collapsible="icon" variant="sidebar">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="hover:bg-transparent active:bg-transparent">
-              <NavLink to="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 shadow-sm">
-                  <Heart className="size-4 text-white" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold tracking-tight">HealthCare HMS</span>
-                  <span className="truncate text-[11px] text-muted-foreground">Hospital Management</span>
-                </div>
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+    <TooltipProvider>
+      <Sidebar collapsible="icon" variant="sidebar">
+        <SidebarHeader className="border-b border-sidebar-border">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild className="hover:bg-transparent active:bg-transparent">
+                <NavLink to="/dashboard">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 shadow-sm">
+                    <Heart className="size-4 text-white" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-bold tracking-tight">HealthCare HMS</span>
+                    <span className="truncate text-[11px] text-muted-foreground">Hospital Management</span>
+                  </div>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
 
-      <SidebarContent>
-        {filteredGroups.map((group) => (
-          <NavGroupSection key={group.label} group={group} />
-        ))}
-      </SidebarContent>
+        <SidebarContent>
+          <FavoritesSection />
+          <RecentPagesSection />
+          {filteredGroups.map((group) => (
+            <NavGroupSection key={group.label} group={group} showFavAction />
+          ))}
+        </SidebarContent>
 
-      <SidebarSeparator />
-      <SidebarUserFooter />
-      <SidebarRail />
-    </Sidebar>
+        <SidebarSeparator />
+        <SidebarUserFooter />
+        <SidebarRail />
+      </Sidebar>
+    </TooltipProvider>
   );
 }
