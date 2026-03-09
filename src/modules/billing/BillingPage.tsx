@@ -233,7 +233,7 @@ export default function BillingPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50/50">
+                <TableRow className="bg-muted/50">
                   <TableHead>Bill No.</TableHead>
                   <TableHead>Patient</TableHead>
                   <TableHead>Type</TableHead>
