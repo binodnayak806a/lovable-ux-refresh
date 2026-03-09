@@ -29,6 +29,12 @@ export default function LabPage() {
         title="Laboratory"
         subtitle="Manage lab orders, results, and reports"
         icon={FlaskConical}
+        helpItems={[
+          'View and manage all pending lab orders',
+          'Enter test results directly from the Results tab',
+          'Generate and print lab reports for patients',
+          'Click any order row to view details or enter results',
+        ]}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -47,6 +53,12 @@ export default function LabPage() {
           </TabsTrigger>
         </TabsList>
 
+        {!selectedOrder && activeTab === 'orders' && (
+          <p className="text-xs text-muted-foreground mt-2 ml-1">
+            💡 Tip: Click on any lab order to enter results
+          </p>
+        )}
+
         <TabsContent value="orders" className="mt-4">
           <LabOrders onViewResults={handleViewResults} />
         </TabsContent>
@@ -59,8 +71,9 @@ export default function LabPage() {
               onUpdated={() => {}}
             />
           ) : (
-            <div className="text-center py-12 text-gray-400">
-              Select an order from the Orders tab to enter results
+            <div className="text-center py-12">
+              <FlaskConical className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Select an order from the Orders tab to enter results</p>
             </div>
           )}
         </TabsContent>
