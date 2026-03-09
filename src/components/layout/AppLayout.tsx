@@ -10,6 +10,7 @@ import KeyboardShortcuts from '../common/KeyboardShortcuts';
 import BarcodeScannerInput from '../common/BarcodeScannerInput';
 import FloatingActionButton from '../common/FloatingActionButton';
 import MobileBottomNav from '../common/MobileBottomNav';
+import ScrollToTop from '../common/ScrollToTop';
 import { offlineStore } from '../../lib/offlineStore';
 import { supabase } from '../../lib/supabase';
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -88,6 +89,7 @@ export default function AppLayout() {
       <BarcodeScannerInput onScan={handleBarcodeScan} />
       <FloatingActionButton />
       <MobileBottomNav />
+      <ScrollToTop containerRef={mainRef as React.RefObject<HTMLElement>} />
       <Toaster position="top-right" richColors closeButton />
     </SidebarProvider>
   );

@@ -36,6 +36,7 @@ import TodayActivityFeed from './components/TodayActivityFeed';
 import DoctorQueueMonitor from './components/DoctorQueueMonitor';
 import DateFilterBar from './components/DateFilterBar';
 import QuickActionButtons from './components/QuickActionButtons';
+import { useRecentPages } from '../../hooks/useRecentPages';
 
 import { cn } from '../../lib/utils';
 
@@ -66,6 +67,7 @@ export default function DashboardPage() {
   } = useAppSelector((state) => state.dashboard);
 
   const { isAdmin, isRole } = usePermissions();
+  const recentPages = useRecentPages();
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
   const prevDateRange = useRef(dateRange);
   const loading = status === 'loading';
@@ -122,6 +124,21 @@ export default function DashboardPage() {
           <p className="text-sm text-muted-foreground mt-0.5">
             Here's what's happening today. Press <kbd className="px-1.5 py-0.5 rounded border border-border text-[10px] font-mono bg-background mx-0.5">⌘K</kbd> to search or jump to any module.
           </p>
+          {/* Recent shortcuts */}
+          {recentPages.filter(p => p.path !== '/dashboard').length > 0 && (
+            <div className="flex items-center gap-1.5 mt-2">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Recent:</span>
+              {recentPages.filter(p => p.path !== '/dashboard').slice(0, 3).map(p => (
+                <button
+                  key={p.path}
+                  onClick={() => navigate(p.path)}
+                  className="text-[11px] px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <QuickActionButtons />
       </div>
