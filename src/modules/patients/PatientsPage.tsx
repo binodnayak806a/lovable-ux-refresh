@@ -86,6 +86,7 @@ export default function PatientsPage() {
   const { startConsultation, goToBilling, admitPatient } = useSmartNavigation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { addRecentPatient } = useRecentPatients();
 
   const hospitalId = user?.hospital_id ?? SAMPLE_HOSPITAL_ID;
   const highlightId = searchParams.get('id');
