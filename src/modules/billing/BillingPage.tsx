@@ -160,6 +160,13 @@ export default function BillingPage() {
         title="Billing & Payments"
         subtitle="Manage patient bills, payments, and invoices"
         icon={Receipt}
+        helpItems={[
+          'Click "+ New Bill" to create a bill for any patient',
+          'Use search to find bills by number or patient name',
+          'Click "Collect" on any pending bill to record payment',
+          'Filter by type (OPD, IPD, Pharmacy, Lab) or status',
+          'Export bills as CSV for accounting',
+        ]}
         actions={
           <>
             <Button variant="outline" size="sm" className="gap-2">
