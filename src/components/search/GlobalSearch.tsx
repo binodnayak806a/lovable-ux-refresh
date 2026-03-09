@@ -270,9 +270,25 @@ export default function GlobalSearch() {
           </div>
         </div>
 
-        {/* Quick actions heading when no query */}
-        {query.length < 2 && (
+        {/* Section headings when no query */}
+        {query.length < 2 && recentPatientResults.length > 0 && (
           <div className="px-4 pt-3 pb-1">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Clock className="w-3 h-3" /> Recent Patients
+            </p>
+          </div>
+        )}
+
+        {query.length < 2 && recentPatientResults.length > 0 && (
+          <ul className="py-1">
+            {recentPatientResults.map((item, i) => (
+              <SearchItem key={item.id} item={item} index={i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+            ))}
+          </ul>
+        )}
+
+        {query.length < 2 && (
+          <div className="px-4 pt-2 pb-1">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Quick Actions</p>
           </div>
         )}
