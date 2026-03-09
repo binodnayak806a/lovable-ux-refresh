@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { format, addWeeks, subWeeks, startOfWeek, addDays } from 'date-fns';
 import { Plus, ChevronLeft, ChevronRight, Scissors, Wrench, CheckCircle2, Clock } from 'lucide-react';
+import PageHeader from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
