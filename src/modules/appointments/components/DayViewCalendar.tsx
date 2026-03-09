@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { format, isToday } from 'date-fns';
 import type { WeekAppointment } from '../../../services/appointments.service';
 import { cn } from '../../../lib/utils';
@@ -44,6 +44,18 @@ export default function DayViewCalendar({ appointments, date, slotInterval, onSl
   const today = isToday(date);
   const nowH = new Date().getHours();
   const nowM = new Date().getMinutes();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const hasScrolled = useRef(false);
+
+  // Auto-scroll to 8 AM (or current hour if today) on mount
+  useEffect(() => {
+    if (hasScrolled.current || !scrollRef.current) return;
+    const targetHour = today ? Math.max(nowH - 1, 0) : 8;
+    const slotHeight = 44;
+    const slotsPerHour = 60 / slotInterval;
+    scrollRef.current.scrollTop = targetHour * slotsPerHour * slotHeight;
+    hasScrolled.current = true;
+  }, [today, nowH, slotInterval]);
 
   const appointmentsBySlot = useMemo(() => {
     const map: Record<string, WeekAppointment[]> = {};
@@ -60,7 +72,7 @@ export default function DayViewCalendar({ appointments, date, slotInterval, onSl
 
   return (
     <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
-      <div className="max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin">
+      <div ref={scrollRef} className="max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin">
         {timeSlots.map((slot) => {
           const cellAppts = appointmentsBySlot[slot] ?? [];
           const [slotH, slotM] = slot.split(':').map(Number);

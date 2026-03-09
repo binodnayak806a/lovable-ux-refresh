@@ -378,20 +378,20 @@ export default function IPDPage() {
           {/* Table */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="flex-1 overflow-auto">
-              <table className="w-full text-xs">
+              <table className="w-full text-xs min-w-[1100px]">
                 <thead className="bg-muted/60 sticky top-0 z-10">
                   <tr className="border-b border-border">
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">UHID</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Patient</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Mobile No</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Doctor</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Ward/Bed</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">DOA</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Payer</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Billing</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Adm Type</th>
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-                    <th className="py-2.5 px-3 text-center font-semibold text-muted-foreground uppercase tracking-wider">Action</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">UHID</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Patient</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Mobile No</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Doctor</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Ward/Bed</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">DOA</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Payer</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Billing</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Adm Type</th>
+                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Status</th>
+                    <th className="py-2.5 px-3 text-center font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Action</th>
                   </tr>
                 </thead>
                 <tbody>
