@@ -10,7 +10,6 @@ import ForgotPasswordPage from '../modules/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../modules/auth/ResetPasswordPage';
 
 const DashboardPage = lazy(() => import('../modules/dashboard/DashboardPage'));
-const PremiumDashboard = lazy(() => import('../modules/dashboard/PremiumDashboard'));
 const PatientsPage = lazy(() => import('../modules/patients/PatientsPage'));
 const AddPatientPage = lazy(() => import('../modules/patients/AddPatientPage'));
 const EditPatientPage = lazy(() => import('../modules/patients/EditPatientPage'));
@@ -108,8 +107,7 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { index: true, element: <Navigate to="/dashboard" replace /> },
-          { path: '/dashboard', element: <S><PremiumDashboard /></S> },
-          { path: '/dashboard/legacy', element: <S><DashboardPage /></S> },
+          { path: '/dashboard', element: <S><DashboardPage /></S> },
           { path: '/patients', element: <S><PatientsPage /></S> },
           { path: '/add-patient', element: <S><AddPatientPage /></S> },
           { path: '/edit-patient', element: <S><EditPatientPage /></S> },
