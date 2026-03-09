@@ -14,16 +14,16 @@ export function useToast() {
 
       switch (options?.type) {
         case 'success':
-          sonnerToast.success(title, { description: options.description, duration });
+          sonnerToast.success(title, { description: options?.description, duration });
           break;
         case 'error':
-          sonnerToast.error(title, { description: options.description, duration });
+          sonnerToast.error(title, { description: options?.description, duration });
           break;
         case 'warning':
           sonnerToast.warning(title, { description: options?.description, duration });
           break;
         default:
-          sonnerToast.info(title, { description: options.description, duration });
+          sonnerToast.info(title, { description: options?.description, duration });
           break;
       }
     },
