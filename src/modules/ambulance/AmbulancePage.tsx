@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Truck, Phone, User, MapPin, Plus, RefreshCw, AlertTriangle,
-  CheckCircle2, Wrench, Navigation, Loader2, ChevronRight, X,
+  CheckCircle2, Wrench, Navigation, ChevronRight, X,
 } from 'lucide-react';
+import { PageSkeleton } from '../../components/common/skeletons';
+import EmptyState from '../../components/common/EmptyState';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';

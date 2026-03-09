@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Siren, Clock, Plus, RefreshCw, Activity, Stethoscope,
-  AlertTriangle, CheckCircle2, Loader2, X, ChevronRight, Heart,
+  AlertTriangle, CheckCircle2, X, ChevronRight, Heart,
   Thermometer, Droplets, FileText, Users,
 } from 'lucide-react';
+import { PageSkeleton } from '../../components/common/skeletons';
+import EmptyState from '../../components/common/EmptyState';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';

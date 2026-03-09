@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
   Clock, BedDouble, DollarSign, ThumbsUp, UserCog, FlaskConical,
-  TrendingUp, Loader2, Activity, Stethoscope,
+  TrendingUp, Activity, Stethoscope,
   RefreshCw, AlertTriangle, CheckCircle2,
 } from 'lucide-react';
+import { PageSkeleton } from '../../components/common/skeletons';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { usePageTitle } from '../../hooks/usePageTitle';

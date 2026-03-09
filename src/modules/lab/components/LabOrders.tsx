@@ -255,8 +255,13 @@ export default function LabOrders({ onViewResults }: LabOrdersProps) {
             <TableBody>
               {filteredOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-gray-400">
-                    No lab orders found
+                  <TableCell colSpan={8} className="p-0">
+                    <EmptyState
+                      icon={ClipboardList}
+                      title="No lab orders found"
+                      description={search ? "Try adjusting your search or filters" : "Create a new lab order to get started"}
+                      action={!search ? { label: 'New Order', onClick: () => setShowNewOrder(true) } : undefined}
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
