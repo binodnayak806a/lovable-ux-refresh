@@ -3,7 +3,7 @@ import {
   BedDouble, Search, RefreshCw, Filter, FileText,
   MoreVertical, Info, Phone, CreditCard,
   ShoppingCart, ClipboardList, ChevronLeft, ChevronRight, Plus,
-  LogOut, Printer, Tag,
+  LogOut, Printer,
 } from 'lucide-react';
 import { useAppSelector } from '../../store';
 import { usePageTitle } from '../../hooks/usePageTitle';
