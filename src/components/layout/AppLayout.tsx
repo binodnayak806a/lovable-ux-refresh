@@ -8,6 +8,7 @@ import ContextualPatientBar from '../common/ContextualPatientBar';
 import OfflineBanner from '../common/OfflineBanner';
 import KeyboardShortcuts from '../common/KeyboardShortcuts';
 import BarcodeScannerInput from '../common/BarcodeScannerInput';
+import FloatingActionButton from '../common/FloatingActionButton';
 import { offlineStore } from '../../lib/offlineStore';
 import { supabase } from '../../lib/supabase';
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -26,7 +27,6 @@ export default function AppLayout() {
 
   const handleBarcodeScan = (value: string) => {
     dispatch(setSearchOpen(true));
-    // Small delay so the search modal opens first
     setTimeout(() => {
       const input = document.querySelector<HTMLInputElement>('[data-search-input]');
       if (input) {
@@ -62,7 +62,7 @@ export default function AppLayout() {
           }>);
         }
       } catch {
-        // silently fail - offline cache is best-effort
+        // silently fail
       }
     })();
   }, [hospitalId]);
@@ -85,6 +85,7 @@ export default function AppLayout() {
       <ContextualPatientBar />
       <KeyboardShortcuts />
       <BarcodeScannerInput onScan={handleBarcodeScan} />
+      <FloatingActionButton />
       <Toaster position="top-right" richColors closeButton />
     </SidebarProvider>
   );

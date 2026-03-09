@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, User, BedDouble, Receipt, X, ArrowRight, Loader2 } from 'lucide-react';
+import {
+  Search, User, BedDouble, Receipt, X, ArrowRight, Loader2,
+  UserPlus, CalendarPlus, Pill, FlaskConical, FileText, Settings,
+  BarChart3, Stethoscope,
+} from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { setSearchOpen } from '../../store/slices/globalSlice';
@@ -8,14 +12,29 @@ import { loadPatientContext } from '../../store/slices/globalSlice';
 import { useDebounce } from '../../hooks/useDebounce';
 
 interface SearchResult {
-  type: 'patient' | 'admission' | 'bill';
+  type: 'patient' | 'admission' | 'bill' | 'action';
   id: string;
   title: string;
   subtitle: string;
   meta?: string;
+  path?: string;
+  icon?: React.ElementType;
 }
 
 const HOSPITAL_ID = '11111111-1111-1111-1111-111111111111';
+
+const QUICK_ACTIONS: SearchResult[] = [
+  { type: 'action', id: 'new-patient', title: 'Register New Patient', subtitle: 'Open patient registration form', path: '/add-patient', icon: UserPlus },
+  { type: 'action', id: 'new-appointment', title: 'Book Appointment', subtitle: 'Schedule a new appointment', path: '/appointments', icon: CalendarPlus },
+  { type: 'action', id: 'doctor-queue', title: 'Doctor Queue', subtitle: 'View & manage patient queue', path: '/doctor/queue', icon: Stethoscope },
+  { type: 'action', id: 'billing', title: 'Create Bill', subtitle: 'Generate a new bill', path: '/billing', icon: Receipt },
+  { type: 'action', id: 'pharmacy', title: 'Pharmacy', subtitle: 'Dispense medicines', path: '/pharmacy', icon: Pill },
+  { type: 'action', id: 'lab', title: 'Laboratory', subtitle: 'Lab orders & reports', path: '/lab', icon: FlaskConical },
+  { type: 'action', id: 'ipd', title: 'IPD / Admissions', subtitle: 'Admit or view patients', path: '/ipd', icon: BedDouble },
+  { type: 'action', id: 'reports', title: 'Reports', subtitle: 'View & export reports', path: '/reports', icon: FileText },
+  { type: 'action', id: 'analytics', title: 'Analytics', subtitle: 'Charts & insights', path: '/analytics', icon: BarChart3 },
+  { type: 'action', id: 'settings', title: 'Settings', subtitle: 'App configuration', path: '/settings', icon: Settings },
+];
 
 export default function GlobalSearch() {
   const navigate = useNavigate();
@@ -30,6 +49,11 @@ export default function GlobalSearch() {
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const debouncedQuery = useDebounce(query, 150);
+
+  // Filtered quick actions when no query or partial match
+  const filteredActions = query.length > 0
+    ? QUICK_ACTIONS.filter((a) => a.title.toLowerCase().includes(query.toLowerCase()) || a.subtitle.toLowerCase().includes(query.toLowerCase()))
+    : QUICK_ACTIONS;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -130,9 +154,18 @@ export default function GlobalSearch() {
     performSearch(debouncedQuery);
   }, [debouncedQuery, performSearch]);
 
+  // Combined list: DB results first, then matching actions
+  const displayList = query.length >= 2
+    ? [...results, ...filteredActions.slice(0, 3)]
+    : filteredActions;
+
   const handleSelect = async (result: SearchResult) => {
     dispatch(setSearchOpen(false));
     setQuery('');
+    if (result.type === 'action' && result.path) {
+      navigate(result.path);
+      return;
+    }
     switch (result.type) {
       case 'patient':
         await dispatch(loadPatientContext(result.id));
@@ -150,27 +183,32 @@ export default function GlobalSearch() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelected((s) => Math.min(s + 1, results.length - 1));
+      setSelected((s) => Math.min(s + 1, displayList.length - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelected((s) => Math.max(s - 1, 0));
-    } else if (e.key === 'Enter' && results[selected]) {
-      handleSelect(results[selected]);
+    } else if (e.key === 'Enter' && displayList[selected]) {
+      handleSelect(displayList[selected]);
     }
   };
 
-  const TypeIcon = ({ type }: { type: SearchResult['type'] }) => {
-    if (type === 'patient') return <User className="w-4 h-4 text-blue-500" />;
-    if (type === 'admission') return <BedDouble className="w-4 h-4 text-amber-500" />;
+  const TypeIcon = ({ item }: { item: SearchResult }) => {
+    if (item.icon) {
+      const Icon = item.icon;
+      return <Icon className="w-4 h-4 text-primary" />;
+    }
+    if (item.type === 'patient') return <User className="w-4 h-4 text-blue-500" />;
+    if (item.type === 'admission') return <BedDouble className="w-4 h-4 text-amber-500" />;
     return <Receipt className="w-4 h-4 text-emerald-500" />;
   };
 
   const TypeLabel = ({ type }: { type: SearchResult['type'] }) => {
-    const labels = { patient: 'Patient', admission: 'Admission', bill: 'Bill' };
-    const colors = {
-      patient: 'bg-blue-50 text-blue-600',
-      admission: 'bg-amber-50 text-amber-600',
-      bill: 'bg-emerald-50 text-emerald-600',
+    const labels: Record<string, string> = { patient: 'Patient', admission: 'Admission', bill: 'Bill', action: 'Go to' };
+    const colors: Record<string, string> = {
+      patient: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+      admission: 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
+      bill: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
+      action: 'bg-primary/10 text-primary',
     };
     return (
       <span className={`text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded ${colors[type]}`}>
@@ -188,11 +226,11 @@ export default function GlobalSearch() {
         onClick={() => dispatch(setSearchOpen(false))}
       />
       <div className="relative w-full max-w-xl bg-card rounded-2xl shadow-2xl border border-border overflow-hidden">
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-gray-100">
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border">
           {loading ? (
-            <Loader2 className="w-4 h-4 text-gray-400 animate-spin shrink-0" />
+            <Loader2 className="w-4 h-4 text-muted-foreground animate-spin shrink-0" />
           ) : (
-            <Search className="w-4 h-4 text-gray-400 shrink-0" />
+            <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           )}
           <input
             ref={inputRef}
@@ -201,85 +239,113 @@ export default function GlobalSearch() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search patients, admissions, bills… (or scan barcode)"
+            placeholder="Search patients, or type a command…"
             className="flex-1 bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none"
           />
           <div className="flex items-center gap-1.5">
             {query && (
               <button
                 onClick={() => setQuery('')}
-                className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200"
+                className="w-5 h-5 flex items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted/80"
               >
                 <X className="w-3 h-3" />
               </button>
             )}
-            <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border border-gray-200 text-gray-400">
+            <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border border-border text-muted-foreground">
               ESC
             </kbd>
           </div>
         </div>
 
-        {results.length > 0 && (
+        {/* Quick actions heading when no query */}
+        {query.length < 2 && (
+          <div className="px-4 pt-3 pb-1">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Quick Actions</p>
+          </div>
+        )}
+
+        {displayList.length > 0 && (
           <ul className="py-1.5 max-h-80 overflow-y-auto">
-            {results.map((result, i) => (
-              <li key={result.id}>
-                <button
-                  type="button"
-                  onClick={() => handleSelect(result)}
-                  onMouseEnter={() => setSelected(i)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                    i === selected ? 'bg-blue-50' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                    <TypeIcon type={result.type} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-gray-900 truncate">{result.title}</span>
-                      <TypeLabel type={result.type} />
-                    </div>
-                    <p className="text-xs text-gray-400 truncate mt-0.5">{result.subtitle}</p>
-                  </div>
-                  {result.meta && (
-                    <span className="text-xs text-gray-400 shrink-0">{result.meta}</span>
-                  )}
-                  <ArrowRight className={`w-3.5 h-3.5 shrink-0 transition-opacity ${i === selected ? 'opacity-100 text-blue-500' : 'opacity-0'}`} />
-                </button>
-              </li>
+            {/* Section divider between DB results and actions */}
+            {query.length >= 2 && results.length > 0 && filteredActions.length > 0 && (
+              <>
+                {results.map((result, i) => (
+                  <SearchItem key={result.id} item={result} index={i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+                ))}
+                <li className="px-4 py-1.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Go to</p>
+                </li>
+                {filteredActions.slice(0, 3).map((item, i) => (
+                  <SearchItem key={item.id} item={item} index={results.length + i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
+                ))}
+              </>
+            )}
+            {/* Only actions or only results */}
+            {!(query.length >= 2 && results.length > 0 && filteredActions.length > 0) && displayList.map((item, i) => (
+              <SearchItem key={item.id} item={item} index={i} selected={selected} onSelect={handleSelect} onHover={setSelected} TypeIcon={TypeIcon} TypeLabel={TypeLabel} />
             ))}
           </ul>
         )}
 
-        {query.length >= 2 && !loading && results.length === 0 && (
+        {query.length >= 2 && !loading && results.length === 0 && filteredActions.length === 0 && (
           <div className="py-10 text-center">
-            <p className="text-sm text-gray-500">No results for <span className="font-semibold">"{query}"</span></p>
-            <p className="text-xs text-gray-400 mt-1">Try searching by name, UHID, or phone number</p>
+            <p className="text-sm text-muted-foreground">No results for <span className="font-semibold">"{query}"</span></p>
+            <p className="text-xs text-muted-foreground mt-1">Try searching by name, UHID, or phone number</p>
           </div>
         )}
 
-        {query.length < 2 && (
-          <div className="px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-4 text-xs text-gray-400">
-              <span className="flex items-center gap-1">
-                <kbd className="px-1 py-0.5 rounded border border-gray-200 font-mono text-[10px]">↑↓</kbd>
-                navigate
-              </span>
-              <span className="flex items-center gap-1">
-                <kbd className="px-1 py-0.5 rounded border border-gray-200 font-mono text-[10px]">↵</kbd>
-                select
-              </span>
-              <span className="flex items-center gap-1">
-                <kbd className="px-1 py-0.5 rounded border border-gray-200 font-mono text-[10px]">ESC</kbd>
-                close
-              </span>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-gray-400">
-              <kbd className="px-1.5 py-0.5 rounded border border-gray-200 font-mono text-[10px]">⌘K</kbd>
-            </div>
+        <div className="px-4 py-2.5 border-t border-border flex items-center justify-between">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <kbd className="px-1 py-0.5 rounded border border-border font-mono text-[10px]">↑↓</kbd>
+              navigate
+            </span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1 py-0.5 rounded border border-border font-mono text-[10px]">↵</kbd>
+              select
+            </span>
           </div>
-        )}
+          <kbd className="px-1.5 py-0.5 rounded border border-border font-mono text-[10px] text-muted-foreground">⌘K</kbd>
+        </div>
       </div>
     </div>
+  );
+}
+
+function SearchItem({ item, index, selected, onSelect, onHover, TypeIcon, TypeLabel }: {
+  item: SearchResult;
+  index: number;
+  selected: number;
+  onSelect: (r: SearchResult) => void;
+  onHover: (i: number) => void;
+  TypeIcon: React.FC<{ item: SearchResult }>;
+  TypeLabel: React.FC<{ type: SearchResult['type'] }>;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={() => onSelect(item)}
+        onMouseEnter={() => onHover(index)}
+        className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+          index === selected ? 'bg-primary/5' : 'hover:bg-muted/50'
+        }`}
+      >
+        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+          <TypeIcon item={item} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-foreground truncate">{item.title}</span>
+            <TypeLabel type={item.type} />
+          </div>
+          <p className="text-xs text-muted-foreground truncate mt-0.5">{item.subtitle}</p>
+        </div>
+        {item.meta && (
+          <span className="text-xs text-muted-foreground shrink-0">{item.meta}</span>
+        )}
+        <ArrowRight className={`w-3.5 h-3.5 shrink-0 transition-opacity ${index === selected ? 'opacity-100 text-primary' : 'opacity-0'}`} />
+      </button>
+    </li>
   );
 }
