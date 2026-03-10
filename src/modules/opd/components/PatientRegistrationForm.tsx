@@ -163,7 +163,7 @@ export default function PatientRegistrationForm({ onSuccess, onCancel, editPatie
       const p = patient as { id: string; uhid: string };
       localStorage.removeItem(DRAFT_KEY);
       toast('Patient Registered!', { description: `UHID: ${p.uhid}`, type: 'success' });
-      const patientName = `${form.firstName} ${form.lastName}`.trim();
+      const patientName = [form.firstName, form.middleName, form.lastName].filter(Boolean).join(' ').trim();
       setRegisteredPatient({ id: p.id, uhid: p.uhid, name: patientName });
     } catch (err: unknown) {
       toast('Registration Failed', { description: err instanceof Error ? err.message : 'Something went wrong.', type: 'error' });

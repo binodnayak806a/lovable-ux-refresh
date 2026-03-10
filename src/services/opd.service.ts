@@ -165,7 +165,7 @@ const opdService = {
 
     const updated = {
       ...store.patients[idx],
-      full_name: `${form.firstName} ${form.lastName}`.trim(),
+      full_name: [form.firstName, form.middleName, form.lastName].filter(Boolean).join(' ').trim(),
       date_of_birth: dob || null,
       age,
       gender: form.gender,

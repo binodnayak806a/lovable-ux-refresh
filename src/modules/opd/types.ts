@@ -35,6 +35,7 @@ export interface RegistrationFormData {
 
 export const EMPTY_FORM: RegistrationFormData = {
   firstName: '',
+  middleName: '',
   lastName: '',
   dateOfBirth: '',
   ageYears: '',
