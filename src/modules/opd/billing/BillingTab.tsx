@@ -75,14 +75,19 @@ export default function BillingTab({ patient, consultationId, prescriptionId }: 
     setSavedBill(null);
   };
 
-  const addCommonService = (service: { name: string; type: 'consultation' | 'procedure' | 'medication' | 'lab' | 'room' | 'other'; price: number }) => {
+  const addFromServiceMaster = (svc: ServicePickerItem) => {
+    const typeMap: Record<string, BillItem['itemType']> = {
+      Consultation: 'consultation', Procedure: 'procedure', Surgery: 'procedure',
+      Laboratory: 'lab', Radiology: 'lab', Pharmacy: 'medication',
+      'Room Charges': 'room', Nursing: 'other', Emergency: 'other',
+    };
     setItems([
       ...items,
       {
-        ...createEmptyBillItem(service.type),
-        itemName: service.name,
-        unitPrice: service.price,
-        totalPrice: service.price,
+        ...createEmptyBillItem(typeMap[svc.category] || 'other'),
+        itemName: svc.name,
+        unitPrice: svc.rate,
+        totalPrice: svc.rate,
       },
     ]);
     setSavedBill(null);
