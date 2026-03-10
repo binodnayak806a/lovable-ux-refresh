@@ -15,7 +15,7 @@ import {
 } from '../../../components/ui/select';
 import { Plus, X } from 'lucide-react';
 import type { ServiceItem, ServiceItemFormData, WardPrice } from '../types';
-import { SERVICE_GROUPS, SERVICE_TYPES } from '../types';
+import { SERVICE_GROUPS, SERVICE_TYPES, WARD_CATEGORIES } from '../types';
 
 const schema = z.object({
   name: z.string().min(1, 'Service name is required'),
@@ -35,12 +35,12 @@ interface ServiceItemDialogProps {
   serviceItem: ServiceItem | null;
   onSave: (data: ServiceItemFormData) => void;
   categories: string[];
-  wards?: { id: string; name: string; ward_type: string }[];
 }
 
 export default function ServiceItemDialog({
-  open, onOpenChange, serviceItem, onSave, categories, wards = [],
+  open, onOpenChange, serviceItem, onSave, categories,
 }: ServiceItemDialogProps) {
+  const wardCategories = WARD_CATEGORIES.map(c => ({ id: c, name: c }));
   const {
     register, handleSubmit, reset, setValue, watch,
     formState: { errors, isSubmitting },
@@ -82,10 +82,10 @@ export default function ServiceItemDialog({
   }, [serviceItem, reset]);
 
   const addWardPrice = () => {
-    const usedWardIds = wardPrices.map(wp => wp.ward_id);
-    const nextWard = wards.find(w => !usedWardIds.includes(w.id));
-    if (nextWard) {
-      setWardPrices([...wardPrices, { ward_id: nextWard.id, ward_name: nextWard.name, price: 0 }]);
+    const usedIds = wardPrices.map(wp => wp.ward_id);
+    const next = wardCategories.find(w => !usedIds.includes(w.id));
+    if (next) {
+      setWardPrices([...wardPrices, { ward_id: next.id, ward_name: next.name, price: 0 }]);
     }
   };
 
@@ -97,8 +97,8 @@ export default function ServiceItemDialog({
     setWardPrices(prev => prev.map((wp, i) => {
       if (i !== idx) return wp;
       if (field === 'ward_id') {
-        const ward = wards.find(w => w.id === value);
-        return { ...wp, ward_id: value as string, ward_name: ward?.name || '' };
+        const cat = wardCategories.find(w => w.id === value);
+        return { ...wp, ward_id: value as string, ward_name: cat?.name || '' };
       }
       return { ...wp, price: Number(value) };
     }));
@@ -186,7 +186,7 @@ export default function ServiceItemDialog({
                   <p className="text-sm font-semibold text-blue-800">Ward-wise Pricing</p>
                   <p className="text-xs text-blue-600">Set different prices for each ward type</p>
                 </div>
-                <Button type="button" variant="outline" size="sm" onClick={addWardPrice} disabled={wardPrices.length >= wards.length} className="h-7 text-xs gap-1 border-blue-200">
+                <Button type="button" variant="outline" size="sm" onClick={addWardPrice} disabled={wardPrices.length >= wardCategories.length} className="h-7 text-xs gap-1 border-blue-200">
                   <Plus className="w-3 h-3" /> Add Ward
                 </Button>
               </div>
@@ -198,8 +198,8 @@ export default function ServiceItemDialog({
                   <Select value={wp.ward_id} onValueChange={(v) => updateWardPrice(idx, 'ward_id', v)}>
                     <SelectTrigger className="flex-1 h-9 text-sm bg-white"><SelectValue placeholder="Select ward" /></SelectTrigger>
                     <SelectContent>
-                      {wards.filter(w => !wardPrices.some((p, i) => i !== idx && p.ward_id === w.id)).map(w => (
-                        <SelectItem key={w.id} value={w.id}>{w.name} ({w.ward_type})</SelectItem>
+                      {wardCategories.filter(w => !wardPrices.some((p, i) => i !== idx && p.ward_id === w.id)).map(w => (
+                        <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

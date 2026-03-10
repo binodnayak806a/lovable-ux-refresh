@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, Edit2, ToggleLeft, ToggleRight, IndianRupee } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import MasterDataTable, { Column } from './MasterDataTable';
 import ServiceItemDialog from './ServiceItemDialog';
 import { masterDataService } from '../../../services/master-data.service';
-import type { ServiceItem, ServiceItemFormData, Ward } from '../types';
+import type { ServiceItem, ServiceItemFormData } from '../types';
 import { SERVICE_CATEGORIES } from '../types';
 
 interface ServiceItemsTabProps {
@@ -19,11 +19,6 @@ interface ServiceItemsTabProps {
 export default function ServiceItemsTab({ serviceItems, loading, hospitalId, onRefresh }: ServiceItemsTabProps) {
   const [showDialog, setShowDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
-  const [wards, setWards] = useState<Ward[]>([]);
-
-  useEffect(() => {
-    masterDataService.getWards(hospitalId).then(setWards).catch(() => {});
-  }, [hospitalId]);
 
   const handleSave = async (data: ServiceItemFormData) => {
     try {
@@ -151,7 +146,6 @@ export default function ServiceItemsTab({ serviceItems, loading, hospitalId, onR
         serviceItem={editingItem}
         onSave={handleSave}
         categories={[...SERVICE_CATEGORIES]}
-        wards={wards.map(w => ({ id: w.id, name: w.name, ward_type: w.ward_type }))}
       />
     </div>
   );
