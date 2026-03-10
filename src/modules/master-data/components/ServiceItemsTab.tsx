@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import MasterDataTable, { Column } from './MasterDataTable';
 import ServiceItemDialog from './ServiceItemDialog';
 import { masterDataService } from '../../../services/master-data.service';
-import type { ServiceItem, ServiceItemFormData, Ward } from '../types';
+import type { ServiceItem, ServiceItemFormData } from '../types';
 import { SERVICE_CATEGORIES } from '../types';
 
 interface ServiceItemsTabProps {
