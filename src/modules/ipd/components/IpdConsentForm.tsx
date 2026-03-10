@@ -166,7 +166,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                 {/* Patient Details */}
                 {sections.has('patient_info') && (
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={sectionTitle('Patient Details')} />
+                    <SectionTitle>Patient Details</SectionTitle>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
                       <div><span style={labelStyle}>Patient Name:</span> <span style={valueStyle}>{admission.patient?.full_name}</span></div>
                       <div><span style={labelStyle}>UHID:</span> <span style={{ ...valueStyle, fontFamily: 'monospace' }}>{admission.patient?.uhid}</span></div>
