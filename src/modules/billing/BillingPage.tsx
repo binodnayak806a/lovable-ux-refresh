@@ -89,7 +89,7 @@ export default function BillingPage() {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [activeTab, setActiveTab] = useState('all');
 
-  const [createOpen, setCreateOpen] = useState(false);
+  const navigateTo = useNavigate();
   const [payBill, setPayBill] = useState<Bill | null>(null);
 
   const loadBills = useCallback(async () => {
