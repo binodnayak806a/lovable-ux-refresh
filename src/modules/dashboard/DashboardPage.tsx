@@ -286,8 +286,6 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
             <PharmacySalesToday />
           </div>
 
-          {/* ── Section 10: Recent Appointments ── */}
-          <RecentAppointmentsPanel appointments={recentAppointments} loading={loading} />
         </>
       )}
     </>
