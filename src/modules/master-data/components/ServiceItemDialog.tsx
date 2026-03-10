@@ -15,7 +15,7 @@ import {
 } from '../../../components/ui/select';
 import { Plus, X } from 'lucide-react';
 import type { ServiceItem, ServiceItemFormData, WardPrice } from '../types';
-import { SERVICE_GROUPS, SERVICE_TYPES } from '../types';
+import { SERVICE_GROUPS, SERVICE_TYPES, WARD_CATEGORIES } from '../types';
 
 const schema = z.object({
   name: z.string().min(1, 'Service name is required'),
