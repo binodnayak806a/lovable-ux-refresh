@@ -41,6 +41,7 @@ export default function PatientDetailPanel({ admission, onUpdate, onClose }: Pro
   const [showDischarge, setShowDischarge] = useState(false);
   const [showDischargeSummary, setShowDischargeSummary] = useState(false);
   const [showLabel, setShowLabel] = useState(false);
+  const [showConsent, setShowConsent] = useState(false);
 
   const daysAdmitted = differenceInDays(new Date(), new Date(admission.admission_date));
 
