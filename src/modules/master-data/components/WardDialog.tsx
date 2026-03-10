@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '../../../components/ui/select';
 import type { Ward, WardFormData } from '../types';
+import { WARD_CATEGORIES } from '../types';
 
 const schema = z.object({
   name: z.string().min(1, 'Ward name is required'),
