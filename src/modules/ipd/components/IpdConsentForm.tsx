@@ -182,7 +182,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                 {/* Next of Kin */}
                 {sections.has('kin_info') && (
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={sectionTitle('Next of Kin / Guardian')} />
+                    <SectionTitle>Next of Kin / Guardian</SectionTitle>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
                       <div><span style={labelStyle}>Name:</span> <span style={blankLine('180px')} /></div>
                       <div><span style={labelStyle}>Relationship:</span> <span style={blankLine('150px')} /></div>
