@@ -13,7 +13,7 @@ import RunningBillTab from './RunningBillTab';
 import DailyNotesTab from './DailyNotesTab';
 import DischargeDialog from './DischargeDialog';
 import DischargeSummaryView from './DischargeSummaryView';
-import IpdLabelPrint from './IpdLabelPrint';
+import IpdStickerPrint from './IpdStickerPrint';
 import type { Admission } from '../types';
 import { format, differenceInDays } from 'date-fns';
 
