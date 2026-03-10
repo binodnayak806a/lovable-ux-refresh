@@ -3,7 +3,7 @@ import {
   BedDouble, Search, RefreshCw, Filter, FileText,
   MoreVertical, Info, Phone, CreditCard,
   ShoppingCart, ClipboardList, ChevronLeft, ChevronRight, Plus,
-  LogOut, Printer,
+  LogOut, Printer, FileSignature,
 } from 'lucide-react';
 import { Skeleton } from '../../components/ui/skeleton';
 import { useAppSelector } from '../../store';
