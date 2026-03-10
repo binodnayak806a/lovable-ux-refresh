@@ -158,6 +158,30 @@ export default function WardDialog({
             )}
           </div>
 
+          <div>
+            <Label>
+              Ward Category <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={wardCategory}
+              onValueChange={(v) => setValue('category', v)}
+            >
+              <SelectTrigger className="mt-1.5">
+                <SelectValue placeholder="Select ward category" />
+              </SelectTrigger>
+              <SelectContent>
+                {WARD_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.category && (
+              <p className="text-xs text-destructive mt-1">{errors.category.message}</p>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="floor">Floor</Label>
