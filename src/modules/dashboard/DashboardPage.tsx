@@ -22,7 +22,7 @@ import HourlyTrendChart from './components/HourlyTrendChart';
 import AppointmentStatusStrip from './components/AppointmentStatusStrip';
 
 import BedOccupancyPanel from './components/BedOccupancyPanel';
-import RecentAppointmentsPanel from './components/RecentAppointmentsPanel';
+
 import RevenueTrendChart from './components/RevenueTrendChart';
 import OPDByDoctorChart from './components/OPDByDoctorChart';
 import BedOccupancyDonut from './components/BedOccupancyDonut';
