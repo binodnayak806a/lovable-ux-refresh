@@ -204,7 +204,6 @@ function NavGroupSection({ group, showFavAction }: { group: NavGroup; showFavAct
   );
 }
 
-function RecentPagesSection() {
   const recentPages = useRecentPages();
   const location = useLocation();
   const { setOpenMobile, isMobile, state } = useSidebar();
