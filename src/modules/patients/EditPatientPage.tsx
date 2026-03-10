@@ -27,7 +27,8 @@ export default function EditPatientPage() {
 
         const nameParts = p.full_name.split(' ');
         const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
+        const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '';
+        const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
 
         let ageYears = '';
         if (p.date_of_birth) {
