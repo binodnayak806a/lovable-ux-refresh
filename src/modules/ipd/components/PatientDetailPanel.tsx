@@ -135,6 +135,15 @@ export default function PatientDetailPanel({ admission, onUpdate, onClose }: Pro
           >
             <Tag className="w-3.5 h-3.5" />
           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowConsent(true)}
+            className="h-8 text-xs gap-1"
+            title="Consent Form"
+          >
+            <FileSignature className="w-3.5 h-3.5" />
+          </Button>
         </div>
       </div>
 
