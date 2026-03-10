@@ -343,14 +343,6 @@ export default function BillingPage() {
         </CardContent>
       </Card>
 
-      <CreateBillDialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSuccess={loadBills}
-        hospitalId={hospitalId}
-        userId={userId}
-      />
-
       <CollectPaymentDialog
         open={!!payBill}
         bill={payBill}

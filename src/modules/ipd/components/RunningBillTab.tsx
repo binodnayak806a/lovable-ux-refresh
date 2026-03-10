@@ -804,7 +804,7 @@ function AddItemDialog({
 }
 
 function ServiceSearchDialog({
-  open, onOpenChange, search, onSearchChange, results, searching, onSelect, submitting,
+  open, onOpenChange, onSelect, submitting, hospitalId,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -814,54 +814,37 @@ function ServiceSearchDialog({
   searching: boolean;
   onSelect: (s: ServiceMaster) => void;
   submitting: boolean;
+  hospitalId?: string;
 }) {
+  const handlePickerSelect = (svc: { id: string; name: string; code: string | null; category: string; rate: number; tax_percentage: number }) => {
+    onSelect({
+      id: svc.id,
+      service_name: svc.name,
+      service_code: svc.code || '',
+      category: svc.category,
+      price: svc.rate,
+      gst_rate: svc.tax_percentage,
+      hsn_code: '',
+      is_active: true,
+    } as ServiceMaster);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Add Service</DialogTitle>
         </DialogHeader>
         <div className="py-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search services (e.g. X-Ray, Blood Test)..."
-              autoFocus
-              className="w-full h-10 pl-9 pr-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-400"
+          {hospitalId ? (
+            <ServiceGroupPicker
+              hospitalId={hospitalId}
+              filterType="IPD"
+              onSelect={handlePickerSelect}
             />
-            {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />}
-          </div>
-          <div className="mt-3 max-h-64 overflow-y-auto space-y-1">
-            {results.length === 0 && search.length >= 2 && !searching && (
-              <div className="text-center py-6 text-gray-400 text-xs">No services found</div>
-            )}
-            {results.map((svc) => (
-              <button
-                key={svc.id}
-                type="button"
-                onClick={() => onSelect(svc)}
-                disabled={submitting}
-                className="w-full text-left p-3 rounded-xl hover:bg-blue-50 border border-transparent hover:border-blue-100 transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm font-medium text-gray-800">{svc.service_name}</div>
-                    <div className="text-xs text-gray-500">
-                      {svc.category}
-                      {svc.hsn_code && ` | HSN: ${svc.hsn_code}`}
-                      {svc.gst_rate > 0 && ` | GST: ${svc.gst_rate}%`}
-                    </div>
-                  </div>
-                  <span className="text-sm font-semibold text-blue-600">
-                    Rs. {svc.price.toLocaleString('en-IN')}
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
+          ) : (
+            <div className="text-center py-6 text-muted-foreground text-xs">No hospital configured</div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

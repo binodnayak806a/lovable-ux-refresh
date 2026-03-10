@@ -105,6 +105,7 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       { path: '/add-patient', element: <S><AddPatientPage /></S> },
+      { path: '/billing/new', element: <S><CreateBillPage /></S> },
       {
         element: <AppLayout />,
         children: [
