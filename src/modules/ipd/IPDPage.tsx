@@ -26,6 +26,7 @@ import BedAvailability from './components/BedAvailability';
 import DischargeDialog from './components/DischargeDialog';
 import DischargeSummaryView from './components/DischargeSummaryView';
 import IpdStickerPrint from './components/IpdStickerPrint';
+import IpdConsentForm from './components/IpdConsentForm';
 import type { Admission, Ward } from './types';
 import { format, differenceInDays, differenceInMonths } from 'date-fns';
 import { cn } from '../../lib/utils';
