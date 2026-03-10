@@ -278,7 +278,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                 {/* Alternatives */}
                 {sections.has('alternatives') && consentType === 'surgery' && (
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={sectionTitle('Alternatives Discussed')} />
+                    <SectionTitle>Alternatives Discussed</SectionTitle>
                     <p>The following alternative treatment options have been discussed with me:</p>
                     {Array.from({ length: 3 }).map((_, i) => (
                       <div key={i} style={{ borderBottom: '1px dotted #cbd5e1', height: '28px', marginTop: '4px' }} />
