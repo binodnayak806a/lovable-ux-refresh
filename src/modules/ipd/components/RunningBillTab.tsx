@@ -805,7 +805,7 @@ function AddItemDialog({
 }
 
 function ServiceSearchDialog({
-  open, onOpenChange, onSelect, submitting, hospitalId,
+  open, onOpenChange, onSelect, hospitalId,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -820,14 +820,14 @@ function ServiceSearchDialog({
   const handlePickerSelect = (svc: { id: string; name: string; code: string | null; category: string; rate: number; tax_percentage: number }) => {
     onSelect({
       id: svc.id,
+      hospital_id: hospitalId || '',
       service_name: svc.name,
-      service_code: svc.code || '',
       category: svc.category,
       price: svc.rate,
       gst_rate: svc.tax_percentage,
       hsn_code: '',
       is_active: true,
-    } as ServiceMaster);
+    });
   };
 
   return (

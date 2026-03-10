@@ -77,7 +77,7 @@ import SharedStatCard from '../../components/shared/StatCard';
 export default function BillingPage() {
   usePageTitle('Billing');
   const hospitalId = useHospitalId();
-  const _userId = useAppSelector(s => s.auth.user?.id ?? '');
+  
 
   const [bills, setBills] = useState<Bill[]>([]);
   const [stats, setStats] = useState<BillStats>({
