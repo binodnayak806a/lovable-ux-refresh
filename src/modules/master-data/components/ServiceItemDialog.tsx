@@ -82,10 +82,10 @@ export default function ServiceItemDialog({
   }, [serviceItem, reset]);
 
   const addWardPrice = () => {
-    const usedWardIds = wardPrices.map(wp => wp.ward_id);
-    const nextWard = wards.find(w => !usedWardIds.includes(w.id));
-    if (nextWard) {
-      setWardPrices([...wardPrices, { ward_id: nextWard.id, ward_name: nextWard.name, price: 0 }]);
+    const usedIds = wardPrices.map(wp => wp.ward_id);
+    const next = wardCategories.find(w => !usedIds.includes(w.id));
+    if (next) {
+      setWardPrices([...wardPrices, { ward_id: next.id, ward_name: next.name, price: 0 }]);
     }
   };
 
