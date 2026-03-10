@@ -25,7 +25,7 @@ import PatientDetailPanel from './components/PatientDetailPanel';
 import BedAvailability from './components/BedAvailability';
 import DischargeDialog from './components/DischargeDialog';
 import DischargeSummaryView from './components/DischargeSummaryView';
-import IpdLabelPrint from './components/IpdLabelPrint';
+import IpdStickerPrint from './components/IpdStickerPrint';
 import type { Admission, Ward } from './types';
 import { format, differenceInDays, differenceInMonths } from 'date-fns';
 import { cn } from '../../lib/utils';
