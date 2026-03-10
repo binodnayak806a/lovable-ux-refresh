@@ -156,6 +156,7 @@ export interface Ward {
   hospital_id: string;
   name: string;
   ward_type: string;
+  category: string | null;
   floor: string | null;
   block: string | null;
   total_beds: number;
@@ -169,6 +170,7 @@ export interface Ward {
 export interface WardFormData {
   name: string;
   ward_type: string;
+  category: string;
   floor: string;
   block: string;
   total_beds: number;
@@ -176,6 +178,10 @@ export interface WardFormData {
   description: string;
   is_active: boolean;
 }
+
+export const WARD_CATEGORIES = [
+  'General Ward', 'Private Room', 'Semi-Private', 'ICU', 'NICU', 'PICU', 'HDU', 'Emergency', 'OT', 'Isolation',
+] as const;
 
 export interface Consultant {
   id: string;

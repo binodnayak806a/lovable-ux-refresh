@@ -3,6 +3,7 @@ export interface Ward {
   hospital_id: string;
   name: string;
   ward_type: WardType;
+  category: string | null;
   total_beds: number;
   available_beds: number;
   floor: number;

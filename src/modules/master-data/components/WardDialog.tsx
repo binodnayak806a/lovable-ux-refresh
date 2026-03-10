@@ -27,6 +27,7 @@ import { WARD_CATEGORIES } from '../types';
 const schema = z.object({
   name: z.string().min(1, 'Ward name is required'),
   ward_type: z.string().min(1, 'Ward type is required'),
+  category: z.string().min(1, 'Ward category is required'),
   floor: z.string(),
   block: z.string(),
   total_beds: z.number().min(1, 'At least 1 bed required'),
