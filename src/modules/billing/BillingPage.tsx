@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useHospitalId } from '../../hooks/useHospitalId';
-import { useAppSelector } from '../../store';
+
 import { useRealtime } from '../../hooks/useRealtime';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';
@@ -24,8 +24,8 @@ import {
 import { Skeleton } from '../../components/ui/skeleton';
 import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
-import CreateBillDialog from './components/CreateBillDialog';
 import CollectPaymentDialog from './components/CollectPaymentDialog';
+import { useNavigate } from 'react-router-dom';
 
 interface Bill {
   id: string;
@@ -77,7 +77,7 @@ import SharedStatCard from '../../components/shared/StatCard';
 export default function BillingPage() {
   usePageTitle('Billing');
   const hospitalId = useHospitalId();
-  const userId = useAppSelector(s => s.auth.user?.id ?? '');
+  
 
   const [bills, setBills] = useState<Bill[]>([]);
   const [stats, setStats] = useState<BillStats>({
@@ -89,7 +89,7 @@ export default function BillingPage() {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [activeTab, setActiveTab] = useState('all');
 
-  const [createOpen, setCreateOpen] = useState(false);
+  const navigateTo = useNavigate();
   const [payBill, setPayBill] = useState<Bill | null>(null);
 
   const loadBills = useCallback(async () => {
@@ -173,7 +173,7 @@ export default function BillingPage() {
               <Download className="w-4 h-4" />
               Export
             </Button>
-            <Button size="sm" className="gap-2" onClick={() => setCreateOpen(true)}>
+            <Button size="sm" className="gap-2" onClick={() => navigateTo('/billing/new')}>
               <Plus className="w-4 h-4" />
               New Bill
             </Button>
@@ -342,14 +342,6 @@ export default function BillingPage() {
           </div>
         </CardContent>
       </Card>
-
-      <CreateBillDialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSuccess={loadBills}
-        hospitalId={hospitalId}
-        userId={userId}
-      />
 
       <CollectPaymentDialog
         open={!!payBill}

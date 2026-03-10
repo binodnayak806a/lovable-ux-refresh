@@ -13,8 +13,10 @@ import { billingService } from '../../../services/billing.service';
 import BillItemRow from './BillItemRow';
 import ReceiptPrintPreview from './ReceiptPrintPreview';
 import SplitPaymentPanel from './SplitPaymentPanel';
+import ServiceGroupPicker, { type ServicePickerItem } from '../../../components/billing/ServiceGroupPicker';
+import { useHospitalId } from '../../../hooks/useHospitalId';
 import type { BillItem, BillFormData, BillRecord, PaymentMode } from './types';
-import { createEmptyBillItem, createEmptySplitEntry, EMPTY_BILL_FORM, PAYMENT_MODES, COMMON_SERVICES } from './types';
+import { createEmptyBillItem, createEmptySplitEntry, EMPTY_BILL_FORM, PAYMENT_MODES } from './types';
 
 interface PatientInfo {
   id: string;
@@ -53,6 +55,7 @@ function formatCurrency(amount: number): string {
 export default function BillingTab({ patient, consultationId, prescriptionId }: Props) {
   const { user } = useAppSelector((s) => s.auth);
   const { toast } = useToast();
+  const hospitalId = useHospitalId();
 
   const [items, setItems] = useState<BillItem[]>([
     {
@@ -72,14 +75,19 @@ export default function BillingTab({ patient, consultationId, prescriptionId }: 
     setSavedBill(null);
   };
 
-  const addCommonService = (service: { name: string; type: 'consultation' | 'procedure' | 'medication' | 'lab' | 'room' | 'other'; price: number }) => {
+  const addFromServiceMaster = (svc: ServicePickerItem) => {
+    const typeMap: Record<string, BillItem['itemType']> = {
+      Consultation: 'consultation', Procedure: 'procedure', Surgery: 'procedure',
+      Laboratory: 'lab', Radiology: 'lab', Pharmacy: 'medication',
+      'Room Charges': 'room', Nursing: 'other', Emergency: 'other',
+    };
     setItems([
       ...items,
       {
-        ...createEmptyBillItem(service.type),
-        itemName: service.name,
-        unitPrice: service.price,
-        totalPrice: service.price,
+        ...createEmptyBillItem(typeMap[svc.category] || 'other'),
+        itemName: svc.name,
+        unitPrice: svc.rate,
+        totalPrice: svc.rate,
       },
     ]);
     setSavedBill(null);
@@ -236,29 +244,28 @@ export default function BillingTab({ patient, consultationId, prescriptionId }: 
         </div>
 
         <div className="p-3 border-t border-gray-100 bg-gray-50/50">
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={addItem}
-              className="gap-1.5 h-8 border-dashed"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add Item
-            </Button>
-            <div className="w-px bg-gray-200 mx-1" />
-            {COMMON_SERVICES.slice(0, 5).map((svc) => (
-              <button
-                key={svc.name}
-                type="button"
-                onClick={() => addCommonService(svc)}
-                className="text-xs px-2.5 py-1.5 rounded border border-gray-200 text-gray-600 hover:bg-white hover:border-gray-300 transition-all"
-              >
-                + {svc.name}
-              </button>
-            ))}
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={addItem}
+            className="gap-1.5 h-8 border-dashed"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add Custom Item
+          </Button>
         </div>
+      </Card>
+
+      <Card className="border border-gray-100 shadow-sm">
+        <CardContent className="p-4">
+          <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Add from Service Master</h4>
+          <ServiceGroupPicker
+            hospitalId={hospitalId}
+            filterType="OPD"
+            onSelect={addFromServiceMaster}
+            compact
+          />
+        </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

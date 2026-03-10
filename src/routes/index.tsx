@@ -58,6 +58,7 @@ const RadiologyPage = stub('RadiologyPage');
 const PathologyPage = stub('PathologyPage');
 const BloodBankPage = stub('BloodBankPage');
 const BillingPage = lazy(() => import('../modules/billing/BillingPage'));
+const CreateBillPage = lazy(() => import('../modules/billing/components/CreateBillPage'));
 const InsurancePage = lazy(() => import('../modules/insurance/InsurancePage'));
 const TPAPage = stub('TPAPage');
 const AccountsPage = stub('AccountsPage');
@@ -104,6 +105,7 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       { path: '/add-patient', element: <S><AddPatientPage /></S> },
+      { path: '/billing/new', element: <S><CreateBillPage /></S> },
       {
         element: <AppLayout />,
         children: [
