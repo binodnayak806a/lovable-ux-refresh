@@ -24,7 +24,7 @@ import {
   Building2,
   Receipt,
   Star,
-  Clock,
+  
   StarOff,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
@@ -32,7 +32,7 @@ import { useAppSelector, useAppDispatch } from '../../store';
 import { usePermissions } from '../../hooks/usePermissions';
 import { authService } from '../../services/auth.service';
 import { clearAuth } from '../../store/slices/authSlice';
-import { useRecentPages, useFavoritePages } from '../../hooks/useRecentPages';
+import { useFavoritePages } from '../../hooks/useRecentPages';
 import {
   Sidebar,
   SidebarContent,
@@ -195,43 +195,6 @@ function NavGroupSection({ group, showFavAction }: { group: NavGroup; showFavAct
                     {isFav ? <StarOff className="w-3.5 h-3.5 text-amber-500" /> : <Star className="w-3.5 h-3.5" />}
                   </SidebarMenuAction>
                 )}
-              </SidebarMenuItem>
-            );
-          })}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
-}
-
-function RecentPagesSection() {
-  const recentPages = useRecentPages();
-  const location = useLocation();
-  const { setOpenMobile, isMobile, state } = useSidebar();
-
-  // Only show pages not currently on
-  const recents = recentPages.filter(p => p.path !== location.pathname).slice(0, 3);
-  if (recents.length === 0 || state !== 'expanded') return null;
-
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>
-        <Clock className="w-3 h-3 mr-1" />
-        Recent
-      </SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {recents.map(page => {
-            const navItem = NAV_BY_PATH[page.path];
-            const Icon = navItem?.icon || FileText;
-            return (
-              <SidebarMenuItem key={page.path}>
-                <SidebarMenuButton asChild tooltip={page.label}>
-                  <NavLink to={page.path} onClick={() => isMobile && setOpenMobile(false)}>
-                    <Icon className="w-4 h-4 opacity-60" />
-                    <span className="text-muted-foreground">{page.label}</span>
-                  </NavLink>
-                </SidebarMenuButton>
               </SidebarMenuItem>
             );
           })}
@@ -418,7 +381,7 @@ export default function AppSidebar() {
 
         <SidebarContent>
           <FavoritesSection />
-          <RecentPagesSection />
+          
           {filteredGroups.map((group) => (
             <NavGroupSection key={group.label} group={group} showFavAction />
           ))}
