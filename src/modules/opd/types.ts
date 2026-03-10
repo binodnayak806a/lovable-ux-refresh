@@ -1,5 +1,6 @@
 export interface RegistrationFormData {
   firstName: string;
+  middleName: string;
   lastName: string;
   dateOfBirth: string;
   ageYears: string;
@@ -34,6 +35,7 @@ export interface RegistrationFormData {
 
 export const EMPTY_FORM: RegistrationFormData = {
   firstName: '',
+  middleName: '',
   lastName: '',
   dateOfBirth: '',
   ageYears: '',

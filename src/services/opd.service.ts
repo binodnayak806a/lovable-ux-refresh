@@ -17,6 +17,7 @@ export interface DoctorOption {
 
 export interface RegistrationFormData {
   firstName: string;
+  middleName: string;
   lastName: string;
   dateOfBirth: string;
   ageYears: string;
@@ -93,7 +94,7 @@ const opdService = {
     form: RegistrationFormData
   ) {
     const uhid = mockStore.generateUHID();
-    const fullName = `${form.firstName} ${form.lastName}`.trim();
+    const fullName = [form.firstName, form.middleName, form.lastName].filter(Boolean).join(' ').trim();
 
     let dob = form.dateOfBirth;
     let age: number | null = null;
@@ -165,7 +166,7 @@ const opdService = {
 
     const updated = {
       ...store.patients[idx],
-      full_name: `${form.firstName} ${form.lastName}`.trim(),
+      full_name: [form.firstName, form.middleName, form.lastName].filter(Boolean).join(' ').trim(),
       date_of_birth: dob || null,
       age,
       gender: form.gender,

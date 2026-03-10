@@ -27,7 +27,7 @@ export default function Step1Personal({ form, errors, onChange }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <InputField
           label="First Name"
           required
@@ -36,6 +36,12 @@ export default function Step1Personal({ form, errors, onChange }: Props) {
           onChange={(v) => onChange('firstName', v)}
           error={errors.firstName}
           autoFocus
+        />
+        <InputField
+          label="Middle Name"
+          placeholder="Enter middle name"
+          value={form.middleName}
+          onChange={(v) => onChange('middleName', v)}
         />
         <InputField
           label="Last Name"
