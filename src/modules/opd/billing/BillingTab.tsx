@@ -13,8 +13,10 @@ import { billingService } from '../../../services/billing.service';
 import BillItemRow from './BillItemRow';
 import ReceiptPrintPreview from './ReceiptPrintPreview';
 import SplitPaymentPanel from './SplitPaymentPanel';
+import ServiceGroupPicker, { type ServicePickerItem } from '../../../components/billing/ServiceGroupPicker';
+import { useHospitalId } from '../../../hooks/useHospitalId';
 import type { BillItem, BillFormData, BillRecord, PaymentMode } from './types';
-import { createEmptyBillItem, createEmptySplitEntry, EMPTY_BILL_FORM, PAYMENT_MODES, COMMON_SERVICES } from './types';
+import { createEmptyBillItem, createEmptySplitEntry, EMPTY_BILL_FORM, PAYMENT_MODES } from './types';
 
 interface PatientInfo {
   id: string;
