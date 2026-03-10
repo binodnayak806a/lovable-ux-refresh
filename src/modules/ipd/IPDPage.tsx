@@ -486,17 +486,6 @@ export default function IPDPage() {
                             </td>
                           )}
                           <td className="py-2.5 px-3">
-                            <Badge
-                              className={cn('text-[10px] px-2 py-0.5 border-0',
-                                adm.status === 'active' ? 'bg-primary/10 text-primary' :
-                                adm.status === 'discharged' ? 'bg-muted text-muted-foreground' :
-                                'bg-muted text-muted-foreground'
-                              )}
-                            >
-                              {adm.status?.toUpperCase()}
-                            </Badge>
-                          </td>
-                          <td className="py-2.5 px-3">
                             <div className="flex items-center justify-center" onClick={e => e.stopPropagation()}>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
