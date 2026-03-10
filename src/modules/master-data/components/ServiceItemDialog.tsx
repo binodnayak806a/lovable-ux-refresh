@@ -97,8 +97,8 @@ export default function ServiceItemDialog({
     setWardPrices(prev => prev.map((wp, i) => {
       if (i !== idx) return wp;
       if (field === 'ward_id') {
-        const ward = wards.find(w => w.id === value);
-        return { ...wp, ward_id: value as string, ward_name: ward?.name || '' };
+        const cat = wardCategories.find(w => w.id === value);
+        return { ...wp, ward_id: value as string, ward_name: cat?.name || '' };
       }
       return { ...wp, price: Number(value) };
     }));
