@@ -56,7 +56,7 @@ export default function DashboardPage() {
   const {
     extendedMetrics,
     bedSummary,
-    recentAppointments,
+    
     revenueSummary,
     hourlyTrend,
     doctorStats,
