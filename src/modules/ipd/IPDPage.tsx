@@ -608,7 +608,7 @@ export default function IPDPage() {
 
       {/* Label Print */}
       {labelAdmission && (
-        <IpdLabelPrint
+        <IpdStickerPrint
           admission={labelAdmission}
           onClose={() => setLabelAdmission(null)}
         />

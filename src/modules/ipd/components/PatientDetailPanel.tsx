@@ -183,7 +183,7 @@ export default function PatientDetailPanel({ admission, onUpdate, onClose }: Pro
       )}
 
       {showLabel && (
-        <IpdLabelPrint
+        <IpdStickerPrint
           admission={admission}
           onClose={() => setShowLabel(false)}
         />
