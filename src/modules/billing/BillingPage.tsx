@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useHospitalId } from '../../hooks/useHospitalId';
-import { useAppSelector } from '../../store';
+
 import { useRealtime } from '../../hooks/useRealtime';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import PageHeader from '../../components/shared/PageHeader';

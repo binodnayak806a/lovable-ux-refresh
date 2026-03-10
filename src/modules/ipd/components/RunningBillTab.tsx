@@ -480,6 +480,7 @@ export default function RunningBillTab({ admission, onUpdate }: Props) {
         searching={searchingServices}
         onSelect={handleAddServiceItem}
         submitting={submitting}
+        hospitalId={hospitalId}
       />
 
       <PackageDialog
