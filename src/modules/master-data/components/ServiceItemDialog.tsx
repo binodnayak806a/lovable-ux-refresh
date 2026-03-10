@@ -186,7 +186,7 @@ export default function ServiceItemDialog({
                   <p className="text-sm font-semibold text-blue-800">Ward-wise Pricing</p>
                   <p className="text-xs text-blue-600">Set different prices for each ward type</p>
                 </div>
-                <Button type="button" variant="outline" size="sm" onClick={addWardPrice} disabled={wardPrices.length >= wards.length} className="h-7 text-xs gap-1 border-blue-200">
+                <Button type="button" variant="outline" size="sm" onClick={addWardPrice} disabled={wardPrices.length >= wardCategories.length} className="h-7 text-xs gap-1 border-blue-200">
                   <Plus className="w-3 h-3" /> Add Ward
                 </Button>
               </div>
