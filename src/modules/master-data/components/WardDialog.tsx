@@ -82,6 +82,7 @@ export default function WardDialog({
       reset({
         name: ward.name,
         ward_type: ward.ward_type,
+        category: ward.category || '',
         floor: ward.floor || '',
         block: ward.block || '',
         total_beds: ward.total_beds,
@@ -93,6 +94,7 @@ export default function WardDialog({
       reset({
         name: '',
         ward_type: '',
+        category: '',
         floor: '',
         block: '',
         total_beds: 10,
