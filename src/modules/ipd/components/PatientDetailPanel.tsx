@@ -199,6 +199,13 @@ export default function PatientDetailPanel({ admission, onUpdate, onClose }: Pro
           onClose={() => setShowLabel(false)}
         />
       )}
+
+      {showConsent && (
+        <IpdConsentForm
+          admission={admission}
+          onClose={() => setShowConsent(false)}
+        />
+      )}
     </Card>
   );
 }
