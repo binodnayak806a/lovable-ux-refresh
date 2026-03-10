@@ -293,7 +293,7 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
 }
 
 /* ─── Doctor Dashboard ─── */
-function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments, navigate }: {
+function DoctorDashboard({ loading, doctorStats, doctorName, navigate }: {
   loading: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   doctorStats: any[];
