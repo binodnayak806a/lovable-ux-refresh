@@ -618,6 +618,14 @@ export default function IPDPage() {
           onClose={() => setLabelAdmission(null)}
         />
       )}
+
+      {/* Consent Form */}
+      {consentAdmission && (
+        <IpdConsentForm
+          admission={consentAdmission}
+          onClose={() => setConsentAdmission(null)}
+        />
+      )}
     </div>
   );
 }
