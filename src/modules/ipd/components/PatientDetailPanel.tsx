@@ -14,6 +14,7 @@ import DailyNotesTab from './DailyNotesTab';
 import DischargeDialog from './DischargeDialog';
 import DischargeSummaryView from './DischargeSummaryView';
 import IpdStickerPrint from './IpdStickerPrint';
+import IpdConsentForm from './IpdConsentForm';
 import type { Admission } from '../types';
 import { format, differenceInDays } from 'date-fns';
 
