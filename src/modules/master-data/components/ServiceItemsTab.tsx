@@ -19,11 +19,6 @@ interface ServiceItemsTabProps {
 export default function ServiceItemsTab({ serviceItems, loading, hospitalId, onRefresh }: ServiceItemsTabProps) {
   const [showDialog, setShowDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<ServiceItem | null>(null);
-  const [wards, setWards] = useState<Ward[]>([]);
-
-  useEffect(() => {
-    masterDataService.getWards(hospitalId).then(setWards).catch(() => {});
-  }, [hospitalId]);
 
   const handleSave = async (data: ServiceItemFormData) => {
     try {
