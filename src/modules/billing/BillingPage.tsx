@@ -173,7 +173,7 @@ export default function BillingPage() {
               <Download className="w-4 h-4" />
               Export
             </Button>
-            <Button size="sm" className="gap-2" onClick={() => setCreateOpen(true)}>
+            <Button size="sm" className="gap-2" onClick={() => navigateTo('/billing/new')}>
               <Plus className="w-4 h-4" />
               New Bill
             </Button>
