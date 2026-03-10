@@ -144,7 +144,7 @@ export default function PatientRegistrationForm({ onSuccess, onCancel, editPatie
     // Check duplicates
     if (!dismissedDuplicates) {
       try {
-        const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`.trim();
+        const fullName = [form.firstName, form.middleName, form.lastName].filter(s => s.trim()).join(' ').trim();
         const allPatients = mockStore.getPatients(hospitalId);
         const found = allPatients
           .filter(p => p.phone === form.phone || p.full_name.toLowerCase() === fullName.toLowerCase())
