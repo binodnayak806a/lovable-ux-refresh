@@ -154,7 +154,6 @@ export default function DashboardPage() {
           bedSummary={bedSummary}
           hourlyTrend={hourlyTrend}
           doctorStats={doctorStats}
-          recentAppointments={recentAppointments}
           revenueSummary={revenueSummary}
           navigate={navigate}
           isAdmin={isAdmin}
