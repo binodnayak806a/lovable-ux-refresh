@@ -74,6 +74,7 @@ export default function WardDialog({
   });
 
   const wardType = watch('ward_type');
+  const wardCategory = watch('category');
   const isActive = watch('is_active');
 
   useEffect(() => {
