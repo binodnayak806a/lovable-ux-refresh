@@ -7,7 +7,7 @@ import MasterDataTable, { Column } from './MasterDataTable';
 import WardDialog from './WardDialog';
 import { masterDataService } from '../../../services/master-data.service';
 import type { Ward, WardFormData } from '../types';
-import { WARD_TYPES } from '../types';
+import { WARD_TYPES, WARD_CATEGORIES } from '../types';
 
 interface WardsTabProps {
   wards: Ward[];
