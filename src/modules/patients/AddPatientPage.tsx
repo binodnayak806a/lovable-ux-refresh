@@ -15,12 +15,11 @@ import { useAppSelector } from '../../store';
 import { useToast } from '../../hooks/useToast';
 import opdService from '../../services/opd.service';
 import { mockStore } from '../../lib/mockStore';
-import { FormField, InputField } from '../opd/components/FormField';
 import PatientStickerPrint from './components/PatientStickerPrint';
 import type { RegistrationFormData } from '../opd/types';
 import {
   EMPTY_FORM, BLOOD_GROUPS, INDIAN_STATES, RELATIONSHIP_OPTIONS,
-  PRE_EXISTING_CONDITIONS, BILLING_CATEGORIES,
+  PRE_EXISTING_CONDITIONS,
 } from '../opd/types';
 import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
