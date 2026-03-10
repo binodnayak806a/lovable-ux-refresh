@@ -259,7 +259,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                 {/* Anesthesia */}
                 {sections.has('anesthesia') && consentType === 'surgery' && (
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={sectionTitle('Anesthesia Consent')} />
+                    <SectionTitle>Anesthesia Consent</SectionTitle>
                     <div style={{ lineHeight: 2.2 }}>
                       <div>
                         <span style={labelStyle}>Type of Anesthesia:</span>{' '}
