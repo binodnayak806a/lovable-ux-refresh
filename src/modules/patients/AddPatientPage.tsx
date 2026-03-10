@@ -151,7 +151,7 @@ export default function AddPatientPage() {
   );
 
   return (
-    <div className="flex flex-col h-full bg-muted/30">
+    <div className="flex flex-col h-screen bg-muted/30">
       {/* ─── HEADER BAR ─── */}
       <div className="flex items-center justify-between px-4 py-2.5 bg-amber-400 text-amber-950">
         <div className="flex items-center gap-3">
