@@ -39,6 +39,7 @@ export default function EditPatientPage() {
         setPatientName(p.full_name);
         setInitialData({
           firstName,
+          middleName,
           lastName,
           dateOfBirth: p.date_of_birth || '',
           ageYears,
