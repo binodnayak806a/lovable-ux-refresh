@@ -512,6 +512,9 @@ export default function IPDPage() {
                                   <DropdownMenuItem onClick={() => handlePrintLabel(adm)}>
                                     <Printer className="w-3.5 h-3.5 mr-2" /> Print Label
                                   </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => setConsentAdmission(adm)}>
+                                    <FileSignature className="w-3.5 h-3.5 mr-2" /> Consent Form
+                                  </DropdownMenuItem>
                                   {adm.status === 'active' && (
                                     <>
                                       <DropdownMenuSeparator />
