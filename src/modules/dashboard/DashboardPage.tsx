@@ -200,7 +200,7 @@ export default function DashboardPage() {
 
 /* ─── Admin Dashboard — Industry Standard HMS Layout ─── */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, recentAppointments, revenueSummary, navigate, isAdmin, isReceptionist }: any) {
+function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, revenueSummary, navigate, isAdmin, isReceptionist }: any) {
   return (
     <>
       {/* ── Date Filter Bar ── */}
