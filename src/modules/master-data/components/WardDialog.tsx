@@ -63,6 +63,7 @@ export default function WardDialog({
     defaultValues: {
       name: '',
       ward_type: '',
+      category: '',
       floor: '',
       block: '',
       total_beds: 10,
