@@ -166,7 +166,7 @@ export default function DashboardPage() {
           loading={loading}
           doctorStats={doctorStats}
           doctorName={user?.full_name ?? ''}
-          recentAppointments={recentAppointments}
+          
           navigate={navigate}
         />
       )}
