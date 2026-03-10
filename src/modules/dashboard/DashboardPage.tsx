@@ -20,7 +20,7 @@ import { Button } from '../../components/ui/button';
 import MetricCard from './components/MetricCard';
 import HourlyTrendChart from './components/HourlyTrendChart';
 import AppointmentStatusStrip from './components/AppointmentStatusStrip';
-import DoctorStatsPanel from './components/DoctorStatsPanel';
+
 import BedOccupancyPanel from './components/BedOccupancyPanel';
 import RecentAppointmentsPanel from './components/RecentAppointmentsPanel';
 import RevenueTrendChart from './components/RevenueTrendChart';
@@ -278,8 +278,6 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
             <DoctorQueueMonitor doctors={doctorStats} loading={loading} />
           </div>
 
-          {/* ── Section 8: Doctor Stats full width ── */}
-          <DoctorStatsPanel doctors={doctorStats} loading={loading} />
 
           {/* ── Section 9: Alerts Row ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
