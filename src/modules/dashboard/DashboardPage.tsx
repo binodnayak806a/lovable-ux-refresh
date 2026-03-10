@@ -297,8 +297,6 @@ function DoctorDashboard({ loading, doctorStats, doctorName, navigate }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   doctorStats: any[];
   doctorName: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  recentAppointments: any[];
   navigate: (path: string) => void;
 }) {
   const firstName = doctorName?.split(' ')[0]?.toLowerCase() ?? '';
