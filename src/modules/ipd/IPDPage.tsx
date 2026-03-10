@@ -87,6 +87,7 @@ export default function IPDPage() {
   const [dischargeAdmission, setDischargeAdmission] = useState<Admission | null>(null);
   const [summaryAdmission, setSummaryAdmission] = useState<Admission | null>(null);
   const [labelAdmission, setLabelAdmission] = useState<Admission | null>(null);
+  const [consentAdmission, setConsentAdmission] = useState<Admission | null>(null);
 
   // Doctors for filter
   const [doctors, setDoctors] = useState<{ id: string; full_name: string; department: string | null }[]>([]);
