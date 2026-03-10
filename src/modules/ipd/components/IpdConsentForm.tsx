@@ -289,7 +289,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                 {/* Declaration */}
                 {sections.has('declaration') && (
                   <div style={{ marginBottom: '16px', padding: '12px', background: '#f8fafc', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
-                    <div style={sectionTitle('Patient / Guardian Declaration')} />
+                    <SectionTitle>Patient / Guardian Declaration</SectionTitle>
                     <p>
                       I, the undersigned, hereby declare that I have read and understood the above information. I have been given the opportunity to ask questions, and all my queries have been answered satisfactorily. I voluntarily consent to the {consentType === 'general' ? 'admission and treatment' : 'proposed surgical / medical procedure'} described above.
                     </p>
