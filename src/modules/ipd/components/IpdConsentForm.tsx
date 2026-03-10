@@ -102,10 +102,14 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
 
   const labelStyle: React.CSSProperties = { fontWeight: 600, color: '#334155', display: 'inline-block', width: '140px' };
   const valueStyle: React.CSSProperties = { fontWeight: 700, color: '#0f172a' };
-  const sectionTitle = (_text: string): React.CSSProperties => ({
-    fontSize: `${fs + 2}px`, fontWeight: 700, color: '#0f172a', marginBottom: '8px',
-    textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px',
-  });
+  const SectionTitle = ({ children }: { children: string }) => (
+    <div style={{
+      fontSize: `${fs + 2}px`, fontWeight: 700, color: '#0f172a', marginBottom: '8px',
+      textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px',
+    }}>
+      {children}
+    </div>
+  );
   const blankLine = (width = '200px'): React.CSSProperties => ({
     borderBottom: '1px dotted #94a3b8', display: 'inline-block', width, minHeight: '18px',
   });
