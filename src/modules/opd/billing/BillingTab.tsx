@@ -55,6 +55,7 @@ function formatCurrency(amount: number): string {
 export default function BillingTab({ patient, consultationId, prescriptionId }: Props) {
   const { user } = useAppSelector((s) => s.auth);
   const { toast } = useToast();
+  const hospitalId = useHospitalId();
 
   const [items, setItems] = useState<BillItem[]>([
     {
