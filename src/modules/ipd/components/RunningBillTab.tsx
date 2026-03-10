@@ -4,6 +4,7 @@ import {
   BedDouble, Pill, Stethoscope, FlaskConical,
   UserRound, HeartPulse, Package, Receipt, IndianRupee,
 } from 'lucide-react';
+import ServiceGroupPicker from '../../../components/billing/ServiceGroupPicker';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import {
