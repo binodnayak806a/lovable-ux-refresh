@@ -204,42 +204,6 @@ function NavGroupSection({ group, showFavAction }: { group: NavGroup; showFavAct
   );
 }
 
-  const recentPages = useRecentPages();
-  const location = useLocation();
-  const { setOpenMobile, isMobile, state } = useSidebar();
-
-  // Only show pages not currently on
-  const recents = recentPages.filter(p => p.path !== location.pathname).slice(0, 3);
-  if (recents.length === 0 || state !== 'expanded') return null;
-
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>
-        <Clock className="w-3 h-3 mr-1" />
-        Recent
-      </SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {recents.map(page => {
-            const navItem = NAV_BY_PATH[page.path];
-            const Icon = navItem?.icon || FileText;
-            return (
-              <SidebarMenuItem key={page.path}>
-                <SidebarMenuButton asChild tooltip={page.label}>
-                  <NavLink to={page.path} onClick={() => isMobile && setOpenMobile(false)}>
-                    <Icon className="w-4 h-4 opacity-60" />
-                    <span className="text-muted-foreground">{page.label}</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
-}
-
 function FavoritesSection() {
   const { favorites } = useFavoritePages();
   const location = useLocation();
