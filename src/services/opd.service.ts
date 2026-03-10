@@ -17,6 +17,7 @@ export interface DoctorOption {
 
 export interface RegistrationFormData {
   firstName: string;
+  middleName: string;
   lastName: string;
   dateOfBirth: string;
   ageYears: string;
