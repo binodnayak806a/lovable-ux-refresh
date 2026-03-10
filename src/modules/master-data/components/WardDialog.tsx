@@ -22,10 +22,12 @@ import {
   SelectValue,
 } from '../../../components/ui/select';
 import type { Ward, WardFormData } from '../types';
+import { WARD_CATEGORIES } from '../types';
 
 const schema = z.object({
   name: z.string().min(1, 'Ward name is required'),
   ward_type: z.string().min(1, 'Ward type is required'),
+  category: z.string().min(1, 'Ward category is required'),
   floor: z.string(),
   block: z.string(),
   total_beds: z.number().min(1, 'At least 1 bed required'),
@@ -61,6 +63,7 @@ export default function WardDialog({
     defaultValues: {
       name: '',
       ward_type: '',
+      category: '',
       floor: '',
       block: '',
       total_beds: 10,
@@ -71,6 +74,7 @@ export default function WardDialog({
   });
 
   const wardType = watch('ward_type');
+  const wardCategory = watch('category');
   const isActive = watch('is_active');
 
   useEffect(() => {
@@ -78,6 +82,7 @@ export default function WardDialog({
       reset({
         name: ward.name,
         ward_type: ward.ward_type,
+        category: ward.category || '',
         floor: ward.floor || '',
         block: ward.block || '',
         total_beds: ward.total_beds,
@@ -89,6 +94,7 @@ export default function WardDialog({
       reset({
         name: '',
         ward_type: '',
+        category: '',
         floor: '',
         block: '',
         total_beds: 10,
@@ -149,6 +155,30 @@ export default function WardDialog({
             </Select>
             {errors.ward_type && (
               <p className="text-xs text-red-500 mt-1">{errors.ward_type.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Label>
+              Ward Category <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={wardCategory}
+              onValueChange={(v) => setValue('category', v)}
+            >
+              <SelectTrigger className="mt-1.5">
+                <SelectValue placeholder="Select ward category" />
+              </SelectTrigger>
+              <SelectContent>
+                {WARD_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.category && (
+              <p className="text-xs text-destructive mt-1">{errors.category.message}</p>
             )}
           </div>
 
