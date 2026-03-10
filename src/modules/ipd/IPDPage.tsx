@@ -3,7 +3,7 @@ import {
   BedDouble, Search, RefreshCw, Filter, FileText,
   MoreVertical, Info, Phone, CreditCard,
   ShoppingCart, ClipboardList, ChevronLeft, ChevronRight, Plus,
-  LogOut, Printer,
+  LogOut, Printer, FileSignature,
 } from 'lucide-react';
 import { Skeleton } from '../../components/ui/skeleton';
 import { useAppSelector } from '../../store';
@@ -26,6 +26,7 @@ import BedAvailability from './components/BedAvailability';
 import DischargeDialog from './components/DischargeDialog';
 import DischargeSummaryView from './components/DischargeSummaryView';
 import IpdStickerPrint from './components/IpdStickerPrint';
+import IpdConsentForm from './components/IpdConsentForm';
 import type { Admission, Ward } from './types';
 import { format, differenceInDays, differenceInMonths } from 'date-fns';
 import { cn } from '../../lib/utils';
@@ -86,6 +87,7 @@ export default function IPDPage() {
   const [dischargeAdmission, setDischargeAdmission] = useState<Admission | null>(null);
   const [summaryAdmission, setSummaryAdmission] = useState<Admission | null>(null);
   const [labelAdmission, setLabelAdmission] = useState<Admission | null>(null);
+  const [consentAdmission, setConsentAdmission] = useState<Admission | null>(null);
 
   // Doctors for filter
   const [doctors, setDoctors] = useState<{ id: string; full_name: string; department: string | null }[]>([]);
@@ -510,6 +512,9 @@ export default function IPDPage() {
                                   <DropdownMenuItem onClick={() => handlePrintLabel(adm)}>
                                     <Printer className="w-3.5 h-3.5 mr-2" /> Print Label
                                   </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => setConsentAdmission(adm)}>
+                                    <FileSignature className="w-3.5 h-3.5 mr-2" /> Consent Form
+                                  </DropdownMenuItem>
                                   {adm.status === 'active' && (
                                     <>
                                       <DropdownMenuSeparator />
@@ -611,6 +616,14 @@ export default function IPDPage() {
         <IpdStickerPrint
           admission={labelAdmission}
           onClose={() => setLabelAdmission(null)}
+        />
+      )}
+
+      {/* Consent Form */}
+      {consentAdmission && (
+        <IpdConsentForm
+          admission={consentAdmission}
+          onClose={() => setConsentAdmission(null)}
         />
       )}
     </div>

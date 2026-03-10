@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   X, User, Calendar, Stethoscope, BedDouble, ClipboardList,
-  Activity, FileText, Clock, CreditCard, LogOut, NotebookPen, Tag, Printer,
+  Activity, FileText, Clock, CreditCard, LogOut, NotebookPen, Tag, Printer, FileSignature,
 } from 'lucide-react';
 import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
@@ -14,6 +14,7 @@ import DailyNotesTab from './DailyNotesTab';
 import DischargeDialog from './DischargeDialog';
 import DischargeSummaryView from './DischargeSummaryView';
 import IpdStickerPrint from './IpdStickerPrint';
+import IpdConsentForm from './IpdConsentForm';
 import type { Admission } from '../types';
 import { format, differenceInDays } from 'date-fns';
 
@@ -40,6 +41,7 @@ export default function PatientDetailPanel({ admission, onUpdate, onClose }: Pro
   const [showDischarge, setShowDischarge] = useState(false);
   const [showDischargeSummary, setShowDischargeSummary] = useState(false);
   const [showLabel, setShowLabel] = useState(false);
+  const [showConsent, setShowConsent] = useState(false);
 
   const daysAdmitted = differenceInDays(new Date(), new Date(admission.admission_date));
 
@@ -133,6 +135,15 @@ export default function PatientDetailPanel({ admission, onUpdate, onClose }: Pro
           >
             <Tag className="w-3.5 h-3.5" />
           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowConsent(true)}
+            className="h-8 text-xs gap-1"
+            title="Consent Form"
+          >
+            <FileSignature className="w-3.5 h-3.5" />
+          </Button>
         </div>
       </div>
 
@@ -186,6 +197,13 @@ export default function PatientDetailPanel({ admission, onUpdate, onClose }: Pro
         <IpdStickerPrint
           admission={admission}
           onClose={() => setShowLabel(false)}
+        />
+      )}
+
+      {showConsent && (
+        <IpdConsentForm
+          admission={admission}
+          onClose={() => setShowConsent(false)}
         />
       )}
     </Card>
