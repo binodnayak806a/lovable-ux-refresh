@@ -397,7 +397,7 @@ export default function IPDPage() {
                     {!selectedAdmission && <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Payer</th>}
                     {!selectedAdmission && <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Billing</th>}
                     {!selectedAdmission && <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Adm Type</th>}
-                    <th className="py-2.5 px-3 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Status</th>
+                    
                     <th className="py-2.5 px-3 text-center font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap w-16">Action</th>
                   </tr>
                 </thead>
