@@ -22,7 +22,7 @@ import HourlyTrendChart from './components/HourlyTrendChart';
 import AppointmentStatusStrip from './components/AppointmentStatusStrip';
 
 import BedOccupancyPanel from './components/BedOccupancyPanel';
-import RecentAppointmentsPanel from './components/RecentAppointmentsPanel';
+
 import RevenueTrendChart from './components/RevenueTrendChart';
 import OPDByDoctorChart from './components/OPDByDoctorChart';
 import BedOccupancyDonut from './components/BedOccupancyDonut';
@@ -56,7 +56,7 @@ export default function DashboardPage() {
   const {
     extendedMetrics,
     bedSummary,
-    recentAppointments,
+    
     revenueSummary,
     hourlyTrend,
     doctorStats,
@@ -154,7 +154,6 @@ export default function DashboardPage() {
           bedSummary={bedSummary}
           hourlyTrend={hourlyTrend}
           doctorStats={doctorStats}
-          recentAppointments={recentAppointments}
           revenueSummary={revenueSummary}
           navigate={navigate}
           isAdmin={isAdmin}
@@ -167,7 +166,7 @@ export default function DashboardPage() {
           loading={loading}
           doctorStats={doctorStats}
           doctorName={user?.full_name ?? ''}
-          recentAppointments={recentAppointments}
+          
           navigate={navigate}
         />
       )}
@@ -200,7 +199,7 @@ export default function DashboardPage() {
 
 /* ─── Admin Dashboard — Industry Standard HMS Layout ─── */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, recentAppointments, revenueSummary, navigate, isAdmin, isReceptionist }: any) {
+function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, todayRevenue, todayAppointmentsByStatus, bedSummary, hourlyTrend, doctorStats, revenueSummary, navigate, isAdmin, isReceptionist }: any) {
   return (
     <>
       {/* ── Date Filter Bar ── */}
@@ -286,8 +285,6 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
             <PharmacySalesToday />
           </div>
 
-          {/* ── Section 10: Recent Appointments ── */}
-          <RecentAppointmentsPanel appointments={recentAppointments} loading={loading} />
         </>
       )}
     </>
@@ -295,13 +292,11 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
 }
 
 /* ─── Doctor Dashboard ─── */
-function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments, navigate }: {
+function DoctorDashboard({ loading, doctorStats, doctorName, navigate }: {
   loading: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   doctorStats: any[];
   doctorName: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  recentAppointments: any[];
   navigate: (path: string) => void;
 }) {
   const firstName = doctorName?.split(' ')[0]?.toLowerCase() ?? '';
@@ -356,7 +351,7 @@ function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments,
         </Card>
       </div>
 
-      <RecentAppointmentsPanel appointments={recentAppointments} loading={loading} />
+      
     </>
   );
 }
