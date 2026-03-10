@@ -32,7 +32,7 @@ import { useAppSelector, useAppDispatch } from '../../store';
 import { usePermissions } from '../../hooks/usePermissions';
 import { authService } from '../../services/auth.service';
 import { clearAuth } from '../../store/slices/authSlice';
-import { useRecentPages, useFavoritePages } from '../../hooks/useRecentPages';
+import { useFavoritePages } from '../../hooks/useRecentPages';
 import {
   Sidebar,
   SidebarContent,
