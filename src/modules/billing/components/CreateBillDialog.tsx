@@ -57,6 +57,20 @@ const PAYMENT_MODES: Array<{ value: PaymentMode; label: string; icon: typeof Ban
   { value: 'insurance', label: 'Insurance', icon: Shield },
 ];
 
+const BILLING_CATEGORIES = [
+  { value: 'consultation', label: 'Consultation' },
+  { value: 'procedure', label: 'Procedure' },
+  { value: 'medication', label: 'Medication' },
+  { value: 'lab', label: 'Lab' },
+  { value: 'room_charges', label: 'Room Charges' },
+  { value: 'nursing', label: 'Nursing' },
+  { value: 'ot_charges', label: 'Surgery' },
+  { value: 'radiology', label: 'Radiology' },
+  { value: 'physiotherapy', label: 'Physiotherapy' },
+  { value: 'ambulance', label: 'Ambulance' },
+  { value: 'miscellaneous', label: 'Other' },
+];
+
 const DENOMINATIONS = [2000, 500, 200, 100, 50, 20, 10];
 
 function formatCurrency(amount: number): string {
