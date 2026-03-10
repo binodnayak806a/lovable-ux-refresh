@@ -238,7 +238,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                 {/* Risks */}
                 {sections.has('risks') && consentType === 'surgery' && (
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={sectionTitle('Risks & Complications')} />
+                    <SectionTitle>Risks &amp; Complications</SectionTitle>
                     <p style={{ marginBottom: '8px' }}>
                       I have been informed about the following possible risks and complications associated with the proposed procedure:
                     </p>
