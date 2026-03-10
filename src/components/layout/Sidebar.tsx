@@ -418,7 +418,7 @@ export default function AppSidebar() {
 
         <SidebarContent>
           <FavoritesSection />
-          <RecentPagesSection />
+          
           {filteredGroups.map((group) => (
             <NavGroupSection key={group.label} group={group} showFavAction />
           ))}
