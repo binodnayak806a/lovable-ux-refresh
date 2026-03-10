@@ -89,7 +89,8 @@ export default function WardManagementPage() {
         await supabase.from('wards').update({
           name: wardForm.name, ward_type: wardForm.ward_type,
           floor: wardForm.floor, daily_rate: wardForm.daily_rate,
-          block: wardForm.block || null, updated_at: new Date().toISOString(),
+          block: wardForm.block || null, category: wardForm.category,
+          updated_at: new Date().toISOString(),
         } as never).eq('id', editWard.id);
         toast('Ward updated', { type: 'success' });
       } else {

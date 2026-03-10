@@ -109,6 +109,16 @@ export default function WardsTab({ wards, loading, hospitalId, onRefresh }: Ward
       ),
     },
     {
+      key: 'category',
+      label: 'Category',
+      sortable: true,
+      render: (item) => (
+        <span className="text-sm font-medium text-foreground">
+          {item.category || '-'}
+        </span>
+      ),
+    },
+    {
       key: 'total_beds',
       label: 'Beds',
       sortable: true,
