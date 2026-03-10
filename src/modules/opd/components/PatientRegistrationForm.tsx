@@ -240,6 +240,7 @@ export default function PatientRegistrationForm({ onSuccess, onCancel, editPatie
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <InputField label="First Name" required placeholder="First name" value={form.firstName} onChange={(v) => handleChange('firstName', v)} error={errors.firstName} autoFocus />
+            <InputField label="Middle Name" placeholder="Middle name" value={form.middleName} onChange={(v) => handleChange('middleName', v)} />
             <InputField label="Last Name" placeholder="Last name" value={form.lastName} onChange={(v) => handleChange('lastName', v)} />
             <InputField
               label="Date of Birth" type="date" value={form.dateOfBirth}
