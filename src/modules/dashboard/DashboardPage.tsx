@@ -20,7 +20,7 @@ import { Button } from '../../components/ui/button';
 import MetricCard from './components/MetricCard';
 import HourlyTrendChart from './components/HourlyTrendChart';
 import AppointmentStatusStrip from './components/AppointmentStatusStrip';
-import DoctorStatsPanel from './components/DoctorStatsPanel';
+
 import BedOccupancyPanel from './components/BedOccupancyPanel';
 import RecentAppointmentsPanel from './components/RecentAppointmentsPanel';
 import RevenueTrendChart from './components/RevenueTrendChart';
