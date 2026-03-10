@@ -278,8 +278,6 @@ function AdminDashboard({ loading, extendedMetrics, occupiedBeds, totalBeds, tod
             <DoctorQueueMonitor doctors={doctorStats} loading={loading} />
           </div>
 
-          {/* ── Section 8: Doctor Stats full width ── */}
-          <DoctorStatsPanel doctors={doctorStats} loading={loading} />
 
           {/* ── Section 9: Alerts Row ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
