@@ -35,7 +35,6 @@ interface ServiceItemDialogProps {
   serviceItem: ServiceItem | null;
   onSave: (data: ServiceItemFormData) => void;
   categories: string[];
-  wards?: { id: string; name: string; ward_type: string }[];
 }
 
 export default function ServiceItemDialog({
