@@ -354,7 +354,7 @@ function DoctorDashboard({ loading, doctorStats, doctorName, recentAppointments,
         </Card>
       </div>
 
-      <RecentAppointmentsPanel appointments={recentAppointments} loading={loading} />
+      
     </>
   );
 }
