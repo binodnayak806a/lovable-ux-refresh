@@ -38,8 +38,9 @@ interface ServiceItemDialogProps {
 }
 
 export default function ServiceItemDialog({
-  open, onOpenChange, serviceItem, onSave, categories, wards = [],
+  open, onOpenChange, serviceItem, onSave, categories,
 }: ServiceItemDialogProps) {
+  const wardCategories = WARD_CATEGORIES.map(c => ({ id: c, name: c }));
   const {
     register, handleSubmit, reset, setValue, watch,
     formState: { errors, isSubmitting },
