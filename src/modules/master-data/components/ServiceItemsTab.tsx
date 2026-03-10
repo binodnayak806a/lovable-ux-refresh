@@ -146,7 +146,6 @@ export default function ServiceItemsTab({ serviceItems, loading, hospitalId, onR
         serviceItem={editingItem}
         onSave={handleSave}
         categories={[...SERVICE_CATEGORIES]}
-        wards={wards.map(w => ({ id: w.id, name: w.name, ward_type: w.ward_type }))}
       />
     </div>
   );

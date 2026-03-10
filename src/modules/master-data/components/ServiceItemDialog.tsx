@@ -198,8 +198,8 @@ export default function ServiceItemDialog({
                   <Select value={wp.ward_id} onValueChange={(v) => updateWardPrice(idx, 'ward_id', v)}>
                     <SelectTrigger className="flex-1 h-9 text-sm bg-white"><SelectValue placeholder="Select ward" /></SelectTrigger>
                     <SelectContent>
-                      {wards.filter(w => !wardPrices.some((p, i) => i !== idx && p.ward_id === w.id)).map(w => (
-                        <SelectItem key={w.id} value={w.id}>{w.name} ({w.ward_type})</SelectItem>
+                      {wardCategories.filter(w => !wardPrices.some((p, i) => i !== idx && p.ward_id === w.id)).map(w => (
+                        <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
