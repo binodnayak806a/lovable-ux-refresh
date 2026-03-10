@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   X, User, Calendar, Stethoscope, BedDouble, ClipboardList,
-  Activity, FileText, Clock, CreditCard, LogOut, NotebookPen, Tag, Printer,
+  Activity, FileText, Clock, CreditCard, LogOut, NotebookPen, Tag, Printer, FileSignature,
 } from 'lucide-react';
 import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
