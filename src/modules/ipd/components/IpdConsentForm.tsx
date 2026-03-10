@@ -213,7 +213,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                 {/* General Consent Terms */}
                 {sections.has('general_consent') && consentType === 'general' && (
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={sectionTitle('Terms of Consent')} />
+                    <SectionTitle>Terms of Consent</SectionTitle>
                     <ol style={{ paddingLeft: '20px', margin: 0 }}>
                       {GENERAL_CONSENT_TERMS.map((term, i) => (
                         <li key={i} style={{ marginBottom: '6px', fontSize: `${fs}px` }}>{term}</li>
