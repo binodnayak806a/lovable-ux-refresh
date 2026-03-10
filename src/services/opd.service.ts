@@ -93,7 +93,7 @@ const opdService = {
     form: RegistrationFormData
   ) {
     const uhid = mockStore.generateUHID();
-    const fullName = `${form.firstName} ${form.lastName}`.trim();
+    const fullName = [form.firstName, form.middleName, form.lastName].filter(Boolean).join(' ').trim();
 
     let dob = form.dateOfBirth;
     let age: number | null = null;
