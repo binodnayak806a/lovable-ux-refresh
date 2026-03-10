@@ -336,6 +336,7 @@ export default function CreateBillDialog({ open, onClose, onSuccess, hospitalId,
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="py-2 px-3 text-xs font-semibold text-gray-500 text-left">Item</th>
+                    <th className="py-2 px-3 text-xs font-semibold text-gray-500 text-left w-32">Category</th>
                     <th className="py-2 px-3 text-xs font-semibold text-gray-500 text-center w-16">Qty</th>
                     <th className="py-2 px-3 text-xs font-semibold text-gray-500 text-right w-24">Rate</th>
                     <th className="py-2 px-3 text-xs font-semibold text-gray-500 text-center w-20">GST %</th>
@@ -349,6 +350,14 @@ export default function CreateBillDialog({ open, onClose, onSuccess, hospitalId,
                       <td className="py-1.5 px-3">
                         <input value={item.name} onChange={e => updateItem(item.uid, 'name', e.target.value)}
                           placeholder="Item name" className="w-full text-sm outline-none bg-transparent" />
+                      </td>
+                      <td className="py-1.5 px-3">
+                        <select value={item.category} onChange={e => updateItem(item.uid, 'category', e.target.value)}
+                          className="w-full text-xs outline-none bg-transparent text-slate-700 cursor-pointer">
+                          {BILLING_CATEGORIES.map(c => (
+                            <option key={c.value} value={c.value}>{c.label}</option>
+                          ))}
+                        </select>
                       </td>
                       <td className="py-1.5 px-3">
                         <input type="number" min={1} value={item.quantity}
