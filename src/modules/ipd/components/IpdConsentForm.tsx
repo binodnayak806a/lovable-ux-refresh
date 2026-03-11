@@ -173,7 +173,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <div>
             <h3 className="text-base font-semibold text-foreground">
-              {consentType === 'general' ? 'Admission Consent Form' : 'Surgery / Procedure Consent Form'}
+              {consentType === 'general' ? 'Admission Consent Form' : consentType === 'surgery' ? 'Surgery / Procedure Consent Form' : 'LAMA — Leave Against Medical Advice'}
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               {admission.patient?.full_name} &bull; {admission.patient?.uhid} &bull; {paperSize}
