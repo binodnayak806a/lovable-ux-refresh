@@ -538,6 +538,10 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                     <RadioGroupItem value="surgery" id="ct-surgery" />
                     <Label htmlFor="ct-surgery" className="text-sm cursor-pointer">Surgery / Procedure</Label>
                   </div>
+                  <div className="flex items-center gap-1.5">
+                    <RadioGroupItem value="lama" id="ct-lama" />
+                    <Label htmlFor="ct-lama" className="text-sm cursor-pointer text-destructive font-medium">LAMA</Label>
+                  </div>
                 </RadioGroup>
               </div>
 
