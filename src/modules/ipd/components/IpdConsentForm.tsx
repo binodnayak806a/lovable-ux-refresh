@@ -1,6 +1,7 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import { Printer, X } from 'lucide-react';
 import { format } from 'date-fns';
+import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '../../../components/ui/button';
 import { Checkbox } from '../../../components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
@@ -8,6 +9,7 @@ import { ScrollArea } from '../../../components/ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
 import { Label } from '../../../components/ui/label';
 import { Separator } from '../../../components/ui/separator';
+import { Switch } from '../../../components/ui/switch';
 import type { Admission } from '../types';
 
 interface Props {
@@ -27,6 +29,7 @@ function calculateAge(dob: string | null): string {
 }
 
 type ConsentType = 'general' | 'surgery';
+type PaperSize = 'A4' | 'A5';
 
 interface SectionOption {
   key: string;
@@ -37,6 +40,7 @@ interface SectionOption {
 
 const SECTION_OPTIONS: SectionOption[] = [
   { key: 'header', label: 'Hospital Header', defaultChecked: true, types: ['general', 'surgery'] },
+  { key: 'qr', label: 'QR Code', defaultChecked: false, types: ['general', 'surgery'] },
   { key: 'patient_info', label: 'Patient Details', defaultChecked: true, types: ['general', 'surgery'] },
   { key: 'kin_info', label: 'Next of Kin / Guardian', defaultChecked: true, types: ['general', 'surgery'] },
   { key: 'admission_info', label: 'Admission Details', defaultChecked: true, types: ['general', 'surgery'] },
@@ -45,6 +49,7 @@ const SECTION_OPTIONS: SectionOption[] = [
   { key: 'risks', label: 'Risks & Complications', defaultChecked: true, types: ['surgery'] },
   { key: 'anesthesia', label: 'Anesthesia Consent', defaultChecked: true, types: ['surgery'] },
   { key: 'alternatives', label: 'Alternatives Discussed', defaultChecked: false, types: ['surgery'] },
+  { key: 'blood_transfusion', label: 'Blood Transfusion Consent', defaultChecked: false, types: ['surgery'] },
   { key: 'declaration', label: 'Patient Declaration', defaultChecked: true, types: ['general', 'surgery'] },
   { key: 'signatures', label: 'Signature Blocks', defaultChecked: true, types: ['general', 'surgery'] },
   { key: 'witness', label: 'Witness Signature', defaultChecked: false, types: ['general', 'surgery'] },
@@ -64,8 +69,21 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
   const printRef = useRef<HTMLDivElement>(null);
   const [consentType, setConsentType] = useState<ConsentType>('general');
   const [fontSize, setFontSize] = useState('11');
+  const [paperSize, setPaperSize] = useState<PaperSize>('A4');
+  const [blankLines, setBlankLines] = useState('3');
+  const [showBorder, setShowBorder] = useState(true);
   const [sections, setSections] = useState<Set<string>>(
     () => new Set(SECTION_OPTIONS.filter((s) => s.defaultChecked).map((s) => s.key))
+  );
+
+  const visibleSections = useMemo(
+    () => SECTION_OPTIONS.filter((s) => s.types.includes(consentType)),
+    [consentType]
+  );
+
+  const allVisible = useMemo(
+    () => visibleSections.every((s) => sections.has(s.key)),
+    [visibleSections, sections]
   );
 
   const toggleSection = useCallback((key: string) => {
@@ -77,35 +95,60 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
     });
   }, []);
 
+  const toggleAll = useCallback(() => {
+    setSections((prev) => {
+      if (allVisible) {
+        const next = new Set(prev);
+        visibleSections.forEach((s) => next.delete(s.key));
+        return next;
+      }
+      const next = new Set(prev);
+      visibleSections.forEach((s) => next.add(s.key));
+      return next;
+    });
+  }, [allVisible, visibleSections]);
+
   const handlePrint = useCallback(() => {
     if (!printRef.current) return;
     const printWindow = window.open('', '_blank', 'width=800,height=600');
     if (!printWindow) return;
 
     const content = printRef.current.innerHTML;
+    const pageCSS = paperSize === 'A5'
+      ? '@page { size: A5; margin: 10mm; }'
+      : '@page { size: A4; margin: 12mm; }';
+
     printWindow.document.write(`<!DOCTYPE html><html><head><title>Consent_${admission.patient?.uhid}</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; }
-        @media print { @page { size: A4; margin: 12mm; } }
+        @media print { ${pageCSS} }
       </style></head><body>${content}</body></html>`);
     printWindow.document.close();
     setTimeout(() => { printWindow.print(); printWindow.close(); }, 300);
-  }, [admission.patient?.uhid]);
+  }, [admission.patient?.uhid, paperSize]);
 
   const fs = parseInt(fontSize);
+  const lineCount = parseInt(blankLines);
   const hospital = hospitalName || 'Hospital';
   const dateStr = format(new Date(), 'dd-MMM-yyyy');
+  const timeStr = format(new Date(), 'hh:mm a');
   const admDateStr = admission.admission_date ? format(new Date(admission.admission_date), 'dd-MMM-yyyy') : '';
   const age = calculateAge(admission.patient?.date_of_birth ?? null);
-  const visibleSections = SECTION_OPTIONS.filter((s) => s.types.includes(consentType));
+  const previewWidth = paperSize === 'A5' ? '520px' : '680px';
+
+  const qrData = JSON.stringify({
+    uhid: admission.patient?.uhid,
+    admNo: admission.admission_number,
+    date: dateStr,
+  });
 
   const labelStyle: React.CSSProperties = { fontWeight: 600, color: '#334155', display: 'inline-block', width: '140px' };
   const valueStyle: React.CSSProperties = { fontWeight: 700, color: '#0f172a' };
   const SectionTitle = ({ children }: { children: string }) => (
     <div style={{
       fontSize: `${fs + 2}px`, fontWeight: 700, color: '#0f172a', marginBottom: '8px',
-      textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px',
+      textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1.5px solid #cbd5e1', paddingBottom: '4px',
     }}>
       {children}
     </div>
@@ -113,6 +156,10 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
   const blankLine = (width = '200px'): React.CSSProperties => ({
     borderBottom: '1px dotted #94a3b8', display: 'inline-block', width, minHeight: '18px',
   });
+  const renderBlankLines = (count?: number) =>
+    Array.from({ length: count ?? lineCount }).map((_, i) => (
+      <div key={i} style={{ borderBottom: '1px dotted #cbd5e1', height: '24px' }} />
+    ));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -125,7 +172,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
               {consentType === 'general' ? 'Admission Consent Form' : 'Surgery / Procedure Consent Form'}
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {admission.patient?.full_name} | {admission.patient?.uhid}
+              {admission.patient?.full_name} &bull; {admission.patient?.uhid} &bull; {paperSize}
             </p>
           </div>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose}>
@@ -141,25 +188,37 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                 ref={printRef}
                 style={{
                   fontFamily: 'Arial, sans-serif',
-                  padding: '32px',
+                  padding: paperSize === 'A5' ? '24px' : '32px',
                   background: '#fff',
-                  width: '680px',
+                  width: previewWidth,
                   fontSize: `${fs}px`,
                   lineHeight: 1.7,
                   color: '#334155',
-                  border: '1px solid #e2e8f0',
+                  border: showBorder ? '1px solid #e2e8f0' : 'none',
                 }}
               >
                 {/* Hospital Header */}
                 {sections.has('header') && (
-                  <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '12px', marginBottom: '16px' }}>
+                  <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '12px', marginBottom: '16px', position: 'relative' }}>
+                    {sections.has('qr') && (
+                      <div style={{ position: 'absolute', right: 0, top: 0 }}>
+                        <QRCodeSVG value={qrData} size={56} level="M" />
+                      </div>
+                    )}
                     <div style={{ fontSize: `${fs + 8}px`, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '1px' }}>
                       {hospital}
                     </div>
                     <div style={{ fontSize: `${fs + 1}px`, fontWeight: 700, color: '#475569', marginTop: '4px' }}>
                       {consentType === 'general' ? 'INFORMED CONSENT FOR ADMISSION & TREATMENT' : 'INFORMED CONSENT FOR SURGERY / PROCEDURE'}
                     </div>
-                    <div style={{ fontSize: `${fs - 1}px`, color: '#64748b', marginTop: '2px' }}>Date: {dateStr}</div>
+                    <div style={{ fontSize: `${fs - 1}px`, color: '#64748b', marginTop: '2px' }}>Date: {dateStr} &nbsp;&bull;&nbsp; Time: {timeStr}</div>
+                  </div>
+                )}
+
+                {/* QR without header */}
+                {!sections.has('header') && sections.has('qr') && (
+                  <div style={{ textAlign: 'right', marginBottom: '12px' }}>
+                    <QRCodeSVG value={qrData} size={56} level="M" />
                   </div>
                 )}
 
@@ -173,7 +232,10 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                       <div><span style={labelStyle}>Age / Gender:</span> <span style={valueStyle}>{age} / {admission.patient?.gender || ''}</span></div>
                       <div><span style={labelStyle}>Mobile:</span> <span style={valueStyle}>{admission.patient?.phone || '---'}</span></div>
                       {admission.patient?.blood_group && (
-                        <div><span style={labelStyle}>Blood Group:</span> <span style={valueStyle}>{admission.patient.blood_group}</span></div>
+                        <div><span style={labelStyle}>Blood Group:</span> <span style={{ ...valueStyle, color: '#dc2626' }}>{admission.patient.blood_group}</span></div>
+                      )}
+                      {(admission.patient as any)?.address && (
+                        <div style={{ gridColumn: '1 / -1' }}><span style={labelStyle}>Address:</span> <span style={valueStyle}>{(admission.patient as any).address}</span></div>
                       )}
                     </div>
                   </div>
@@ -188,6 +250,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                       <div><span style={labelStyle}>Relationship:</span> <span style={blankLine('150px')} /></div>
                       <div><span style={labelStyle}>Phone:</span> <span style={blankLine('180px')} /></div>
                       <div><span style={labelStyle}>ID Proof No:</span> <span style={blankLine('150px')} /></div>
+                      <div style={{ gridColumn: '1 / -1' }}><span style={labelStyle}>Address:</span> <span style={blankLine('400px')} /></div>
                     </div>
                   </div>
                 )}
@@ -197,9 +260,9 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                   <div style={{ marginBottom: '16px' }}>
                     <SectionTitle>Admission Details</SectionTitle>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
-                      <div><span style={labelStyle}>Admission No:</span> <span style={valueStyle}>{admission.admission_number}</span></div>
+                      <div><span style={labelStyle}>Admission No:</span> <span style={{ ...valueStyle, fontFamily: 'monospace' }}>{admission.admission_number}</span></div>
                       <div><span style={labelStyle}>Admission Date:</span> <span style={valueStyle}>{admDateStr}</span></div>
-                      <div><span style={labelStyle}>Ward / Bed:</span> <span style={valueStyle}>{admission.bed?.ward?.name || ''} - {admission.bed?.bed_number || ''}</span></div>
+                      <div><span style={labelStyle}>Ward / Bed:</span> <span style={valueStyle}>{admission.bed?.ward?.name || ''} – {admission.bed?.bed_number || ''}</span></div>
                       <div><span style={labelStyle}>Doctor:</span> <span style={valueStyle}>Dr. {admission.doctor?.full_name || ''}</span></div>
                       {admission.primary_diagnosis && (
                         <div style={{ gridColumn: '1 / -1' }}>
@@ -250,8 +313,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                     </ul>
                     <div style={{ marginTop: '8px' }}>
                       <span style={labelStyle}>Additional risks noted:</span>
-                      <div style={blankLine('100%')} />
-                      <div style={{ ...blankLine('100%'), marginTop: '8px' }} />
+                      {renderBlankLines(2)}
                     </div>
                   </div>
                 )}
@@ -280,9 +342,25 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                   <div style={{ marginBottom: '16px' }}>
                     <SectionTitle>Alternatives Discussed</SectionTitle>
                     <p>The following alternative treatment options have been discussed with me:</p>
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} style={{ borderBottom: '1px dotted #cbd5e1', height: '28px', marginTop: '4px' }} />
-                    ))}
+                    {renderBlankLines()}
+                  </div>
+                )}
+
+                {/* Blood Transfusion */}
+                {sections.has('blood_transfusion') && consentType === 'surgery' && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <SectionTitle>Blood Transfusion Consent</SectionTitle>
+                    <p style={{ marginBottom: '6px' }}>
+                      I understand that blood transfusion may be required during or after the procedure. I have been informed of the risks including allergic reactions, infections, and transfusion-related complications.
+                    </p>
+                    <div style={{ lineHeight: 2.2 }}>
+                      <div>
+                        <span style={labelStyle}>Consent:</span>{' '}
+                        <span style={{ marginRight: '24px' }}>☐ I consent to blood transfusion</span>
+                        <span>☐ I refuse blood transfusion</span>
+                      </div>
+                      <div><span style={labelStyle}>Blood Group:</span> <span style={{ ...valueStyle, color: '#dc2626' }}>{admission.patient?.blood_group || '____'}</span></div>
+                    </div>
                   </div>
                 )}
 
@@ -351,6 +429,11 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                     </div>
                   </div>
                 )}
+
+                {/* Footer */}
+                <div style={{ marginTop: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '6px', textAlign: 'center', fontSize: `${fs - 2}px`, color: '#94a3b8' }}>
+                  This is a computer-generated consent form. Printed on {dateStr} at {timeStr}.
+                </div>
               </div>
             </div>
           </div>
@@ -360,7 +443,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
             <div className="p-4 space-y-4">
               <Button className="w-full gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={handlePrint}>
                 <Printer className="w-4 h-4" />
-                Print
+                Print Consent
               </Button>
 
               {/* Consent Type */}
@@ -382,26 +465,61 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                 </RadioGroup>
               </div>
 
-              {/* Font Size */}
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Font Size</p>
-                <Select value={fontSize} onValueChange={setFontSize}>
-                  <SelectTrigger className="h-9 w-24 text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
+              {/* Paper & Font */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Paper</p>
+                  <Select value={paperSize} onValueChange={(v) => setPaperSize(v as PaperSize)}>
+                    <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="A4">A4</SelectItem>
+                      <SelectItem value="A5">A5</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Font</p>
+                  <Select value={fontSize} onValueChange={setFontSize}>
+                    <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {['9', '10', '11', '12', '13'].map((s) => (
+                        <SelectItem key={s} value={s}>{s}px</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Blank Lines */}
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Blank Lines</p>
+                <Select value={blankLines} onValueChange={setBlankLines}>
+                  <SelectTrigger className="h-9 w-20 text-sm"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {['9', '10', '11', '12', '13'].map((s) => (
-                      <SelectItem key={s} value={s}>{s}px</SelectItem>
+                    {['2', '3', '4', '5', '6'].map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Border toggle */}
+              <div className="flex items-center justify-between">
+                <Label className="text-sm text-foreground">Show Border</Label>
+                <Switch checked={showBorder} onCheckedChange={setShowBorder} />
               </div>
             </div>
 
             <Separator />
 
-            <div className="px-4 pt-3 pb-1">
+            <div className="px-4 pt-3 pb-1 flex items-center justify-between">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Sections</p>
+              <button
+                onClick={toggleAll}
+                className="text-xs text-primary hover:underline font-medium"
+              >
+                {allVisible ? 'Deselect All' : 'Select All'}
+              </button>
             </div>
             <ScrollArea className="flex-1 px-4 pb-4">
               <div className="space-y-1">
