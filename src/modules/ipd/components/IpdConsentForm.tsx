@@ -213,7 +213,7 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                       {hospital}
                     </div>
                     <div style={{ fontSize: `${fs + 1}px`, fontWeight: 700, color: '#475569', marginTop: '4px' }}>
-                      {consentType === 'general' ? 'INFORMED CONSENT FOR ADMISSION & TREATMENT' : 'INFORMED CONSENT FOR SURGERY / PROCEDURE'}
+                      {consentType === 'general' ? 'INFORMED CONSENT FOR ADMISSION & TREATMENT' : consentType === 'surgery' ? 'INFORMED CONSENT FOR SURGERY / PROCEDURE' : 'DISCHARGE AGAINST MEDICAL ADVICE (LAMA)'}
                     </div>
                     <div style={{ fontSize: `${fs - 1}px`, color: '#64748b', marginTop: '2px' }}>Date: {dateStr} &nbsp;&bull;&nbsp; Time: {timeStr}</div>
                   </div>
