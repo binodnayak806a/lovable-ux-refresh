@@ -28,7 +28,7 @@ function calculateAge(dob: string | null): string {
   return `${age}Y`;
 }
 
-type ConsentType = 'general' | 'surgery';
+type ConsentType = 'general' | 'surgery' | 'lama';
 type PaperSize = 'A4' | 'A5';
 
 interface SectionOption {
