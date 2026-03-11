@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback, useMemo } from 'react';
-import { Printer, X, QrCode } from 'lucide-react';
+import { Printer, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '../../../components/ui/button';
