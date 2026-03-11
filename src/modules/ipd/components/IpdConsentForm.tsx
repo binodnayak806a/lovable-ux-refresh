@@ -39,20 +39,24 @@ interface SectionOption {
 }
 
 const SECTION_OPTIONS: SectionOption[] = [
-  { key: 'header', label: 'Hospital Header', defaultChecked: true, types: ['general', 'surgery'] },
-  { key: 'qr', label: 'QR Code', defaultChecked: false, types: ['general', 'surgery'] },
-  { key: 'patient_info', label: 'Patient Details', defaultChecked: true, types: ['general', 'surgery'] },
-  { key: 'kin_info', label: 'Next of Kin / Guardian', defaultChecked: true, types: ['general', 'surgery'] },
-  { key: 'admission_info', label: 'Admission Details', defaultChecked: true, types: ['general', 'surgery'] },
+  { key: 'header', label: 'Hospital Header', defaultChecked: true, types: ['general', 'surgery', 'lama'] },
+  { key: 'qr', label: 'QR Code', defaultChecked: false, types: ['general', 'surgery', 'lama'] },
+  { key: 'patient_info', label: 'Patient Details', defaultChecked: true, types: ['general', 'surgery', 'lama'] },
+  { key: 'kin_info', label: 'Next of Kin / Guardian', defaultChecked: true, types: ['general', 'surgery', 'lama'] },
+  { key: 'admission_info', label: 'Admission Details', defaultChecked: true, types: ['general', 'surgery', 'lama'] },
   { key: 'general_consent', label: 'General Consent Terms', defaultChecked: true, types: ['general'] },
   { key: 'procedure_info', label: 'Procedure / Surgery Info', defaultChecked: true, types: ['surgery'] },
   { key: 'risks', label: 'Risks & Complications', defaultChecked: true, types: ['surgery'] },
   { key: 'anesthesia', label: 'Anesthesia Consent', defaultChecked: true, types: ['surgery'] },
   { key: 'alternatives', label: 'Alternatives Discussed', defaultChecked: false, types: ['surgery'] },
   { key: 'blood_transfusion', label: 'Blood Transfusion Consent', defaultChecked: false, types: ['surgery'] },
-  { key: 'declaration', label: 'Patient Declaration', defaultChecked: true, types: ['general', 'surgery'] },
-  { key: 'signatures', label: 'Signature Blocks', defaultChecked: true, types: ['general', 'surgery'] },
-  { key: 'witness', label: 'Witness Signature', defaultChecked: false, types: ['general', 'surgery'] },
+  { key: 'lama_statement', label: 'LAMA Declaration', defaultChecked: true, types: ['lama'] },
+  { key: 'lama_risks', label: 'Risks of Leaving', defaultChecked: true, types: ['lama'] },
+  { key: 'lama_advice', label: 'Medical Advice Given', defaultChecked: true, types: ['lama'] },
+  { key: 'lama_condition', label: 'Condition at Discharge', defaultChecked: true, types: ['lama'] },
+  { key: 'declaration', label: 'Patient Declaration', defaultChecked: true, types: ['general', 'surgery', 'lama'] },
+  { key: 'signatures', label: 'Signature Blocks', defaultChecked: true, types: ['general', 'surgery', 'lama'] },
+  { key: 'witness', label: 'Witness Signature', defaultChecked: true, types: ['lama'] },
 ];
 
 const GENERAL_CONSENT_TERMS = [
