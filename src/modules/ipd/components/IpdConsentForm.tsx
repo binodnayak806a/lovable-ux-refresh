@@ -368,12 +368,84 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                   </div>
                 )}
 
+                {/* LAMA Declaration */}
+                {sections.has('lama_statement') && consentType === 'lama' && (
+                  <div style={{ marginBottom: '16px', padding: '12px', background: '#fef2f2', borderRadius: '4px', border: '1px solid #fecaca' }}>
+                    <SectionTitle>LAMA Declaration</SectionTitle>
+                    <p style={{ marginBottom: '8px' }}>
+                      I, <strong>{admission.patient?.full_name || '_______________'}</strong>, UHID <strong>{admission.patient?.uhid || '______'}</strong>,
+                      hereby declare that I am leaving the hospital <strong>against the medical advice</strong> of my treating doctor(s).
+                    </p>
+                    <p style={{ marginBottom: '8px' }}>
+                      I have been informed that my treatment is not yet complete and that leaving the hospital at this stage may result in serious health consequences, including but not limited to worsening of my condition, permanent disability, or death.
+                    </p>
+                    <p>
+                      I am making this decision voluntarily and of my own free will, without any coercion or pressure from any person. I take full responsibility for the consequences of this decision.
+                    </p>
+                  </div>
+                )}
+
+                {/* LAMA – Risks of Leaving */}
+                {sections.has('lama_risks') && consentType === 'lama' && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <SectionTitle>Risks of Leaving Against Medical Advice</SectionTitle>
+                    <ul style={{ paddingLeft: '20px', margin: 0 }}>
+                      <li>Worsening of the current medical condition</li>
+                      <li>Development of new complications requiring emergency treatment</li>
+                      <li>Need for re-admission with a more critical condition</li>
+                      <li>Permanent disability or irreversible damage</li>
+                      <li>Death</li>
+                    </ul>
+                    <div style={{ marginTop: '8px' }}>
+                      <span style={labelStyle}>Other risks noted:</span>
+                      {renderBlankLines(2)}
+                    </div>
+                  </div>
+                )}
+
+                {/* LAMA – Medical Advice Given */}
+                {sections.has('lama_advice') && consentType === 'lama' && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <SectionTitle>Medical Advice Given</SectionTitle>
+                    <p style={{ marginBottom: '8px' }}>The treating doctor has advised the following:</p>
+                    <div style={{ lineHeight: 2.2 }}>
+                      <div><span style={labelStyle}>Ongoing Treatment:</span> <span style={blankLine('300px')} /></div>
+                      <div><span style={labelStyle}>Pending Investigations:</span> <span style={blankLine('260px')} /></div>
+                      <div><span style={labelStyle}>Medications Advised:</span> <span style={blankLine('260px')} /></div>
+                      <div><span style={labelStyle}>Follow-up Date:</span> <span style={blankLine('200px')} /></div>
+                    </div>
+                    <div style={{ marginTop: '8px' }}>
+                      <span style={labelStyle}>Additional Notes:</span>
+                      {renderBlankLines()}
+                    </div>
+                  </div>
+                )}
+
+                {/* LAMA – Condition at Discharge */}
+                {sections.has('lama_condition') && consentType === 'lama' && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <SectionTitle>Condition at Time of Leaving</SectionTitle>
+                    <div style={{ lineHeight: 2.2 }}>
+                      <div>
+                        <span style={labelStyle}>Condition:</span>{' '}
+                        {['Stable', 'Unstable', 'Critical'].map((c) => (
+                          <span key={c} style={{ marginRight: '20px' }}>☐ {c}</span>
+                        ))}
+                      </div>
+                      <div><span style={labelStyle}>Vitals at discharge:</span> <span style={blankLine('300px')} /></div>
+                      <div><span style={labelStyle}>Reason for LAMA:</span> <span style={blankLine('300px')} /></div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Declaration */}
                 {sections.has('declaration') && (
                   <div style={{ marginBottom: '16px', padding: '12px', background: '#f8fafc', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
                     <SectionTitle>Patient / Guardian Declaration</SectionTitle>
                     <p>
-                      I, the undersigned, hereby declare that I have read and understood the above information. I have been given the opportunity to ask questions, and all my queries have been answered satisfactorily. I voluntarily consent to the {consentType === 'general' ? 'admission and treatment' : 'proposed surgical / medical procedure'} described above.
+                      {consentType === 'lama'
+                        ? 'I, the undersigned, hereby declare that I am leaving the hospital against medical advice. I have been fully informed of the risks involved, including the possibility of deterioration and death. I absolve the hospital, its doctors, and staff of any responsibility arising from this decision.'
+                        : `I, the undersigned, hereby declare that I have read and understood the above information. I have been given the opportunity to ask questions, and all my queries have been answered satisfactorily. I voluntarily consent to the ${consentType === 'general' ? 'admission and treatment' : 'proposed surgical / medical procedure'} described above.`}
                     </p>
                   </div>
                 )}
