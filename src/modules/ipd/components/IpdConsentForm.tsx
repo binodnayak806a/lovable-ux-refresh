@@ -234,8 +234,8 @@ export default function IpdConsentForm({ admission, hospitalName, onClose }: Pro
                       {admission.patient?.blood_group && (
                         <div><span style={labelStyle}>Blood Group:</span> <span style={{ ...valueStyle, color: '#dc2626' }}>{admission.patient.blood_group}</span></div>
                       )}
-                      {admission.patient?.address && (
-                        <div style={{ gridColumn: '1 / -1' }}><span style={labelStyle}>Address:</span> <span style={valueStyle}>{admission.patient.address}</span></div>
+                      {(admission.patient as any)?.address && (
+                        <div style={{ gridColumn: '1 / -1' }}><span style={labelStyle}>Address:</span> <span style={valueStyle}>{(admission.patient as any).address}</span></div>
                       )}
                     </div>
                   </div>
