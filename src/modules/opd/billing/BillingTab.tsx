@@ -215,6 +215,19 @@ export default function BillingTab({ patient, consultationId, prescriptionId }: 
         </div>
       </div>
 
+      {/* Service Group Picker - Prominent placement */}
+      <Card className="border border-gray-100 shadow-sm">
+        <CardContent className="p-4">
+          <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Add from Service Master</h4>
+          <ServiceGroupPicker
+            hospitalId={hospitalId}
+            filterType="OPD"
+            onSelect={addFromServiceMaster}
+            compact
+          />
+        </CardContent>
+      </Card>
+
       <Card className="border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -254,18 +267,6 @@ export default function BillingTab({ patient, consultationId, prescriptionId }: 
             Add Custom Item
           </Button>
         </div>
-      </Card>
-
-      <Card className="border border-gray-100 shadow-sm">
-        <CardContent className="p-4">
-          <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Add from Service Master</h4>
-          <ServiceGroupPicker
-            hospitalId={hospitalId}
-            filterType="OPD"
-            onSelect={addFromServiceMaster}
-            compact
-          />
-        </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
