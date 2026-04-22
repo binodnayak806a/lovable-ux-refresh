@@ -1,5 +1,7 @@
 import { mockStore } from '../lib/mockStore';
 import { mockMasterStore } from '../lib/mockMasterStore';
+import { supabase } from '../lib/supabase';
+import patientService from './patient.service';
 
 export interface DepartmentOption {
   id: string;
@@ -71,8 +73,8 @@ const opdService = {
     }));
   },
 
-  async generateUHID(_hospitalId: string): Promise<string> {
-    return mockStore.generateUHID();
+  async generateUHID(hospitalId: string): Promise<string> {
+    return patientService.generateUHID(hospitalId);
   },
 
   async getAvailableSlots(doctorId: string, date: string): Promise<string[]> {
@@ -93,10 +95,10 @@ const opdService = {
     _userId: string,
     form: RegistrationFormData
   ) {
-    const uhid = mockStore.generateUHID();
+    const uhid = await patientService.generateUHID(hospitalId);
     const fullName = [form.firstName, form.middleName, form.lastName].filter(Boolean).join(' ').trim();
 
-    let dob = form.dateOfBirth;
+    let dob: string | null = form.dateOfBirth || null;
     let age: number | null = null;
     if (!dob && form.ageYears) {
       age = parseInt(form.ageYears, 10);
@@ -106,42 +108,63 @@ const opdService = {
       age = new Date().getFullYear() - new Date(dob).getFullYear();
     }
 
-    const patient = mockStore.addPatient({
-      id: mockStore.uuid(),
-      uhid,
+    const insertPayload = {
       hospital_id: hospitalId,
+      uhid,
+      first_name: form.firstName,
+      middle_name: form.middleName || null,
+      last_name: form.lastName || null,
       full_name: fullName,
-      phone: form.phone,
-      gender: form.gender,
-      date_of_birth: dob || null,
+      date_of_birth: dob,
       age,
+      gender: form.gender,
       blood_group: form.bloodGroup || null,
+      phone: form.phone,
       email: form.email || null,
-      address: form.address || '',
-      city: form.city || '',
-      state: form.state || '',
+      aadhar_number: form.aadharNumber || null,
+      address: form.address || null,
+      city: form.city || null,
+      state: form.state || null,
       pincode: form.pincode || null,
+      guardian_name: form.guardianName || null,
+      guardian_phone: form.guardianPhone || null,
+      guardian_relation: form.guardianRelation || null,
+      emergency_contact_name: form.emergencyContactName || null,
+      emergency_contact_phone: form.emergencyContactPhone || null,
+      allergies: form.allergies?.length ? form.allergies : null,
+      pre_existing_conditions: form.preExistingConditions?.length ? form.preExistingConditions : null,
+      current_medications: form.currentMedications || null,
       billing_category: form.billingCategory || 'cash',
+      policy_number: form.policyNumber || null,
       registration_type: form.appointmentType === 'Emergency' ? 'emergency' : 'walk-in',
       is_active: true,
-      created_at: new Date().toISOString(),
-    });
+    };
+
+    const { data: patient, error } = await supabase
+      .from('patients')
+      .insert(insertPayload as never)
+      .select()
+      .single();
+    if (error) throw error;
 
     let appointment = null;
     if (form.doctorId && form.appointmentDate) {
-      appointment = mockStore.addAppointment({
-        id: mockStore.uuid(),
-        hospital_id: hospitalId,
-        patient_id: patient.id,
-        doctor_id: form.doctorId,
-        appointment_date: form.appointmentDate,
-        appointment_time: (form.appointmentTime || '09:00') + ':00',
-        type: form.appointmentType === 'Follow-up' ? 'follow_up'
-          : form.appointmentType === 'Emergency' ? 'emergency' : 'opd',
-        status: 'scheduled',
-        chief_complaint: form.chiefComplaint || null,
-        created_at: new Date().toISOString(),
-      });
+      const { data: appt, error: apptErr } = await supabase
+        .from('appointments')
+        .insert({
+          hospital_id: hospitalId,
+          patient_id: (patient as { id: string }).id,
+          doctor_id: form.doctorId,
+          appointment_date: form.appointmentDate,
+          appointment_time: (form.appointmentTime || '09:00') + ':00',
+          type: form.appointmentType === 'Follow-up' ? 'follow_up'
+            : form.appointmentType === 'Emergency' ? 'emergency' : 'opd',
+          status: 'scheduled',
+          chief_complaint: form.chiefComplaint || null,
+        } as never)
+        .select()
+        .single();
+      if (!apptErr) appointment = appt;
     }
 
     return { patient, appointment };
@@ -151,11 +174,7 @@ const opdService = {
     patientId: string,
     form: RegistrationFormData
   ) {
-    const store = mockStore.get();
-    const idx = store.patients.findIndex(p => p.id === patientId);
-    if (idx === -1) throw new Error('Patient not found');
-
-    let dob = form.dateOfBirth;
+    let dob: string | null = form.dateOfBirth || null;
     let age: number | null = null;
     if (!dob && form.ageYears) {
       age = parseInt(form.ageYears, 10);
@@ -164,24 +183,39 @@ const opdService = {
       age = new Date().getFullYear() - new Date(dob).getFullYear();
     }
 
-    const updated = {
-      ...store.patients[idx],
+    const updates = {
+      first_name: form.firstName,
+      middle_name: form.middleName || null,
+      last_name: form.lastName || null,
       full_name: [form.firstName, form.middleName, form.lastName].filter(Boolean).join(' ').trim(),
-      date_of_birth: dob || null,
+      date_of_birth: dob,
       age,
       gender: form.gender,
       blood_group: form.bloodGroup || null,
       phone: form.phone,
       email: form.email || null,
-      address: form.address || '',
-      city: form.city || '',
-      state: form.state || '',
+      aadhar_number: form.aadharNumber || null,
+      address: form.address || null,
+      city: form.city || null,
+      state: form.state || null,
       pincode: form.pincode || null,
+      guardian_name: form.guardianName || null,
+      guardian_phone: form.guardianPhone || null,
+      guardian_relation: form.guardianRelation || null,
+      emergency_contact_name: form.emergencyContactName || null,
+      emergency_contact_phone: form.emergencyContactPhone || null,
       billing_category: form.billingCategory || 'cash',
+      policy_number: form.policyNumber || null,
     };
-    store.patients[idx] = updated;
-    localStorage.setItem('hms_mock_store', JSON.stringify(store));
-    return updated;
+
+    const { data, error } = await supabase
+      .from('patients')
+      .update(updates as never)
+      .eq('id', patientId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   },
 };
 

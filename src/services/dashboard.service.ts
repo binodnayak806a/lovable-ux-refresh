@@ -1,5 +1,6 @@
 import { mockStore } from '../lib/mockStore';
 import { mockMasterStore } from '../lib/mockMasterStore';
+import { supabase } from '../lib/supabase';
 
 export interface DashboardMetrics {
   totalAppointments: number;
@@ -240,18 +241,40 @@ const dashboardService = {
       .reduce((sum, b) => sum + (b.total_amount - b.amount_paid), 0) || 24500;
   },
 
-  // Keep these for compatibility but use mockStore
+  // Real DB-backed list with search, filter, pagination
   async getPatients(hospitalId: string, filters: PatientFilters = {}) {
-    const store = mockStore.get();
-    let patients = store.patients.filter(p => p.hospital_id === hospitalId);
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      patients = patients.filter(p => p.full_name.toLowerCase().includes(q) || p.uhid.toLowerCase().includes(q) || p.phone.includes(q));
-    }
     const page = filters.page ?? 1;
     const limit = filters.limit ?? 20;
     const from = (page - 1) * limit;
-    return { data: patients.slice(from, from + limit), total: patients.length, page, limit, totalPages: Math.ceil(patients.length / limit) };
+    const to = from + limit - 1;
+    const sortBy = filters.sortBy ?? 'created_at';
+    const sortOrder = filters.sortOrder ?? 'desc';
+
+    let query = supabase
+      .from('patients')
+      .select('*', { count: 'exact' })
+      .eq('hospital_id', hospitalId)
+      .order(sortBy, { ascending: sortOrder === 'asc' })
+      .range(from, to);
+
+    if (filters.registrationType) {
+      query = query.eq('registration_type', filters.registrationType);
+    }
+    if (filters.search?.trim()) {
+      const q = filters.search.trim();
+      query = query.or(`full_name.ilike.%${q}%,uhid.ilike.%${q}%,phone.ilike.%${q}%`);
+    }
+
+    const { data, error, count } = await query;
+    if (error) throw error;
+    const total = count ?? 0;
+    return {
+      data: data ?? [],
+      total,
+      page,
+      limit,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    };
   },
 
   async getAppointments(hospitalId: string, filters: AppointmentFilters = {}) {

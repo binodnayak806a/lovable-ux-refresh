@@ -14,7 +14,7 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 import { useAppSelector } from '../../store';
 import { useToast } from '../../hooks/useToast';
 import opdService from '../../services/opd.service';
-import { mockStore } from '../../lib/mockStore';
+import { supabase } from '../../lib/supabase';
 import PatientStickerPrint from './components/PatientStickerPrint';
 import type { RegistrationFormData } from '../opd/types';
 import {
@@ -104,12 +104,16 @@ export default function AddPatientPage() {
     if (!dismissedDuplicates) {
       try {
         const fullName = [form.firstName, form.middleName, form.lastName].filter(s => s.trim()).join(' ').trim();
-        const allPatients = mockStore.getPatients(hospitalId);
-        const found = allPatients
-          .filter(p => p.phone === form.phone || p.full_name.toLowerCase() === fullName.toLowerCase())
-          .slice(0, 3)
-          .map(p => ({ id: p.id, full_name: p.full_name, uhid: p.uhid, phone: p.phone, age: p.age, gender: p.gender }));
-        if (found.length > 0) { setDuplicates(found); return; }
+        const { data: matches } = await supabase
+          .from('patients')
+          .select('id, full_name, uhid, phone, age, gender')
+          .eq('hospital_id', hospitalId)
+          .or(`phone.eq.${form.phone},full_name.ilike.${fullName}`)
+          .limit(3);
+        if (matches && matches.length > 0) {
+          setDuplicates(matches as DuplicatePatient[]);
+          return;
+        }
       } catch { /* noop */ }
     }
 
