@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase';
 import { mockStore } from '../lib/mockStore';
 
 export interface PatientDetail {
@@ -105,46 +106,66 @@ export interface PatientPrescription {
 }
 
 const patientService = {
-  async generateUHID(_hospitalId: string): Promise<string> {
-    return mockStore.generateUHID();
+  /**
+   * Generates a sequential UHID per hospital using the current count + a random suffix.
+   * Format: UHID-YYYYMMDD-XXXX
+   */
+  async generateUHID(hospitalId: string): Promise<string> {
+    const d = new Date();
+    const dateStr = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+    // Count today's patients in this hospital to get a sequential number
+    const startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString();
+    const { count } = await supabase
+      .from('patients')
+      .select('id', { count: 'exact', head: true })
+      .eq('hospital_id', hospitalId)
+      .gte('created_at', startOfDay);
+    const seq = String((count ?? 0) + 1).padStart(4, '0');
+    return `UHID-${dateStr}-${seq}`;
   },
 
   async getPatientById(patientId: string): Promise<PatientDetail | null> {
-    const p = mockStore.getPatientById(patientId);
-    if (!p) return null;
+    const { data, error } = await supabase
+      .from('patients')
+      .select('*')
+      .eq('id', patientId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return null;
+    const p = data as Record<string, unknown>;
     return {
-      id: p.id,
-      uhid: p.uhid,
-      hospital_id: p.hospital_id,
-      full_name: p.full_name,
-      date_of_birth: p.date_of_birth || '',
-      age: p.age,
-      gender: p.gender,
-      blood_group: p.blood_group,
-      phone: p.phone,
-      email: p.email,
-      address: p.address,
-      city: p.city,
-      state: p.state,
-      pincode: p.pincode,
+      id: p.id as string,
+      uhid: p.uhid as string,
+      hospital_id: p.hospital_id as string,
+      full_name: p.full_name as string,
+      date_of_birth: (p.date_of_birth as string) || '',
+      age: (p.age as number | null) ?? null,
+      gender: (p.gender as string) || '',
+      blood_group: (p.blood_group as string | null) ?? null,
+      phone: (p.phone as string) || '',
+      email: (p.email as string | null) ?? null,
+      address: (p.address as string) || '',
+      city: (p.city as string) || '',
+      state: (p.state as string) || '',
+      pincode: (p.pincode as string | null) ?? null,
       nationality: 'Indian',
-      marital_status: null,
+      marital_status: (p.marital_status as string | null) ?? null,
       occupation: null,
       referred_by: null,
-      emergency_contact_name: null,
-      emergency_contact_phone: null,
-      emergency_contact_relation: null,
-      aadhar_number: null,
+      emergency_contact_name: (p.emergency_contact_name as string | null) ?? null,
+      emergency_contact_phone: (p.emergency_contact_phone as string | null) ?? null,
+      emergency_contact_relation: (p.guardian_relation as string | null) ?? null,
+      aadhar_number: (p.aadhar_number as string | null) ?? null,
       aadhaar_url: null,
       insurance_provider: null,
-      insurance_number: null,
+      insurance_number: (p.policy_number as string | null) ?? null,
       insurance_expiry: null,
-      registration_type: p.registration_type,
-      billing_category: p.billing_category,
+      registration_type: (p.registration_type as string | null) ?? null,
+      billing_category: (p.billing_category as string | null) ?? null,
       custom_field_values: null,
-      is_active: p.is_active,
-      created_at: p.created_at,
-      updated_at: p.created_at,
+      is_active: (p.is_active as boolean) ?? true,
+      created_at: p.created_at as string,
+      updated_at: (p.updated_at as string) || (p.created_at as string),
     };
   },
 
